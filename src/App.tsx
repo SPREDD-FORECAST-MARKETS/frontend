@@ -1,10 +1,10 @@
 // src/App.tsx
 import { BrowserRouter, Route, Routes } from "react-router-dom"
 import { PrivyProvider } from '@privy-io/react-auth'
-import LandingPage from "./pages/LandingPage"
 import Navbar from "./components/Navbar"
 import Footer from "./components/Footer"
 import { privyConfig, PRIVY_APP_ID } from "./lib/privy"
+import Explore from "./pages/Explore"
 
 function App() {
   if (!PRIVY_APP_ID) {
@@ -15,7 +15,7 @@ function App() {
       appId={PRIVY_APP_ID || 'fallback-app-id'}
       config={privyConfig}
     >
-      <div className="flex flex-col min-h-screenbg-black ">
+      <div className="flex flex-col min-h-screen bg-black ">
         <BrowserRouter>
           <Navbar />
           <main className="flex-grow">
