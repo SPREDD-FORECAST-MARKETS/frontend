@@ -15,12 +15,12 @@ function App() {
       appId={PRIVY_APP_ID || 'fallback-app-id'}
       config={privyConfig}
     >
-      <div className="flex flex-col min-h-screen">
+      <div className="flex flex-col min-h-screenbg-black ">
         <BrowserRouter>
           <Navbar />
           <main className="flex-grow">
             <Routes>
-              <Route path="/" element={<LandingPage />} />
+              <Route path="/" element={<Explore />} />
               <Route path="/about" element={<div>About</div>} />
               <Route path="/contact" element={<div>Contact</div>} />
             </Routes>
