@@ -1,46 +1,98 @@
-import { useState, useEffect, useRef } from 'react';
-import { RefreshCw, Settings, Info, ArrowUp, ArrowDown } from 'lucide-react';
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { RefreshCw, Settings, Info, ArrowUp, ArrowDown, AlertCircle } from 'lucide-react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
+
+// Define proper TypeScript interfaces for the market data
+interface MarketData {
+  id: string;
+  name: string;
+  type: string;
+  outcomes: {
+    yes: string;
+    no: string;
+  };
+  category: string;
+  endDate: string;
+  creator: string;
+  volume: string;
+  probabilities: {
+    yes: number;
+    no: number;
+  };
+  description: string;
+  iconUrl?: string;
+}
+
+interface ChartDataPoint {
+  time: number;
+  open: number;
+  high: number;
+  low: number;
+  close: number;
+}
+
+// Define the component state with proper typing
+interface TradeState {
+  activeTimeframe: '1H' | '6H' | '1D' | '1W' | '1M' | '6M';
+  quantity: number;
+  isBuy: boolean;
+  currentPrice: number;
+  priceChange: number;
+  status: 'idle' | 'loading' | 'success' | 'error';
+  error: string | null;
+  marketData: MarketData | null;
+  chartData: ChartDataPoint[] | null;
+}
+
+// Initial state
+const initialState: TradeState = {
+  activeTimeframe: '1D',
+  quantity: 10,
+  isBuy: true,
+  currentPrice: 0,
+  priceChange: 0,
+  status: 'idle',
+  error: null,
+  marketData: null,
+  chartData: null
+};
 
 const Trade = () => {
   // Get marketId from URL params
-  const { marketId } = useParams();
+  const { marketId } = useParams<{ marketId: string }>();
   const navigate = useNavigate();
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   
-  const [state, setState] = useState({
-    activeTimeframe: '1H', 
-    quantity: 10, 
-    isBuy: true,
-    currentPrice: 0.54, 
-    priceChange: 1.2, 
-    loading: true,
-    marketData: null
-  });
-  const canvasRef = useRef(null);
-  const { activeTimeframe, quantity, isBuy, currentPrice, priceChange, loading, marketData } = state;
+  const [state, setState] = useState<TradeState>(initialState);
   
-  useEffect(() => {
-    fetchMarketData();
-    // If there's no marketId, we could redirect to the explore page or show a message
-    if (!marketId) {
-      console.log("No market ID provided, using default market data");
-    }
-  }, [marketId]);
+  const { 
+    activeTimeframe, 
+    quantity, 
+    isBuy, 
+    currentPrice, 
+    priceChange, 
+    status, 
+    error, 
+    marketData, 
+    chartData 
+  } = state;
+
+
+  const updateState = useCallback((updates: Partial<TradeState>) => {
+    setState(prev => ({ ...prev, ...updates }));
+  }, []);
   
-  useEffect(() => {
-    if (!marketData) return;
-    drawChartWithDelay();
-    const handleResize = () => drawChart();
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, [activeTimeframe, marketData]);
-  
-  const fetchMarketData = async () => {
-    setState(s => ({ ...s, loading: true }));
+  // Fetch market data
+  const fetchMarketData = useCallback(async () => {
     try {
-      // In a real application, you would fetch the data based on the marketId
-      // Here we're simulating it with mock data
-      const mockData = {
+      updateState({ status: 'loading', error: null });
+      // const response = await fetch(`/api/markets/${marketId}`);
+      // const data = await response.json();
+      
+      // delay and return mock data for now
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      const mockData: MarketData = {
         id: marketId || '123',
         name: marketId ? `Market ${marketId}` : 'AI Breakthrough Prediction',
         type: 'Tech Forecast',
@@ -53,30 +105,78 @@ const Trade = () => {
         description: 'This forecast resolves to YES if OpenAI officially releases GPT-5 during the 2025 calendar year. Resolution will be based on official announcements and verified releases.'
       };
       
-      setTimeout(() => setState(s => ({ ...s, marketData: mockData, loading: false })), 300);
-    } catch (error) {
-      console.error("Error fetching market data:", error);
-      setState(s => ({ ...s, loading: false }));
-    }
-  };
+      updateState({ 
+        marketData: mockData, 
+        status: 'success',
+        currentPrice: mockData.probabilities.yes,
+        priceChange: (Math.random() * 4 - 2)
+      });
+      
 
-  const updateState = updates => setState(s => ({ ...s, ...updates }));
+      fetchChartData();
+      
+    } catch (err) {
+      console.error("Error fetching market data:", err);
+      updateState({ 
+        status: 'error', 
+        error: err instanceof Error ? err.message : 'Failed to load market data' 
+      });
+    }
+  }, [marketId, updateState]);
+
+
+  const fetchChartData = useCallback(async () => {
+    try {
+      //  separate api call for final
+      // mock data for now
+      const data = generateChartData();
+      
+      updateState({ 
+        chartData: data,
+        currentPrice: data[data.length - 1].close
+      });
+      
+      drawChart(data);
+      
+    } catch (err) {
+      console.error("Error fetching chart data:", err);
+      updateState({ 
+        error: err instanceof Error ? err.message : 'Failed to load chart data' 
+      });
+    }
+  }, [activeTimeframe, updateState]);
   
-  const drawChartWithDelay = () => {
-    setState(s => ({ ...s, loading: true }));
-    setTimeout(() => {
-      drawChart();
-      setState(s => ({ ...s, loading: false }));
-    }, 100);
-  };
+  useEffect(() => {
+    fetchMarketData();
+  }, [marketId, fetchMarketData]);
   
-  const drawChart = () => {
+  useEffect(() => {
+    if (!chartData) return;
+    
+    const handleResize = () => drawChart(chartData);
+    window.addEventListener('resize', handleResize);
+    
+    return () => window.removeEventListener('resize', handleResize);
+  }, [chartData]);
+  
+  // Draw chart when timeframe changes
+  useEffect(() => {
+    if (state.status === 'success' && chartData) {
+      drawChart(chartData);
+    }
+  }, [activeTimeframe, chartData]);
+  
+  const drawChart = (data: ChartDataPoint[]) => {
     try {
       const canvas = canvasRef.current;
       if (!canvas) return;
       
       const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+      
       const parent = canvas.parentElement;
+      if (!parent) return;
+      
       canvas.width = parent.clientWidth || 800;
       canvas.height = parent.clientHeight || 360;
       
@@ -110,21 +210,21 @@ const Trade = () => {
       
       drawGrid();
       
-      // Generate chart data
-      const data = generateChartData();
-      
       // Draw candlestick chart
       drawCandlestickChart(ctx, data, canvas.width, canvas.height);
       
-      if (data.length > 0) {
-        setState(s => ({ ...s, currentPrice: data[data.length - 1].close }));
-      }
     } catch (error) {
       console.error("Error drawing chart:", error);
     }
   };
   
-  const drawCandlestickChart = (ctx, data, width, height) => {
+  // Draw candlestick chart
+  const drawCandlestickChart = (
+    ctx: CanvasRenderingContext2D, 
+    data: ChartDataPoint[], 
+    width: number, 
+    height: number
+  ) => {
     if (!data || data.length === 0) return;
     
     // Find min/max for scaling
@@ -135,7 +235,7 @@ const Trade = () => {
     maxPrice = Math.min(1, maxPrice + padding);
     
     // Scale Y values
-    const scaleY = value => height - ((value - minPrice) / (maxPrice - minPrice || 1)) * height;
+    const scaleY = (value: number) => height - ((value - minPrice) / (maxPrice - minPrice || 1)) * height;
     
     // Candle dimensions
     const candleWidth = Math.min(16, width / Math.max(1, data.length) * 0.8);
@@ -201,23 +301,33 @@ const Trade = () => {
     }
   };
   
-  const generateChartData = () => {
-    const getTimeIncrement = tf => {
-      const map = { '1H': 2, '6H': 10, '1D': 30, '1W': 120, '1M': 480, '6M': 1440 };
+  // Generate mock chart data for now - will be replaced by API call later
+  const generateChartData = (): ChartDataPoint[] => {
+    const getTimeIncrement = (tf: string) => {
+      const map: Record<string, number> = { 
+        '1H': 2, '6H': 10, '1D': 30, '1W': 120, '1M': 480, '6M': 1440 
+      };
       return (map[tf] || 2) * 60 * 1000;
     };
     
-    const data = [];
+    const data: ChartDataPoint[] = [];
     const now = new Date();
     let baseValue = 0.5;
     let lastClose = baseValue;
     const timeIncrement = getTimeIncrement(activeTimeframe);
     const pointCount = 75;
-    const volatility = { '1H': 0.01, '6H': 0.015, '1D': 0.02, '1W': 0.025, '1M': 0.03, '6M': 0.04 }[activeTimeframe] || 0.01;
+    const volatility = { 
+      '1H': 0.01, '6H': 0.015, '1D': 0.02, '1W': 0.025, '1M': 0.03, '6M': 0.04 
+    }[activeTimeframe] || 0.01;
     
     // Create trend simulation
     let trendPhase = 0, trendDuration = Math.floor(Math.random() * 20) + 10;
     let trend = Math.random() > 0.5 ? 1 : -1;
+    
+    // Make the seed consistent based on the marketId so the same market 
+    // will have similar (but not identical) charts each time
+    const marketSeed = marketId ? parseInt(marketId) % 100 : 0;
+    const seedFactor = (marketSeed / 100) * 0.4 + 0.8; // Between 0.8 and 1.2
     
     for (let i = 0; i < pointCount; i++) {
       // Change trend periodically
@@ -229,7 +339,7 @@ const Trade = () => {
       }
       
       // Calculate price changes
-      const trendBias = trend * (volatility / 2);
+      const trendBias = trend * (volatility / 2) * seedFactor;
       const randomComponent = (Math.random() - 0.5) * volatility;
       baseValue = Math.max(0.1, Math.min(0.9, baseValue * (1 + trendBias + randomComponent)));
       
@@ -255,39 +365,104 @@ const Trade = () => {
     return data;
   };
   
+  // Handle chart refresh button click
   const refreshChart = () => {
-    setState(s => ({ ...s, loading: true }));
+    updateState({ status: 'loading' });
     setTimeout(() => {
-      drawChart();
-      const direction = Math.random() > 0.5 ? 1 : -1;
-      setState(s => ({ ...s, loading: false, priceChange: direction * (Math.random() * 2).toFixed(1) }));
+      const data = generateChartData();
+      updateState({ 
+        chartData: data,
+        status: 'success',
+        currentPrice: data[data.length - 1].close,
+        priceChange: (Math.random() * 4 - 2)
+      });
+      drawChart(data);
     }, 500);
   };
 
-  // Utility functions
-  const handleQuantityChange = e => {
+  // Handle quantity input change
+  const handleQuantityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = parseFloat(e.target.value);
-    setState(s => ({ ...s, quantity: !isNaN(value) && value >= 0 ? value : e.target.value === '' ? 0 : s.quantity }));
+    updateState({ 
+      quantity: !isNaN(value) && value >= 0 ? value : 0 
+    });
   };
 
-  const calculateReturn = () => (quantity * (isBuy ? 1.8 : 0.15)).toFixed(2);
+  // Calculate potential return
+  const calculateReturn = () => {
+    // In a real app, this would use more complex logic based on market odds
+    return (quantity * (isBuy ? 1.8 : 0.15)).toFixed(2);
+  };
   
+  // Calculate odds display
   const calculateOdds = () => {
-    const probability = marketData?.probabilities ? (isBuy ? marketData.probabilities.yes : marketData.probabilities.no) : (isBuy ? 0.54 : 0.46);
+    if (!marketData) return 0;
+    
+    const probability = isBuy ? marketData.probabilities.yes : marketData.probabilities.no;
+    
     let odds = probability >= 0.5 
       ? Math.round(-100 * probability / (1 - probability))
       : Math.round(100 * (1 - probability) / probability);
+      
     return isBuy ? odds : -odds;
   };
   
-  if (!marketData) {
+  // Handle forecast submission
+  const handleSubmitForecast = () => {
+    if (!marketData || quantity <= 0) return;
+    
+    // Ie an API call to submit the forecast
+    // For now, we just show an alert
+    alert(`Forecast placed: ${isBuy ? 'YES - ' + marketData.outcomes.yes : 'NO - ' + marketData.outcomes.no} for $${quantity.toFixed(2)}`);
+    
+    // After submission, ywe typically
+    // Show a loading state, make api call, show sucess,error, update ui
+  };
+  
+  // Show loading state while fetching data
+  if (status === 'loading' && !marketData) {
     return (
       <div className="bg-[#0d1117] min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-orange-500"></div>
       </div>
     );
   }
+  
+  // Show error state if something went wrong
+  if (status === 'error' && error) {
+    return (
+      <div className="bg-[#0d1117] min-h-screen flex items-center justify-center">
+        <div className="bg-[#171c21] p-8 rounded-lg max-w-md text-center">
+          <AlertCircle size={48} className="text-red-500 mx-auto mb-4" />
+          <h2 className="text-xl text-white mb-2">Something went wrong</h2>
+          <p className="text-gray-400 mb-6">{error}</p>
+          <button 
+            onClick={() => fetchMarketData()} 
+            className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-md transition-colors"
+          >
+            Try Again
+          </button>
+          <Link 
+            to="/" 
+            className="block mt-4 text-orange-500 hover:text-orange-400 transition-colors"
+          >
+            Return to Markets
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
+  // If we have no market data (shouldn't happen with proper loading state)
+  if (!marketData) {
+    return (
+      <div className="bg-[#0d1117] min-h-screen flex items-center justify-center">
+        <div className="text-white">No market data available</div>
+      </div>
+    );
+  }
+
+  // Main render with market data
   const { outcomes, category, endDate, creator, volume, description } = marketData;
 
   return (
@@ -311,7 +486,7 @@ const Trade = () => {
               <div className="px-5 py-4 border-b border-[#222] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                 <div className="flex items-center gap-3">
                   <div className="h-10 w-10 rounded-full overflow-hidden bg-orange-500 flex items-center justify-center">
-                    <span className="text-black font-bold">{category}</span>
+                    <span className="text-black font-bold">{category.substring(0, 1)}</span>
                   </div>
                   <div>
                     <div className="flex items-center">
@@ -336,17 +511,20 @@ const Trade = () => {
                           activeTimeframe === tf ? 'bg-[#2c3136] text-white' : 'text-[#888] hover:text-[#bbb] hover:bg-[#1f2429]'
                         }`}
                         onClick={() => {
-                          updateState({ activeTimeframe: tf });
-                          drawChartWithDelay();
+                          updateState({ activeTimeframe: tf as TradeState['activeTimeframe'] });
+                          // Chart will be redrawn by the useEffect
                         }}
                       >
                         {tf}
                       </button>
                     ))}
                   </div>
-                  <button onClick={refreshChart} disabled={loading}
-                    className="p-2 text-[#888] hover:text-white rounded-md hover:bg-[#1f2429] transition-colors">
-                    <RefreshCw size={16} className={loading ? "animate-spin" : ""} />
+                  <button 
+                    onClick={refreshChart} 
+                    disabled={status === 'loading'}
+                    className="p-2 text-[#888] hover:text-white rounded-md hover:bg-[#1f2429] transition-colors"
+                  >
+                    <RefreshCw size={16} className={status === 'loading' ? "animate-spin" : ""} />
                   </button>
                   <button className="p-2 text-[#888] hover:text-white rounded-md hover:bg-[#1f2429] transition-colors">
                     <Settings size={16} />
@@ -358,9 +536,9 @@ const Trade = () => {
               <div className="px-5 pt-4 flex items-center justify-between">
                 <div className="flex items-center">
                   <span className="text-2xl font-bold text-white">{Math.round(currentPrice * 100)}%</span>
-                  <span className={`ml-2 flex items-center ${parseFloat(priceChange) >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-                    {parseFloat(priceChange) >= 0 ? <ArrowUp size={16} className="mr-1" /> : <ArrowDown size={16} className="mr-1" />}
-                    {Math.abs(parseFloat(priceChange))}%
+                  <span className={`ml-2 flex items-center ${parseFloat(priceChange.toString()) >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                    {parseFloat(priceChange.toString()) >= 0 ? <ArrowUp size={16} className="mr-1" /> : <ArrowDown size={16} className="mr-1" />}
+                    {Math.abs(parseFloat(priceChange.toFixed(1)))}%
                   </span>
                   <span className="ml-3 text-[#888] text-sm px-2 py-1 bg-[#171c21] rounded-md">
                     Odds: {calculateOdds()}
@@ -373,7 +551,7 @@ const Trade = () => {
               
               {/* Chart */}
               <div className="h-[360px] relative px-2 pb-4 pt-2">
-                {loading && (
+                {status === 'loading' && (
                   <div className="absolute inset-0 bg-[#0d1117]/80 flex items-center justify-center z-10">
                     <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-orange-500"></div>
                   </div>
@@ -387,7 +565,7 @@ const Trade = () => {
               <div className="flex items-start justify-between mb-5 flex-col sm:flex-row gap-4">
                 <div className="flex items-center gap-4">
                   <div className="min-w-[56px] h-14 w-14 rounded-lg bg-orange-500 flex items-center justify-center">
-                    <span className="text-2xl font-bold text-black">{category}</span>
+                    <span className="text-2xl font-bold text-black">{category.substring(0, 1)}</span>
                   </div>
                   <div>
                     <h2 className="text-xl sm:text-2xl font-bold text-white">{marketData.name}</h2>
@@ -418,12 +596,20 @@ const Trade = () => {
             <div className="bg-[#0d1117] rounded-lg border border-[#222] overflow-hidden h-full shadow-lg">
               {/* Buy/Sell tabs */}
               <div className="grid grid-cols-2">
-                <button className={`py-4 text-center font-medium text-lg transition-all ${isBuy ? 'bg-green-600 text-white' : 'bg-[#0d1117] text-white hover:bg-[#171c21]'}`}
-                  onClick={() => updateState({ isBuy: true })}>
+                <button 
+                  className={`py-4 text-center font-medium text-lg transition-all ${
+                    isBuy ? 'bg-green-600 text-white' : 'bg-[#0d1117] text-white hover:bg-[#171c21]'
+                  }`}
+                  onClick={() => updateState({ isBuy: true })}
+                >
                   {outcomes.yes}
                 </button>
-                <button className={`py-4 text-center font-medium text-lg transition-all ${!isBuy ? 'bg-red-600 text-white' : 'bg-[#0d1117] text-white hover:bg-[#171c21]'}`}
-                  onClick={() => updateState({ isBuy: false })}>
+                <button 
+                  className={`py-4 text-center font-medium text-lg transition-all ${
+                    !isBuy ? 'bg-red-600 text-white' : 'bg-[#0d1117] text-white hover:bg-[#171c21]'
+                  }`}
+                  onClick={() => updateState({ isBuy: false })}
+                >
                   {outcomes.no}
                 </button>
               </div>
@@ -432,8 +618,12 @@ const Trade = () => {
               <div className="p-5 border-b border-[#222]">
                 <h3 className="text-lg font-medium mb-4 text-white">Outcome</h3>
                 <div className="grid grid-cols-2 gap-4">
-                  <div className={`p-4 rounded transition-all cursor-pointer ${isBuy ? 'bg-[#132416] border border-green-900' : 'bg-[#171c21] hover:bg-[#1f2429]'}`}
-                    onClick={() => updateState({ isBuy: true })}>
+                  <div 
+                    className={`p-4 rounded transition-all cursor-pointer ${
+                      isBuy ? 'bg-[#132416] border border-green-900' : 'bg-[#171c21] hover:bg-[#1f2429]'
+                    }`}
+                    onClick={() => updateState({ isBuy: true })}
+                  >
                     <div className="flex items-center justify-between mb-2">
                       <span className="text-green-500 font-bold flex items-center">
                         <span className="h-6 w-6 rounded-full bg-green-600 text-white flex items-center justify-center text-xs mr-2">Y</span>
@@ -446,8 +636,12 @@ const Trade = () => {
                       <span className="text-[#888]">{Math.round(marketData.probabilities.yes * 100)}%</span>
                     </div>
                   </div>
-                  <div className={`p-4 rounded transition-all cursor-pointer ${!isBuy ? 'bg-[#241313] border border-red-900' : 'bg-[#171c21] hover:bg-[#1f2429]'}`}
-                    onClick={() => updateState({ isBuy: false })}>
+                  <div 
+                    className={`p-4 rounded transition-all cursor-pointer ${
+                      !isBuy ? 'bg-[#241313] border border-red-900' : 'bg-[#171c21] hover:bg-[#1f2429]'
+                    }`}
+                    onClick={() => updateState({ isBuy: false })}
+                  >
                     <div className="flex items-center justify-between mb-2">
                       <span className="text-red-500 font-bold flex items-center">
                         <span className="h-6 w-6 rounded-full bg-red-600 text-white flex items-center justify-center text-xs mr-2">N</span>
@@ -470,25 +664,39 @@ const Trade = () => {
                   <div className="text-sm text-[#888]">Balance: $1,000</div>
                 </div>
                 <div className="relative">
-                  <input type="number" value={quantity} onChange={handleQuantityChange}
+                  <input 
+                    type="number" 
+                    value={quantity} 
+                    onChange={handleQuantityChange}
                     className="w-full bg-[#171c21] border border-[#333] rounded px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500"
-                    min="0" step="0.01" />
-                  <button className="absolute right-3 top-1/2 transform -translate-y-1/2 text-xs text-[#888] bg-[#232830] px-2 py-1 rounded hover:bg-[#2c3136]">
+                    min="0" 
+                    step="0.01" 
+                  />
+                  <button 
+                    onClick={() => updateState({ quantity: 1000 })}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-xs text-[#888] bg-[#232830] px-2 py-1 rounded hover:bg-[#2c3136]"
+                  >
                     MAX
                   </button>
                 </div>
                 
                 <div className="grid grid-cols-3 gap-3 mt-3">
-                  <button onClick={() => updateState({ quantity: 0 })}
-                    className="bg-[#171c21] text-[#ccc] py-2 rounded text-sm hover:bg-[#1f2429] transition-colors">
+                  <button 
+                    onClick={() => updateState({ quantity: 0 })}
+                    className="bg-[#171c21] text-[#ccc] py-2 rounded text-sm hover:bg-[#1f2429] transition-colors"
+                  >
                     Reset
                   </button>
-                  <button onClick={() => updateState({ quantity: 10 })}
-                    className="bg-[#171c21] text-[#ccc] py-2 rounded text-sm hover:bg-[#1f2429] transition-colors">
+                  <button 
+                    onClick={() => updateState({ quantity: 10 })}
+                    className="bg-[#171c21] text-[#ccc] py-2 rounded text-sm hover:bg-[#1f2429] transition-colors"
+                  >
                     $10
                   </button>
-                  <button onClick={() => updateState({ quantity: 50 })}
-                    className="bg-[#171c21] text-[#ccc] py-2 rounded text-sm hover:bg-[#1f2429] transition-colors">
+                  <button 
+                    onClick={() => updateState({ quantity: 50 })}
+                    className="bg-[#171c21] text-[#ccc] py-2 rounded text-sm hover:bg-[#1f2429] transition-colors"
+                  >
                     $50
                   </button>
                 </div>
@@ -508,10 +716,15 @@ const Trade = () => {
 
               {/* Submit button */}
               <div className="p-5">
-                <button className={`w-full ${isBuy ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700'} 
-                  text-white font-bold py-3 px-4 rounded text-lg transition-all`}
-                  onClick={() => alert(`Forecast placed: ${isBuy ? 'YES - ' + outcomes.yes : 'NO - ' + outcomes.no} for $${quantity.toFixed(2)}`)}
-                  disabled={quantity <= 0}>
+                <button 
+                  className={`w-full ${
+                    isBuy ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700'
+                  } text-white font-bold py-3 px-4 rounded text-lg transition-all ${
+                    quantity <= 0 ? 'opacity-50 cursor-not-allowed' : ''
+                  }`}
+                  onClick={handleSubmitForecast}
+                  disabled={quantity <= 0}
+                >
                   Place Forecast
                 </button>
                 
