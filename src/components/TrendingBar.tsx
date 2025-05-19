@@ -147,10 +147,10 @@ const TrendingTags = ({data}:TrendingTagsProps) => {
               <button
                 key={tag.id}
                 onClick={() => handleTagSelect(index)}
-                className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full 
+                className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full font-serif text-[17px]
                   ${index === selectedTag 
                     ? 'bg-gradient-to-br from-orange-500 to-orange-600 text-white shadow-md shadow-orange-800/20 font-medium ring-2 ring-orange-500/20' 
-                    : 'bg-[#1a1a1a] text-white hover:bg-zinc-700 font-medium'}
+                    : 'bg-[#1a1a1a] text-white hover:bg-zinc-700 font-semibold'}
                   transition-all duration-300 whitespace-nowrap text-sm transform hover:scale-105 hover:shadow-md hover:shadow-orange-900/10`}
               >
                 {tag.icon && (

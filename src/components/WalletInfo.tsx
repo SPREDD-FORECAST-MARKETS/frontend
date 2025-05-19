@@ -24,7 +24,7 @@ const WalletInfo = () => {
       <div className="space-y-2">
         <div>
           <span className="text-gray-400">Address: </span>
-          <span className="font-mono">
+          <span className="font-serif">
             {walletAddress ? `${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}` : 'Not connected'}
           </span>
         </div>

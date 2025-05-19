@@ -29,6 +29,10 @@ export interface MarketCard {
     icon: string;
     options?: MarketOption[];
     volume: string;
+    description:string;
+    creatorName:string;
+    createdAt: Date;
+    closingAt: Date;
     timeframe?: string;
     chance?: string;
     buyOptions?: string[];
