@@ -118,46 +118,40 @@ const TrendingTags = ({data}:TrendingTagsProps) => {
 
   return (
     <div className='relative flex justify-center overflow-hidden' ref={containerRef}>
-      {/* Main tag navigation bar with glass morphism */}
-      <div className="flex items-center justify-between bg-gradient-to-r from-[#0c0c0c] to-[#131313] backdrop-blur-sm rounded-xl px-3 py-3 w-[96%] border border-zinc-800/30 shadow-lg relative">
-        {/* Subtle glowing accents */}
-        <div className="absolute inset-0 overflow-hidden rounded-xl pointer-events-none">
-          <div className="absolute -top-24 -left-24 w-48 h-48 bg-orange-500/10 rounded-full blur-3xl"></div>
-          <div className="absolute -bottom-20 -right-20 w-40 h-40 bg-orange-500/5 rounded-full blur-3xl"></div>
-        </div>
-
+      {/* Main tag navigation bar with optimized spacing - removed gradients */}
+      <div className="flex items-center justify-between px-4 py-2 w-[98%] relative">
         {/* Left scrollable content with scroll buttons */}
         <div className="flex items-center flex-grow overflow-hidden relative">
           {/* Left scroll button (conditionally visible) */}
           {scrollPosition > 10 && (
             <button 
-              className="flex-shrink-0 mr-1 p-1 rounded-full bg-zinc-800/80 text-white hover:bg-zinc-700 transition-all duration-300 hover:shadow-lg hover:shadow-orange-900/10 z-10 backdrop-blur-sm"
+              className="flex-shrink-0 mr-2 p-1.5 rounded-full bg-zinc-800/90 text-white hover:bg-zinc-700 transition-all duration-300 hover:shadow-lg z-10 backdrop-blur-sm"
               onClick={scrollLeft}
             >
-              <ChevronRight size={18} className="rotate-180 transform transition-transform hover:-translate-x-0.5 duration-200" />
+              <ChevronRight size={20} className="rotate-180 transform transition-transform hover:-translate-x-0.5 duration-200" />
             </button>
           )}
           
-          {/* Tags container */}
+          {/* Tags container - reduced vertical padding */}
           <div 
             ref={scrollContainerRef}
-            className="flex items-center space-x-2 overflow-x-auto scrollbar-hide py-1"
+            className="flex items-center space-x-3 overflow-x-auto scrollbar-hide py-1"
           >
             {data.map((tag, index) => (
               <button
                 key={tag.id}
                 onClick={() => handleTagSelect(index)}
-                className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full font-serif text-[17px]
+                className={`flex items-center gap-2 px-5 py-2 rounded-full font-serif text-lg
                   ${index === selectedTag 
-                    ? 'bg-gradient-to-br from-orange-500 to-orange-600 text-white shadow-md shadow-orange-800/20 font-medium ring-2 ring-orange-500/20' 
+                    ? 'bg-orange-500 text-white shadow-md font-medium' 
                     : 'bg-[#1a1a1a] text-white hover:bg-zinc-700 font-semibold'}
-                  transition-all duration-300 whitespace-nowrap text-sm transform hover:scale-105 hover:shadow-md hover:shadow-orange-900/10`}
+                  transition-all duration-300 whitespace-nowrap transform hover:scale-105 hover:shadow-md`}
               >
                 {tag.icon && (
                   <span className={`${index === selectedTag ? 'text-white' : 'text-orange-500'} transition-all duration-300`}>
                     {typeof tag.icon === 'string'
                       ? tag.icon
-                      : tag.icon.component && <tag.icon.component size={tag.icon.size} />}
+                      : tag.icon.component && <tag.icon.component size={tag.icon.size || 20} />}
                   </span>
                 )}
                 {tag.name}
@@ -165,57 +159,59 @@ const TrendingTags = ({data}:TrendingTagsProps) => {
             ))}
           </div>
           
-          {/* Right arrow button for scrolling (only shows when more content is available) */}
+          {/* Right arrow button for scrolling */}
           {showScrollIndicator && scrollContainerRef.current && 
             scrollPosition < (scrollContainerRef.current.scrollWidth - scrollContainerRef.current.clientWidth - 10) && (
             <button 
-              className="flex-shrink-0 ml-1 p-1 rounded-full bg-zinc-800/80 text-white hover:bg-zinc-700 transition-all duration-300 hover:shadow-lg hover:shadow-orange-900/10 z-10 backdrop-blur-sm"
+              className="flex-shrink-0 ml-2 p-1.5 rounded-full bg-zinc-800/90 text-white hover:bg-zinc-700 transition-all duration-300 hover:shadow-lg z-10 backdrop-blur-sm"
               onClick={scrollRight}
             >
-              <ChevronRight size={18} className="transform transition-transform hover:translate-x-0.5 duration-200" />
+              <ChevronRight size={20} className="transform transition-transform hover:translate-x-0.5 duration-200" />
             </button>
           )}
           
-          {/* Subtle gradient fade at the edges for better UX */}
-          <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-[#0c0c0c] to-transparent pointer-events-none z-[5]"></div>
-          <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-[#0c0c0c] to-transparent pointer-events-none z-[5]"></div>
+          {/* Simplified gradient fade at the edges */}
+          <div className="absolute left-0 top-0 bottom-0 w-12 bg-gradient-to-r from-[#0c0c0c] to-transparent pointer-events-none z-[5]"></div>
+          <div className="absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-[#0c0c0c] to-transparent pointer-events-none z-[5]"></div>
         </div>
         
-        {/* Right side controls with glass morphism */}
-        <div className="flex items-center gap-2 ml-2 pl-4 border-l border-zinc-700/30 relative z-10">
+        {/* Right side controls - optimized spacing */}
+        <div className="flex items-center gap-3 ml-3 pl-5 border-l border-zinc-700/40 relative z-10">
           {/* Trending dropdown */}
           <div className="flex items-center">
             <button 
               onClick={() => setIsOpen(!isOpen)}
-              className="flex items-center gap-1 text-white font-medium text-sm group transition-all duration-300"
+              className="flex items-center gap-2 text-white font-medium text-base group transition-all duration-300 px-3 py-1 rounded-lg hover:bg-zinc-800/50"
             >
-              <span className="bg-gradient-to-r from-white via-gray-200 to-orange-100 bg-clip-text text-transparent">Trending</span>
+              <span className="text-white font-semibold">Trending</span>
               <ChevronDown 
-                size={16} 
+                size={18} 
                 className={`text-orange-500 transform transition-transform duration-300 ${isOpen ? 'rotate-180' : 'group-hover:translate-y-0.5'}`} 
               />
             </button>
           </div>
           
-          {/* View toggle buttons with improved styling */}
-          <div className="flex bg-[#0c0c0c] rounded-md ml-2 p-0.5 border border-zinc-800/50 shadow-inner shadow-black/50">
+          {/* View toggle buttons - commented out */}
+          {/* 
+          <div className="flex bg-[#0c0c0c] rounded-md ml-2 p-1 border border-zinc-800/50 shadow-inner shadow-black/50">
             <button 
               className={`p-1.5 rounded-l ${viewMode === 'list' 
-                ? 'bg-gradient-to-br from-orange-500 to-orange-600 text-white shadow-sm' 
+                ? 'bg-orange-500 text-white shadow-sm' 
                 : 'text-zinc-500 hover:text-white'} transition-all duration-300`}
               onClick={() => setViewMode('list')}
             >
-              <Grid size={16} className="transform transition-transform duration-300 hover:scale-110" />
+              <Grid size={18} className="transform transition-transform duration-300 hover:scale-110" />
             </button>
             <button 
               className={`p-1.5 rounded-r ${viewMode === 'grid' 
-                ? 'bg-gradient-to-br from-orange-500 to-orange-600 text-white shadow-sm' 
+                ? 'bg-orange-500 text-white shadow-sm' 
                 : 'text-zinc-500 hover:text-white'} transition-all duration-300`}
               onClick={() => setViewMode('grid')}
             >
-              <LayoutGrid size={16} className="transform transition-transform duration-300 hover:scale-110" />
+              <LayoutGrid size={18} className="transform transition-transform duration-300 hover:scale-110" />
             </button>
           </div>
+          */}
         </div>
       </div>
       
