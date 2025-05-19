@@ -6,9 +6,27 @@ import {
   FaEthereum,
   FaCog,
 } from "react-icons/fa";
+import { useEffect } from "react";
 
 const Navbar = () => {
-  const { login, authenticated, logout } = usePrivy();
+  const { login, authenticated, logout,getAccessToken } = usePrivy();
+  console.log("Authenticated:", authenticated);
+  useEffect(() => {
+    const fetchAccessToken = async () => {
+      if (authenticated) {
+        try {
+          const token = await getAccessToken();
+          console.log("Access Token:", token);
+        } catch (error) {
+          console.error("Error fetching access token:", error);
+        }
+      }
+    };
+
+    fetchAccessToken();
+  }
+  , [authenticated, getAccessToken]);
+
 
   return (
     <nav className="flex items-center justify-between px-4 lg:px-8 py-4 bg-black text-white border-b border-gray-800">
