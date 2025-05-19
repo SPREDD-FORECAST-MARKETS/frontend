@@ -1,7 +1,12 @@
 import { useState, useEffect, useRef } from 'react';
 import { RefreshCw, Settings, Info, ArrowUp, ArrowDown } from 'lucide-react';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 
-const Trade = ({ marketId = '123', initialData = null }) => {
+const Trade = () => {
+  // Get marketId from URL params
+  const { marketId } = useParams();
+  const navigate = useNavigate();
+  
   const [state, setState] = useState({
     activeTimeframe: '1H', 
     quantity: 10, 
@@ -16,6 +21,10 @@ const Trade = ({ marketId = '123', initialData = null }) => {
   
   useEffect(() => {
     fetchMarketData();
+    // If there's no marketId, we could redirect to the explore page or show a message
+    if (!marketId) {
+      console.log("No market ID provided, using default market data");
+    }
   }, [marketId]);
   
   useEffect(() => {
@@ -29,14 +38,11 @@ const Trade = ({ marketId = '123', initialData = null }) => {
   const fetchMarketData = async () => {
     setState(s => ({ ...s, loading: true }));
     try {
-      if (initialData) {
-        setState(s => ({ ...s, marketData: initialData, loading: false }));
-        return;
-      }
-      
+      // In a real application, you would fetch the data based on the marketId
+      // Here we're simulating it with mock data
       const mockData = {
-        id: marketId,
-        name: 'AI Breakthrough Prediction',
+        id: marketId || '123',
+        name: marketId ? `Market ${marketId}` : 'AI Breakthrough Prediction',
         type: 'Tech Forecast',
         outcomes: { yes: 'GPT-5 Release in 2025', no: 'No GPT-5 in 2025' },
         category: 'Technology',
@@ -287,6 +293,16 @@ const Trade = ({ marketId = '123', initialData = null }) => {
   return (
     <div className="bg-[#030303] min-h-screen font-sans text-white">
       <div className="max-w-7xl mx-auto p-4">
+        {/* Back Button */}
+        <div className="mb-4">
+          <Link to="/" className="text-gray-400 hover:text-orange-500 transition-colors duration-200 flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="m15 18-6-6 6-6"/>
+            </svg>
+            Back to Markets
+          </Link>
+        </div>
+        
         <div className="flex flex-col lg:flex-row gap-5">
           <div className="lg:w-8/12 flex flex-col space-y-5">
             {/* Chart Card */}

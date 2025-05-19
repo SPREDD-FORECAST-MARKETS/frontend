@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import type { MarketCard } from "../lib/interface";
 
 interface MarketCardsProps {
@@ -19,7 +20,7 @@ const MarketCards = ({ data }: MarketCardsProps) => {
 
 // Separate component for each card to enable individual state management
 const EnhancedCard = ({ data, hasBuyOptions }: { data: MarketCard, hasBuyOptions: boolean }) => {
-  const [, setIsHovered] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
   const optionsCount = data.options?.length || 0;
   const minContentHeight = Math.max(40 * optionsCount, 120);
   
@@ -52,7 +53,8 @@ const EnhancedCard = ({ data, hasBuyOptions }: { data: MarketCard, hasBuyOptions
   };
 
   return (
-    <div
+    <Link 
+      to={`/trade/${data.id}`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       className="bg-gradient-to-b from-[#111] to-[#0a0a0a] rounded-xl border border-zinc-800 overflow-hidden shadow-xl relative h-[370px] flex flex-col p-0 transition-all duration-500 hover:shadow-2xl hover:shadow-orange-900/10 hover:border-zinc-700 group"
@@ -189,7 +191,7 @@ const EnhancedCard = ({ data, hasBuyOptions }: { data: MarketCard, hasBuyOptions
         )}
         
         <div className="flex gap-3">
-          <button className="text-zinc-500 hover:text-orange-500 transition-colors hover:scale-110 duration-300 p-1.5 rounded-full hover:bg-zinc-800/40">
+          <button className="text-zinc-500 hover:text-orange-500 transition-colors hover:scale-110 duration-300 p-1.5 rounded-full hover:bg-zinc-800/40" onClick={(e) => e.preventDefault()}>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="14"
@@ -204,7 +206,7 @@ const EnhancedCard = ({ data, hasBuyOptions }: { data: MarketCard, hasBuyOptions
               <path d="M3 3h18v18H3zM8 12h8" />
             </svg>
           </button>
-          <button className="text-zinc-500 hover:text-orange-500 transition-colors hover:scale-110 duration-300 p-1.5 rounded-full hover:bg-zinc-800/40">
+          <button className="text-zinc-500 hover:text-orange-500 transition-colors hover:scale-110 duration-300 p-1.5 rounded-full hover:bg-zinc-800/40" onClick={(e) => e.preventDefault()}>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="14"
@@ -221,7 +223,7 @@ const EnhancedCard = ({ data, hasBuyOptions }: { data: MarketCard, hasBuyOptions
           </button>
         </div>
       </div>
-    </div>
+    </Link>
   );
 };
 

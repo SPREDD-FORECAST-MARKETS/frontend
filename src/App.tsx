@@ -33,6 +33,7 @@ function App() {
               <Route path="/user/profile" element={<UserProfile username={"testes"} />} />
               <Route path="/create-prediction" element={<CreatePrediction />} />
               <Route path="/trade" element={<Trade />} />
+              <Route path="/trade/:marketId" element={<Trade />} />
               <Route path="/about" element={<div>About</div>} />
               <Route path="/contact" element={<div>Contact</div>} />
             </Routes>

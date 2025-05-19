@@ -1,4 +1,5 @@
 import { Flame, Clock, Eye } from "lucide-react";
+import { Link } from "react-router-dom";
 import type { TrendingMarketsData } from "../lib/interface";
 
 interface TrendingMarketProps {
@@ -29,7 +30,8 @@ const TrendingMarket = ({ data }: TrendingMarketProps) => {
             </div>
           </div>
           {data.map((item) => (
-            <div
+            <Link
+              to={`/trade/${item.id}`}
               className="flex items-center group hover:bg-orange-500/5 rounded-lg transition-all duration-300 cursor-pointer mb-2"
               key={item.id}
             >
@@ -51,7 +53,7 @@ const TrendingMarket = ({ data }: TrendingMarketProps) => {
               <div className="text-orange-500 font-serif text-sm md:text-base group-hover:text-orange-400 group-hover:scale-105 transition-all duration-300">
                 {item.value}
               </div>
-            </div>
+            </Link>
           ))}
         </div>
       </div>
