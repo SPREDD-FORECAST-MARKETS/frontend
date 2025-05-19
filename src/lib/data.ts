@@ -164,3 +164,20 @@ export const tags: TrendingTagsData[] = [
   { id: 29, name: "Sports Betting", icon: null },
   { id: 30, name: "E-sports", icon: null },
 ];
+
+
+export const userProfile = {
+  id : '1',
+  username : 'SwiftWhale368',
+  displayName : 'Swift Whale',
+  bio : 'Hey I am SwiftWhale368 and I love Bango',
+  avatar : 'https://i.imgur.com/8Km9tLL.png',
+  walletAddress : '0x71C7656EC7ab88b098defB751B7401B5f6d8976F',
+  transactions : [
+    { id: '1', date: '2024-01-1', amount: '$100.00', type: 'buy', status: 'completed' },
+    { id: '2', date: '2024-01-2', amount: '$100.00', type: 'sell', status: 'completed' },
+    { id: '3', date: '2024-01-3', amount: '$100.00', type: 'deposit', status: 'completed' },
+    { id: '4', date: '2024-01-4', amount: '$75.50', type: 'reward', status: 'completed' },
+    { id: '5', date: '2024-01-5', amount: '$210.25', type: 'buy', status: 'pending' },
+  ]
+}

@@ -43,3 +43,23 @@ export interface TrendingTagsData {
     name: string;
     icon?: string | { component: React.ForwardRefExoticComponent<Omit<LucideProps, "ref"> & React.RefAttributes<SVGSVGElement>>; size: number } | null;
   }
+
+export interface UserProfile {
+
+    id: string;
+    username: string;
+    displayName: string;
+    bio: string;
+    avatar: string;
+    walletAddress: string;
+    transactions: Transaction[];
+  }
+  
+  export interface Transaction {
+    id: string;
+    date: string;
+    amount: string;
+    type: 'buy' | 'sell' | 'deposit' | 'reward';
+    status: 'completed' | 'pending';
+
+}

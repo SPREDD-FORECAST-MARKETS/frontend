@@ -6,7 +6,6 @@ interface TrendingMarketProps {
 }
 
 const TrendingMarket = ({ data }: TrendingMarketProps) => {
-  console.log(data);
 
   return (
     <div className="border border-zinc-800 rounded-xl w-2/3">

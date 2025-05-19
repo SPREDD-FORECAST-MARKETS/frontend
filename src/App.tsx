@@ -1,19 +1,26 @@
-import { BrowserRouter, Route, Routes } from "react-router-dom"
-import { PrivyProvider } from '@privy-io/react-auth'
-import Navbar from "./components/Navbar"
-import Footer from "./components/Footer"
-import { privyConfig, PRIVY_APP_ID } from "./lib/privy"
-import Explore from "./pages/Explore"
-import CreatePrediction from "./pages/CreatePrediction"
-
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { PrivyProvider } from "@privy-io/react-auth";
+import Navbar from "./components/Navbar";
+import Footer from "./components/Footer";
+import { privyConfig, PRIVY_APP_ID } from "./lib/privy";
+import Explore from "./pages/Explore";
+import CreatePrediction from "./pages/CreatePrediction";
+import { base } from "viem/chains";
+import UserProfile from "./pages/UserProfile";
 function App() {
   if (!PRIVY_APP_ID) {
-    console.error('Privy App ID is not defined. Please set the VITE_PRIVY_APP_ID environment variable.');  }
-  
+    console.error(
+      "Privy App ID is not defined. Please set the VITE_PRIVY_APP_ID environment variable."
+    );
+  }
+
   return (
-    <PrivyProvider 
-      appId={PRIVY_APP_ID || 'fallback-app-id'}
-      config={privyConfig}
+    <PrivyProvider
+      appId={PRIVY_APP_ID || "fallback-app-id"}
+      config={{
+        ...privyConfig,
+        defaultChain: base,
+      }}
     >
       <div className="flex flex-col min-h-screen bg-black ">
         <BrowserRouter>
@@ -21,6 +28,7 @@ function App() {
           <main className="flex-grow">
             <Routes>
               <Route path="/" element={<Explore />} />
+              <Route path="/user/profile" element={<UserProfile username={"testes"} />} />
               <Route path="/create-prediction" element={<CreatePrediction />} />
               <Route path="/about" element={<div>About</div>} />
               <Route path="/contact" element={<div>Contact</div>} />
@@ -30,7 +38,7 @@ function App() {
         </BrowserRouter>
       </div>
     </PrivyProvider>
-  )
+  );
 }
 
-export default App
+export default App;
