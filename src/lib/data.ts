@@ -1,4 +1,5 @@
-import type { TrendingMarketsData,MarketCard } from "./interface";
+import type { TrendingMarketsData,MarketCard,TrendingTagsData } from "./interface";
+import { ArrowUpRight } from "lucide-react";
 
 export const trendingMarkets: TrendingMarketsData[] = [
   {
@@ -61,21 +62,14 @@ export const marketCards: MarketCard[] = [
       id: "1",
       title: "NBA Champion",
       icon: "src/assets/arsenal.jpeg",
-      options: [
-        { name: "Oklahoma City Thunder", percentage: "42%" },
-        { name: "New York Knicks", percentage: "19%" },
-        { name: "Minnesota Timberwolves", percentage: "17%" }
-      ],
+      
       volume: "$2b Vol."
     },
     {
       id: "2",
       title: "Romania Presidential Election Winner",
       icon: "src/assets/romania.png",
-      options: [
-        { name: "Nicuşor Dan", percentage: "65%" },
-        { name: "George Simion", percentage: "36%" }
-      ],
+     
       volume: "$216m Vol."
     },
     {
@@ -90,11 +84,7 @@ export const marketCards: MarketCard[] = [
       id: "4",
       title: "Fed decision in June?",
       icon: "src/assets/romania.png",
-      options: [
-        { name: "50+ bps decrease", percentage: "1%" },
-        { name: "25 bps decrease", percentage: "10%" },
-        { name: "No change", percentage: "89%" }
-      ],
+     
       volume: "$12m Vol.",
       timeframe: "Monthly"
     },
@@ -102,22 +92,53 @@ export const marketCards: MarketCard[] = [
       id: "5",
       title: "Next president of South Korea?",
       icon: "src/assets/south_korea.png",
-      options: [
-        { name: "Lee Jae-myung", percentage: "90%" },
-        { name: "Kim Moon-soo", percentage: "6%" },
-        { name: "Lee Jin-seok", percentage: "3%" }
-      ],
+      
       volume: "$120m Vol."
     },
     {
       id: "6",
       title: "2025 PGA Champion",
       icon: "src/assets/arsenal.jpeg",
-      options: [
-        { name: "Scottie Scheffler", percentage: "79%" },
-        { name: "Alex Noren", percentage: "5%" },
-        { name: "Jon Rahm", percentage: "4%" }
-      ],
+     
       volume: "$1m Vol."
     }
   ];
+
+export const tags:TrendingTagsData[] = [
+      { id: 1, name: 'Top', icon: { component: ArrowUpRight, size: 14 } },
+      { id: 2, name: 'UCL', icon: null },
+      { id: 3, name: 'Trump', icon: null },
+      { id: 4, name: 'Russia vs Ukraine', icon: null },
+      { id: 5, name: 'Bitcoin', icon: null },
+      { id: 6, name: 'Arsenal', icon: null },
+      { id: 7, name: 'AI', icon: null },
+      { id: 8, name: 'Crypto', icon: null },
+      { id: 9, name: 'Politics', icon: null },
+      { id: 10, name: 'Economy', icon: null },
+      { id: 11, name: 'Sports', icon: null },
+      { id: 12, name: 'Entertainment', icon: null },
+      { id: 13, name: 'Health', icon: null },
+      { id: 14, name: 'Environment', icon: null },
+      { id: 15, name: 'Technology', icon: null },
+      { id: 16, name: 'Science', icon: null },
+      { id: 17, name: 'Travel', icon: null },
+      { id: 18, name: 'Food', icon: null },
+      { id: 19, name: 'Fashion', icon: null },
+      { id: 20, name: 'Lifestyle', icon: null },
+      { id: 21, name: 'Business', icon: null },
+      { id: 22, name: 'Finance', icon: null },
+      { id: 23, name: 'Real Estate', icon: null },
+      { id: 24, name: 'Automotive', icon: null },
+      { id: 25, name: 'Gaming', icon: null },
+      { id: 26, name: 'Music', icon: null },
+      { id: 27, name: 'Art', icon: null },
+      { id: 28, name: 'Photography', icon: null },
+      { id: 29, name: 'Sports Betting', icon: null },
+      { id: 30, name: 'E-sports', icon: null }
+
+
+
+
+
+
+    ];
