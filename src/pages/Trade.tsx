@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { RefreshCw, Settings, Info, ArrowUp, ArrowDown, AlertCircle } from 'lucide-react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 
 // Define proper TypeScript interfaces for the market data
 interface MarketData {
@@ -60,7 +60,7 @@ const initialState: TradeState = {
 const Trade = () => {
   // Get marketId from URL params
   const { marketId } = useParams<{ marketId: string }>();
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   
   const [state, setState] = useState<TradeState>(initialState);

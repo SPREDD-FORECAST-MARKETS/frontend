@@ -20,7 +20,7 @@ const MarketCards = ({ data }: MarketCardsProps) => {
 
 // Separate component for each card to enable individual state management
 const EnhancedCard = ({ data, hasBuyOptions }: { data: MarketCard, hasBuyOptions: boolean }) => {
-  const [isHovered, setIsHovered] = useState(false);
+  const [, setIsHovered] = useState(false);
   const optionsCount = data.options?.length || 0;
   const minContentHeight = Math.max(40 * optionsCount, 120);
   

@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { ChevronDown, ChevronRight, Grid, LayoutGrid, X } from 'lucide-react';
+import { ChevronDown, ChevronRight, X } from 'lucide-react';
 import type { TrendingTagsData } from '../lib/interface';
 
 interface TrendingTagsProps {
@@ -8,7 +8,7 @@ interface TrendingTagsProps {
 
 const TrendingTags = ({data}:TrendingTagsProps) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [viewMode, setViewMode] = useState('grid'); // 'list' or 'grid'
+  // const [viewMode, setViewMode] = useState('grid'); // 'list' or 'grid'
   const [scrollPosition, setScrollPosition] = useState(0);
   const [selectedTag, setSelectedTag] = useState<number>(0);
   const [showScrollIndicator, setShowScrollIndicator] = useState(false);
