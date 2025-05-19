@@ -194,12 +194,14 @@ const Navbar = () => {
         >
           Earn
         </Link>
-        <Link
-          to="/bridges"
+        <a
+          href="https://retroservices1121.gitbook.io/decentralized-forecasting-powered-by-smart-contracts.-predict-rank-and-earn-weekly."
+          target="_blank"
+          rel="noopener noreferrer"
           className="hover:text-orange-500 transition-colors duration-200 py-2"
         >
-          Bridges
-        </Link>
+          Whitepaper
+        </a>
 
         <Link
           to="/buy-crypto"
