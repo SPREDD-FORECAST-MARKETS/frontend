@@ -7,6 +7,8 @@ import Explore from "./pages/Explore";
 import CreatePrediction from "./pages/CreatePrediction";
 import { base } from "viem/chains";
 import UserProfile from "./pages/UserProfile";
+import Trade from "./pages/Trade";
+
 function App() {
   if (!PRIVY_APP_ID) {
     console.error(
@@ -30,6 +32,7 @@ function App() {
               <Route path="/" element={<Explore />} />
               <Route path="/user/profile" element={<UserProfile username={"testes"} />} />
               <Route path="/create-prediction" element={<CreatePrediction />} />
+              <Route path="/trade" element={<Trade />} />
               <Route path="/about" element={<div>About</div>} />
               <Route path="/contact" element={<div>Contact</div>} />
             </Routes>
