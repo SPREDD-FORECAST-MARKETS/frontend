@@ -1,10 +1,10 @@
-// src/App.tsx
 import { BrowserRouter, Route, Routes } from "react-router-dom"
 import { PrivyProvider } from '@privy-io/react-auth'
 import Navbar from "./components/Navbar"
 import Footer from "./components/Footer"
 import { privyConfig, PRIVY_APP_ID } from "./lib/privy"
 import Explore from "./pages/Explore"
+import CreatePrediction from "./pages/CreatePrediction"
 
 function App() {
   if (!PRIVY_APP_ID) {
@@ -21,6 +21,7 @@ function App() {
           <main className="flex-grow">
             <Routes>
               <Route path="/" element={<Explore />} />
+              <Route path="/create-prediction" element={<CreatePrediction />} />
               <Route path="/about" element={<div>About</div>} />
               <Route path="/contact" element={<div>Contact</div>} />
             </Routes>
