@@ -1,19 +1,21 @@
-import { Link } from "react-router-dom";
 import TrendingMarket from "../components/TrendingMarket";
 import LeaderBoard from "../components/LeaderBoard";
-import { trendingMarkets, leaderBoard, marketCards } from "../lib/data";
+import { trendingMarkets, leaderBoard, marketCards, tags } from "../lib/data";
 import MarketCards from "../components/MarketCards";
+import TrendingBar from "../components/TrendingBar";
+import { Link } from "react-router-dom";
 import { Plus } from "lucide-react";
 
 const Explore = () => {
   return (
     <div className="p-2">
-      <div className="flex flex-col justify-evenly md:flex-row gap-6 w-full p-9">
+      <div className="flex flex-col justify-evenly  md:flex-row gap-6 w-full p-9">
         <TrendingMarket data={trendingMarkets} />
         <LeaderBoard data={leaderBoard} />
       </div>
-      
-      <div className="flex justify-between items-center mx-[2rem] mb-2">
+    
+
+      <div className="flex justify-between items-center mx-[3rem] mb-[2rem]">
         <h2 className="text-2xl font-bold text-white">Markets</h2>
         <Link
           to="/create-prediction"
@@ -23,7 +25,10 @@ const Explore = () => {
           Create Prediction
         </Link>
       </div>
-      
+      <div className="">
+        <TrendingBar data={tags} />
+      </div>
+
       <MarketCards data={marketCards} />
     </div>
   );

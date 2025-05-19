@@ -1,5 +1,6 @@
 import type { LucideProps } from "lucide-react";
 
+
 export interface TrendingMarketsData{
 
     id:number,
@@ -33,9 +34,8 @@ export interface MarketCard {
     buyOptions?: string[];
   }
 
-export interface TrendingTagsData{
-    id:number,
-    name:string,
-    icon:string | null |{ component: React.ComponentType<LucideProps>, size: number } ,
-  
-}
+export interface TrendingTagsData {
+    id: number;
+    name: string;
+    icon?: string | { component: React.ForwardRefExoticComponent<Omit<LucideProps, "ref"> & React.RefAttributes<SVGSVGElement>>; size: number } | null;
+  }
