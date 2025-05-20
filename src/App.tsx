@@ -30,7 +30,7 @@ function App() {
           <main className="flex-grow">
             <Routes>
               <Route path="/" element={<Explore />} />
-              <Route path="/user/profile" element={<UserProfile username={"testes"} />} />
+              <Route path="/user/profile" element={<UserProfile />} />
               <Route path="/create-prediction" element={<CreatePrediction />} />
               <Route path="/trade" element={<Trade />} />
               <Route path="/trade/:marketId" element={<Trade />} />
