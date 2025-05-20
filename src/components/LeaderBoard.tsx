@@ -1,12 +1,14 @@
 import { Users, DollarSign, BarChart2 } from "lucide-react";
-import type { LeaderBoardData } from "../lib/interface";
+import type {  LeaderBoardTableData } from "../lib/interface";
+import { Link } from "react-router-dom";
 
 interface LeaderBoardProps {
-  data: LeaderBoardData[];
+  data: LeaderBoardTableData[];
 }
 const LeaderBoard = ({ data }: LeaderBoardProps) => {
   return (
-    <div className="border border-zinc-800 w-1/2 rounded-xl">
+    <div className="border border-zinc-800 w-1/2 rounded-xl" >
+      <Link to="/leaderboard">
       <div className="bg-gradient-to-b from-[#111] to-[#0a0a0a] rounded-xl p-6 shadow-lg flex-1">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-white text-3xl font-serif font-bold">Leaderboards</h2>
@@ -40,15 +42,16 @@ const LeaderBoard = ({ data }: LeaderBoardProps) => {
             </div>
             <div className="flex-1 mr-4">
               <p className="text-white font-serif text-sm md:text-base group-hover:text-teal-100 transition-colors duration-300">
-                {item.username}
+                {item.name}
               </p>
             </div>
             <div className="text-orange-500 font-serif text-sm md:text-base group-hover:text-orange-400 group-hover:scale-105 transition-all duration-300">
-              {item.value}
+              {item.reward}
             </div>
           </div>
         ))}
       </div>
+      </Link>
     </div>
   );
 };

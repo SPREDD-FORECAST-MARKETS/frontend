@@ -8,6 +8,7 @@ import CreatePrediction from "./pages/CreatePrediction";
 import { base } from "viem/chains";
 import UserProfile from "./pages/UserProfile";
 import Trade from "./pages/Trade";
+import LeaderBoard from "./pages/LeaderBoard";
 
 function App() {
   if (!PRIVY_APP_ID) {
@@ -32,6 +33,7 @@ function App() {
               <Route path="/" element={<Explore />} />
               <Route path="/user/profile" element={<UserProfile />} />
               <Route path="/create-prediction" element={<CreatePrediction />} />
+              <Route path="/leaderboard" element={<LeaderBoard />} />
               <Route path="/trade" element={<Trade />} />
               <Route path="/trade/:marketId" element={<Trade />} />
               <Route path="/about" element={<div>About</div>} />

@@ -135,7 +135,7 @@ const TrendingTags = ({data}:TrendingTagsProps) => {
           {/* Tags container - reduced vertical padding */}
           <div 
             ref={scrollContainerRef}
-            className="flex items-center space-x-3 overflow-x-auto scrollbar-hide py-1"
+            className="flex items-center space-x-3 overflow-x-auto scrollbar-hide py-1 pl-[1rem] pr-[1rem]"
           >
             {data.map((tag, index) => (
               <button

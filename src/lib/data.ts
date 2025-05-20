@@ -2,6 +2,7 @@ import type {
   TrendingMarketsData,
   MarketCard,
   TrendingTagsData,
+  LeaderBoardTableData,
 } from "./interface";
 import { ArrowUpRight } from "lucide-react";
 
@@ -119,7 +120,8 @@ export const marketCards: MarketCard[] = [
     id: "6",
     title: "2025 PGA Champion",
     icon: "src/assets/arsenal.jpeg",
-    description: "Place your forecast on the winner of the 2025 PGA Championship.",
+    description:
+      "Place your forecast on the winner of the 2025 PGA Championship.",
     volume: "$320K Vol.",
     createdAt: new Date("2023-10-01"),
     closingAt: new Date("2025-06-01T10:00:00Z"),
@@ -160,19 +162,88 @@ export const tags: TrendingTagsData[] = [
   { id: 30, name: "E-sports", icon: null },
 ];
 
-
 export const userProfile = {
-  id : '1',
-  username : 'SwiftWhale368',
-  displayName : 'Swift Whale',
-  bio : 'Hey I am SwiftWhale368 and I love Bango',
-  avatar : 'https://i.imgur.com/8Km9tLL.png',
-  walletAddress : '0x71C7656EC7ab88b098defB751B7401B5f6d8976F',
-  transactions : [
-    { id: '1', date: '2024-01-1', amount: '$100', type: 'forecast', status: 'completed' },
-    { id: '2', date: '2024-01-2', amount: '$75', type: 'forecast', status: 'completed' },
-    { id: '3', date: '2024-01-3', amount: '$200', type: 'deposit', status: 'completed' },
-    { id: '4', date: '2024-01-4', amount: '$45', type: 'reward', status: 'completed' },
-    { id: '5', date: '2024-01-5', amount: '$120', type: 'forecast', status: 'pending' },
-  ]
-}
+  id: "1",
+  username: "SwiftWhale368",
+  displayName: "Swift Whale",
+  bio: "Hey I am SwiftWhale368 and I love Bango",
+  avatar: "https://i.imgur.com/8Km9tLL.png",
+  walletAddress: "0x71C7656EC7ab88b098defB751B7401B5f6d8976F",
+  transactions: [
+    {
+      id: "1",
+      date: "2024-01-1",
+      amount: "$100",
+      type: "forecast",
+      status: "completed",
+    },
+    {
+      id: "2",
+      date: "2024-01-2",
+      amount: "$75",
+      type: "forecast",
+      status: "completed",
+    },
+    {
+      id: "3",
+      date: "2024-01-3",
+      amount: "$200",
+      type: "deposit",
+      status: "completed",
+    },
+    {
+      id: "4",
+      date: "2024-01-4",
+      amount: "$45",
+      type: "reward",
+      status: "completed",
+    },
+    {
+      id: "5",
+      date: "2024-01-5",
+      amount: "$120",
+      type: "forecast",
+      status: "pending",
+    },
+  ],
+};
+
+export const leaderboardData: LeaderBoardTableData[] = [
+  {
+    id: 1,
+    name: "Charles Riley",
+    avatar: "src/assets/person.jpeg",
+    points: 188,
+    accuracy: "92%",
+    winStreak: 14,
+    reward: "$250",
+  },
+  {
+    id: 2,
+    name: "Gerald Wells",
+    avatar: "src/assets/person.jpeg",
+    points: 180,
+    accuracy: "89%",
+    winStreak: 12,
+    reward: "$150",
+  },
+  {
+    id: 3,
+    name: "Barbara Ross",
+    avatar: "src/assets/person.jpeg",
+    points: 127,
+    accuracy: "78%",
+    winStreak: 8,
+    reward: "$100",
+  },
+  {
+    id: 4,
+    name: "Heather Burns",
+    avatar: "src/assets/person.jpeg",
+    points: 107,
+    accuracy: "73%",
+    winStreak: 5,
+    reward: "$75",
+  }
+
+];
