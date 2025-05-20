@@ -1,15 +1,12 @@
-// Now, let's update the Trade component to receive and use the state passed from MarketCards
 
 import { useState, useEffect, useCallback } from 'react';
 import { useParams, Link, useLocation } from 'react-router-dom';
 import type { TradeState, TimeframeOption } from '../lib/interface';
 import { generateChartData } from '../utils/calculations';
-
 import ChartCard from '../components/ChartCard';
 import MarketInfoCard from '../components/MarketInfoCard';
 import TradingPanel from '../components/TradingPanel';
 
-// Initial state with fallback values
 const initialState: TradeState = {
   activeTimeframe: '1D',
   quantity: 10,
@@ -53,6 +50,7 @@ const Trade = () => {
   const updateState = useCallback((updates: Partial<TradeState>) => {
     setState(prev => ({ ...prev, ...updates }));
   }, []);
+  
 
 
   const fetchChartData = useCallback(() => {
@@ -76,7 +74,6 @@ const Trade = () => {
   // Handle timeframe change
   const handleTimeframeChange = (timeframe: TimeframeOption) => {
     updateState({ activeTimeframe: timeframe });
-    // Chart will be updated via useEffect
   };
   
   // Handle chart refresh
@@ -107,14 +104,21 @@ const Trade = () => {
     alert(`Forecast placed: ${isBuy ? 'YES - ' + marketData.outcomes.yes : 'NO - ' + marketData.outcomes.no} for $${quantity.toFixed(2)}`);
   };
   
-
+ 
+  
+  // Initialize chart data when market data is ready
+  useEffect(() => {
+    if (status === 'success' && marketData && !chartData) {
+      fetchChartData();
+    }
+  }, [fetchChartData, status, marketData, chartData]);
   
   // Update chart when timeframe changes
   useEffect(() => {
-    if (status === 'success') {
+    if (status === 'success' && chartData) {
       fetchChartData();
     }
-  }, [activeTimeframe, fetchChartData, status]);
+  }, [activeTimeframe, fetchChartData, status, chartData]);
   
   // Loading state
   if (status === 'loading' && !chartData) {

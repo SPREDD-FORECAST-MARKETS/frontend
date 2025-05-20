@@ -1,6 +1,4 @@
-// First, let's update the MarketCards component to pass the market data via Link state
 
-// MarketCards.tsx
 import { useState } from "react";
 import {  useNavigate } from "react-router-dom";
 import type { MarketCard } from "../lib/interface";
