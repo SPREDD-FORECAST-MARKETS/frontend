@@ -22,16 +22,19 @@ export interface MarketOption {
 export interface MarketCard {
   id: string;
   title: string;
-  icon: string;
-  options?: MarketOption[];
-  volume: string;
   description: string;
+  category?: string;
   creatorName: string;
-  createdAt: Date;
-  closingAt: Date;
+  volume?: string;
   timeframe?: string;
-  chance?: string;
-  buyOptions?: string[];
+  createdAt: string | Date;
+  closingAt: string | Date;
+  icon: string;
+  buyOptions?: boolean;
+  options?: string[];
+  yesPercentage?: number;
+  noPercentage?: number;
+
 }
 
 export interface TrendingTagsData {
@@ -79,4 +82,47 @@ export interface LeaderBoardTableData{
 
 
 
+}
+
+
+export interface MarketData {
+  id: string;
+  name: string;
+  type: string;
+  outcomes: {
+    yes: string;
+    no: string;
+  };
+  category: string;
+  endDate: string;
+  creator: string;
+  volume: string;
+  probabilities: {
+    yes: number;
+    no: number;
+  };
+  description: string;
+  iconUrl?: string;
+}
+
+export interface ChartDataPoint {
+  time: number;
+  open: number;
+  high: number;
+  low: number;
+  close: number;
+}
+
+export type TimeframeOption = '1H' | '6H' | '1D' | '1W' | '1M' | '6M';
+
+export interface TradeState {
+  activeTimeframe: TimeframeOption;
+  quantity: number;
+  isBuy: boolean;
+  currentPrice: number;
+  priceChange: number;
+  status: 'idle' | 'loading' | 'success' | 'error';
+  error: string | null;
+  marketData: MarketData | null;
+  chartData: ChartDataPoint[] | null;
 }

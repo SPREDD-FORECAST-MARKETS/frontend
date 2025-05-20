@@ -1,5 +1,8 @@
+// First, let's update the MarketCards component to pass the market data via Link state
+
+// MarketCards.tsx
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import {  useNavigate } from "react-router-dom";
 import type { MarketCard } from "../lib/interface";
 
 interface MarketCardsProps {
@@ -21,6 +24,7 @@ const MarketCards = ({ data }: MarketCardsProps) => {
 // Separate component for each card to enable individual state management
 const EnhancedCard = ({ data, hasBuyOptions }: { data: MarketCard, hasBuyOptions: boolean }) => {
   const [, setIsHovered] = useState(false);
+  const navigate = useNavigate();
   const optionsCount = data.options?.length || 0;
   const minContentHeight = Math.max(40 * optionsCount, 120);
   
@@ -52,20 +56,46 @@ const EnhancedCard = ({ data, hasBuyOptions }: { data: MarketCard, hasBuyOptions
     }
   };
 
+  // Handle navigation with state
+  const handleCardClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    
+    // Transform MarketCard data into the expected MarketData format
+    const marketData = {
+      id: data.id,
+      name: data.title,
+      type: data.timeframe || 'Standard',
+      outcomes: { 
+        yes: `Yes - ${data.description}`, 
+        no: `No - ${data.description}` 
+      },
+      category: data.category || 'General',
+      endDate: formatDate(data.closingAt),
+      creator: data.creatorName,
+      volume: data.volume || '$0',
+      probabilities: { 
+        yes: data.yesPercentage || 0.5, 
+        no: data.noPercentage || 0.5 
+      },
+      description: data.description,
+      iconUrl: data.icon
+    };
+    
+    // Navigate programmatically with state
+    navigate(`/trade/${data.id}`, { state: { marketData } });
+  };
+
   return (
-    <Link 
-      to={`/trade/${data.id}`}
+    <div 
+      onClick={handleCardClick}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      className="bg-gradient-to-b from-[#111] to-[#0a0a0a] rounded-xl border border-zinc-800 overflow-hidden shadow-xl relative h-[370px] flex flex-col p-0 transition-all duration-500 hover:shadow-2xl hover:shadow-orange-900/10 hover:border-zinc-700 group"
+      className="bg-gradient-to-b from-[#111] to-[#0a0a0a] rounded-xl border border-zinc-800 overflow-hidden shadow-xl relative h-[370px] flex flex-col p-0 transition-all duration-500 hover:shadow-2xl hover:shadow-orange-900/10 hover:border-zinc-700 group cursor-pointer"
     >
-      {/* Enhanced gradient overlay with animation */}
+      {/* Card content (unchanged) */}
       <div className="absolute inset-0 bg-gradient-to-br from-orange-900/5 via-transparent to-transparent pointer-events-none opacity-70 group-hover:opacity-100 transition-opacity duration-500"></div>
-      
-      {/* Subtle corner glow effect */}
       <div className="absolute -top-20 -right-20 w-40 h-40 bg-orange-500/5 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
       
-      {/* Card Header with subtle animation */}
       <div className="p-5 pb-2 flex items-center gap-3 border-b border-zinc-800/20">
         <div className="w-10 h-10 rounded overflow-hidden bg-gradient-to-br from-zinc-800 to-black p-0.5 shadow-md shadow-black/20 group-hover:shadow-orange-900/20 transition-all duration-500">
           <img
@@ -79,7 +109,6 @@ const EnhancedCard = ({ data, hasBuyOptions }: { data: MarketCard, hasBuyOptions
         </h3>
       </div>
 
-      {/* Main content with improved typography and spacing */}
       <div
         className="px-5 pt-4 overflow-hidden flex-grow"
         style={{ minHeight: minContentHeight }}
@@ -89,7 +118,6 @@ const EnhancedCard = ({ data, hasBuyOptions }: { data: MarketCard, hasBuyOptions
             {data.description}
           </p>
           
-          {/* Closing time with improved visual cue */}
           <div className="flex items-center mt-1 bg-zinc-800/30 rounded-full pl-2 pr-3 py-1 group-hover:bg-zinc-800/50 transition-colors duration-300">
             <div className={`w-2 h-2 rounded-full mr-2 ${
               new Date(data.closingAt).getTime() - new Date().getTime() < 86400000 
@@ -106,7 +134,6 @@ const EnhancedCard = ({ data, hasBuyOptions }: { data: MarketCard, hasBuyOptions
         </div>
       </div>
       
-      {/* Creator info with enhanced styling */}
       <div className="flex justify-between items-center p-5 bg-gradient-to-r from-zinc-900/30 to-zinc-800/20">
         <div className="flex items-center group/creator">
           <span className="text-orange-400 font-bold text-md group-hover/creator:text-orange-300 transition-colors duration-300 underline decoration-orange-500/30 underline-offset-2 decoration-1">
@@ -122,11 +149,39 @@ const EnhancedCard = ({ data, hasBuyOptions }: { data: MarketCard, hasBuyOptions
         </span>
       </div>
       
-      {/* Buy buttons with enhanced animations */}
-      <div className="px-5 py-4 bg-gradient-to-b from-transparent to-zinc-900/20">
-        {hasBuyOptions && (
+      {hasBuyOptions && (
+        <div className="px-5 py-4 bg-gradient-to-b from-transparent to-zinc-900/20">
           <div className="grid grid-cols-2 gap-3">
-            <button className="bg-gradient-to-br from-green-600 to-green-800 hover:from-green-500 hover:to-green-700 py-3 rounded-md text-sm text-white flex items-center justify-center gap-1 transition-all duration-300 hover:shadow-lg hover:shadow-green-800/30 transform hover:translate-y-[-1px] group/buy">
+            <button 
+              className="bg-gradient-to-br from-green-600 to-green-800 hover:from-green-500 hover:to-green-700 py-3 rounded-md text-sm text-white flex items-center justify-center gap-1 transition-all duration-300 hover:shadow-lg hover:shadow-green-800/30 transform hover:translate-y-[-1px] group/buy"
+              onClick={(e) => {
+                e.stopPropagation();
+                navigate(`/trade/${data.id}`, { 
+                  state: { 
+                    marketData: {
+                      id: data.id,
+                      name: data.title,
+                      type: data.timeframe || 'Standard',
+                      outcomes: { 
+                        yes: `Yes - ${data.description}`, 
+                        no: `No - ${data.description}` 
+                      },
+                      category: data.category || 'General',
+                      endDate: formatDate(data.closingAt),
+                      creator: data.creatorName,
+                      volume: data.volume || '$0',
+                      probabilities: { 
+                        yes: data.yesPercentage || 0.5, 
+                        no: data.noPercentage || 0.5 
+                      },
+                      description: data.description,
+                      iconUrl: data.icon
+                    }, 
+                    initialBuy: true 
+                  }
+                });
+              }}
+            >
               <span className="font-medium">Buy Yes</span>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -143,7 +198,36 @@ const EnhancedCard = ({ data, hasBuyOptions }: { data: MarketCard, hasBuyOptions
                 <path d="m6 9 6 6 6-6" />
               </svg>
             </button>
-            <button className="bg-gradient-to-br from-red-600 to-red-800 hover:from-red-500 hover:to-red-700 py-3 rounded-md text-sm text-white flex items-center justify-center gap-1 transition-all duration-300 hover:shadow-lg hover:shadow-red-800/30 transform hover:translate-y-[-1px] group/buy">
+            <button 
+              className="bg-gradient-to-br from-red-600 to-red-800 hover:from-red-500 hover:to-red-700 py-3 rounded-md text-sm text-white flex items-center justify-center gap-1 transition-all duration-300 hover:shadow-lg hover:shadow-red-800/30 transform hover:translate-y-[-1px] group/buy"
+              onClick={(e) => {
+                e.stopPropagation();
+                navigate(`/trade/${data.id}`, { 
+                  state: { 
+                    marketData: {
+                      id: data.id,
+                      name: data.title,
+                      type: data.timeframe || 'Standard',
+                      outcomes: { 
+                        yes: `Yes - ${data.description}`, 
+                        no: `No - ${data.description}` 
+                      },
+                      category: data.category || 'General',
+                      endDate: formatDate(data.closingAt),
+                      creator: data.creatorName,
+                      volume: data.volume || '$0',
+                      probabilities: { 
+                        yes: data.yesPercentage || 0.5, 
+                        no: data.noPercentage || 0.5 
+                      },
+                      description: data.description,
+                      iconUrl: data.icon
+                    }, 
+                    initialBuy: false 
+                  }
+                });
+              }}
+            >
               <span className="font-medium">Buy No</span>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -161,10 +245,9 @@ const EnhancedCard = ({ data, hasBuyOptions }: { data: MarketCard, hasBuyOptions
               </svg>
             </button>
           </div>
-        )}
-      </div>
+        </div>
+      )}
 
-      {/* Card Footer with improved interaction */}
       <div className="px-5 py-3 flex justify-between items-center border-t border-zinc-800/40 bg-black/30">
         <span className="text-white text-xs font-medium bg-zinc-800/50 px-2 py-1 rounded-full">
           {data.volume}
@@ -191,7 +274,10 @@ const EnhancedCard = ({ data, hasBuyOptions }: { data: MarketCard, hasBuyOptions
         )}
         
         <div className="flex gap-3">
-          <button className="text-zinc-500 hover:text-orange-500 transition-colors hover:scale-110 duration-300 p-1.5 rounded-full hover:bg-zinc-800/40" onClick={(e) => e.preventDefault()}>
+          <button 
+            className="text-zinc-500 hover:text-orange-500 transition-colors hover:scale-110 duration-300 p-1.5 rounded-full hover:bg-zinc-800/40" 
+            onClick={(e) => e.stopPropagation()}
+          >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="14"
@@ -206,7 +292,10 @@ const EnhancedCard = ({ data, hasBuyOptions }: { data: MarketCard, hasBuyOptions
               <path d="M3 3h18v18H3zM8 12h8" />
             </svg>
           </button>
-          <button className="text-zinc-500 hover:text-orange-500 transition-colors hover:scale-110 duration-300 p-1.5 rounded-full hover:bg-zinc-800/40" onClick={(e) => e.preventDefault()}>
+          <button 
+            className="text-zinc-500 hover:text-orange-500 transition-colors hover:scale-110 duration-300 p-1.5 rounded-full hover:bg-zinc-800/40" 
+            onClick={(e) => e.stopPropagation()}
+          >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="14"
@@ -223,7 +312,7 @@ const EnhancedCard = ({ data, hasBuyOptions }: { data: MarketCard, hasBuyOptions
           </button>
         </div>
       </div>
-    </Link>
+    </div>
   );
 };
 
