@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { ArrowLeft, ExternalLink, Edit3, Copy, CheckCircle, Activity, Award, Calendar, Clock, Trophy, Gift, Star, Zap } from 'lucide-react';
 import { Link } from 'react-router-dom';
 

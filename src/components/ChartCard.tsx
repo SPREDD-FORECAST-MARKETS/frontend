@@ -6,6 +6,13 @@ import { calculateOdds, generateChartData } from '../utils/calculations';
 interface ChartCardProps {
   marketData: MarketData;
   marketId: string;
+  chartData: ChartDataPoint[] | null;
+  currentPrice: number;
+  priceChange: number;
+  activeTimeframe: TimeframeOption;
+  isLoading: boolean;
+  onTimeframeChange: (timeframe: TimeframeOption) => void;
+  onRefresh: () => void;
 }
 
 // Self-contained component that manages its own chart data

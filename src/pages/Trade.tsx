@@ -161,6 +161,7 @@ const Trade = () => {
               isLoading={status === 'loading'}
               onTimeframeChange={handleTimeframeChange}
               onRefresh={refreshChart}
+              marketId={"1"}
             />
             
             <MarketInfoCard 
