@@ -8,7 +8,6 @@ interface TrendingTagsProps {
 
 const TrendingTags = ({data}:TrendingTagsProps) => {
   const [isOpen, setIsOpen] = useState(false);
-  // const [viewMode, setViewMode] = useState('grid'); // 'list' or 'grid'
   const [scrollPosition, setScrollPosition] = useState(0);
   const [selectedTag, setSelectedTag] = useState<number>(0);
   const [showScrollIndicator, setShowScrollIndicator] = useState(false);
@@ -118,30 +117,30 @@ const TrendingTags = ({data}:TrendingTagsProps) => {
 
   return (
     <div className='relative flex justify-center overflow-hidden' ref={containerRef}>
-      {/* Main tag navigation bar with optimized spacing - removed gradients */}
-      <div className="flex items-center justify-between px-4 py-2 w-[98%] relative">
+      {/* Main tag navigation bar with responsive spacing */}
+      <div className="flex items-center justify-between px-2 sm:px-4 py-1 sm:py-2 w-full sm:w-[98%] relative">
         {/* Left scrollable content with scroll buttons */}
         <div className="flex items-center flex-grow overflow-hidden relative">
           {/* Left scroll button (conditionally visible) */}
           {scrollPosition > 10 && (
             <button 
-              className="flex-shrink-0 mr-2 p-1.5 rounded-full bg-zinc-800/90 text-white hover:bg-zinc-700 transition-all duration-300 hover:shadow-lg z-10 backdrop-blur-sm"
+              className="flex-shrink-0 mr-1 sm:mr-2 p-1 sm:p-1.5 rounded-full bg-zinc-800/90 text-white hover:bg-zinc-700 transition-all duration-300 hover:shadow-lg z-10 backdrop-blur-sm"
               onClick={scrollLeft}
             >
-              <ChevronRight size={20} className="rotate-180 transform transition-transform hover:-translate-x-0.5 duration-200" />
+              <ChevronRight size={16} className="sm:w-5 sm:h-5 rotate-180 transform transition-transform hover:-translate-x-0.5 duration-200" />
             </button>
           )}
           
-          {/* Tags container - reduced vertical padding */}
+          {/* Tags container with responsive sizing */}
           <div 
             ref={scrollContainerRef}
-            className="flex items-center space-x-3 overflow-x-auto scrollbar-hide py-1 pl-[1rem] pr-[1rem]"
+            className="flex items-center space-x-2 sm:space-x-3 overflow-x-auto scrollbar-hide py-1 pl-2 sm:pl-4 pr-2 sm:pr-4"
           >
             {data.map((tag, index) => (
               <button
                 key={tag.id}
                 onClick={() => handleTagSelect(index)}
-                className={`flex items-center gap-2 px-5 py-2 rounded-full font-serif text-lg
+                className={`flex items-center gap-1 sm:gap-2 px-3 sm:px-5 py-1.5 sm:py-2 rounded-full font-serif text-sm sm:text-base md:text-lg
                   ${index === selectedTag 
                     ? 'bg-orange-500 text-white shadow-md font-medium' 
                     : 'bg-[#1a1a1a] text-white hover:bg-zinc-700 font-semibold'}
@@ -151,7 +150,7 @@ const TrendingTags = ({data}:TrendingTagsProps) => {
                   <span className={`${index === selectedTag ? 'text-white' : 'text-orange-500'} transition-all duration-300`}>
                     {typeof tag.icon === 'string'
                       ? tag.icon
-                      : tag.icon.component && <tag.icon.component size={tag.icon.size || 20} />}
+                      : tag.icon.component && <tag.icon.component size={tag.icon.size ? (window.innerWidth < 640 ? tag.icon.size - 4 : tag.icon.size) : 16} />}
                   </span>
                 )}
                 {tag.name}
@@ -163,63 +162,41 @@ const TrendingTags = ({data}:TrendingTagsProps) => {
           {showScrollIndicator && scrollContainerRef.current && 
             scrollPosition < (scrollContainerRef.current.scrollWidth - scrollContainerRef.current.clientWidth - 10) && (
             <button 
-              className="flex-shrink-0 ml-2 p-1.5 rounded-full bg-zinc-800/90 text-white hover:bg-zinc-700 transition-all duration-300 hover:shadow-lg z-10 backdrop-blur-sm"
+              className="flex-shrink-0 ml-1 sm:ml-2 p-1 sm:p-1.5 rounded-full bg-zinc-800/90 text-white hover:bg-zinc-700 transition-all duration-300 hover:shadow-lg z-10 backdrop-blur-sm"
               onClick={scrollRight}
             >
-              <ChevronRight size={20} className="transform transition-transform hover:translate-x-0.5 duration-200" />
+              <ChevronRight size={16} className="sm:w-5 sm:h-5 transform transition-transform hover:translate-x-0.5 duration-200" />
             </button>
           )}
           
           {/* Simplified gradient fade at the edges */}
-          <div className="absolute left-0 top-0 bottom-0 w-12 bg-gradient-to-r from-[#0c0c0c] to-transparent pointer-events-none z-[5]"></div>
-          <div className="absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-[#0c0c0c] to-transparent pointer-events-none z-[5]"></div>
+          <div className="absolute left-0 top-0 bottom-0 w-6 sm:w-12 bg-gradient-to-r from-[#0c0c0c] to-transparent pointer-events-none z-[5]"></div>
+          <div className="absolute right-0 top-0 bottom-0 w-6 sm:w-12 bg-gradient-to-l from-[#0c0c0c] to-transparent pointer-events-none z-[5]"></div>
         </div>
         
-        {/* Right side controls - optimized spacing */}
-        <div className="flex items-center gap-3 ml-3 pl-5 border-l border-zinc-700/40 relative z-10">
+        {/* Right side controls with responsive spacing */}
+        <div className="flex items-center gap-1 sm:gap-3 ml-2 sm:ml-3 pl-2 sm:pl-5 border-l border-zinc-700/40 relative z-10">
           {/* Trending dropdown */}
           <div className="flex items-center">
             <button 
               onClick={() => setIsOpen(!isOpen)}
-              className="flex items-center gap-2 text-white font-medium text-base group transition-all duration-300 px-3 py-1 rounded-lg hover:bg-zinc-800/50"
+              className="flex items-center gap-1 sm:gap-2 text-white font-medium text-xs sm:text-sm md:text-base group transition-all duration-300 px-2 sm:px-3 py-1 rounded-lg hover:bg-zinc-800/50"
             >
               <span className="text-white font-semibold">Trending</span>
               <ChevronDown 
-                size={18} 
+                size={16} 
                 className={`text-orange-500 transform transition-transform duration-300 ${isOpen ? 'rotate-180' : 'group-hover:translate-y-0.5'}`} 
               />
             </button>
           </div>
-          
-          {/* View toggle buttons - commented out */}
-          {/* 
-          <div className="flex bg-[#0c0c0c] rounded-md ml-2 p-1 border border-zinc-800/50 shadow-inner shadow-black/50">
-            <button 
-              className={`p-1.5 rounded-l ${viewMode === 'list' 
-                ? 'bg-orange-500 text-white shadow-sm' 
-                : 'text-zinc-500 hover:text-white'} transition-all duration-300`}
-              onClick={() => setViewMode('list')}
-            >
-              <Grid size={18} className="transform transition-transform duration-300 hover:scale-110" />
-            </button>
-            <button 
-              className={`p-1.5 rounded-r ${viewMode === 'grid' 
-                ? 'bg-orange-500 text-white shadow-sm' 
-                : 'text-zinc-500 hover:text-white'} transition-all duration-300`}
-              onClick={() => setViewMode('grid')}
-            >
-              <LayoutGrid size={18} className="transform transition-transform duration-300 hover:scale-110" />
-            </button>
-          </div>
-          */}
         </div>
       </div>
       
-      {/* Enhanced dropdown menu with animations */}
+      {/* Enhanced dropdown menu with responsive sizing */}
       {isOpen && (
         <div 
           ref={dropdownRef}
-          className="absolute right-5 mt-2 grid grid-cols-3 gap-2.5 p-4 bg-gradient-to-br from-[#151515] to-[#0c0c0c] rounded-xl border border-zinc-700/30 shadow-2xl z-50 w-[400px] animate-fadeIn"
+          className="absolute right-2 sm:right-5 mt-1 sm:mt-2 grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-2.5 p-3 sm:p-4 bg-gradient-to-br from-[#151515] to-[#0c0c0c] rounded-xl border border-zinc-700/30 shadow-2xl z-50 w-[280px] sm:w-[400px] animate-fadeIn"
           style={{ top: '100%' }}
         >
           <div className="absolute inset-0 overflow-hidden rounded-xl pointer-events-none">
@@ -227,13 +204,13 @@ const TrendingTags = ({data}:TrendingTagsProps) => {
             <div className="absolute -bottom-20 -right-20 w-40 h-40 bg-orange-500/5 rounded-full blur-3xl"></div>
           </div>
           
-          <div className="col-span-3 flex justify-between items-center mb-2 pb-2 border-b border-zinc-800/50">
-            <h3 className="text-white text-sm font-medium">All Categories</h3>
+          <div className="col-span-2 sm:col-span-3 flex justify-between items-center mb-2 pb-2 border-b border-zinc-800/50">
+            <h3 className="text-white text-xs sm:text-sm font-medium">All Categories</h3>
             <button 
               onClick={() => setIsOpen(false)}
               className="text-zinc-500 hover:text-white p-1 rounded-full hover:bg-zinc-800/50 transition-all duration-300"
             >
-              <X size={16} />
+              <X size={14} className="sm:w-4 sm:h-4" />
             </button>
           </div>
           
@@ -244,16 +221,16 @@ const TrendingTags = ({data}:TrendingTagsProps) => {
                 handleTagSelect(index);
                 setIsOpen(false);
               }}
-              className={`flex items-center gap-2 px-3.5 py-2.5 rounded-lg ${selectedTag === index 
+              className={`flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3.5 py-2 sm:py-2.5 rounded-lg ${selectedTag === index 
                 ? 'bg-gradient-to-br from-orange-600/20 to-orange-700/20 text-orange-400 border border-orange-700/30' 
                 : 'bg-[#1a1a1a] text-white hover:bg-[#252525]'} 
-              transition-all duration-300 text-sm font-medium transform hover:scale-105 group z-10`}
+              transition-all duration-300 text-xs sm:text-sm font-medium transform hover:scale-105 group z-10`}
             >
               {tag.icon && (
                 <span className={`${selectedTag === index ? 'text-orange-400' : 'text-orange-500'} transition-all duration-300 group-hover:rotate-12`}>
                   {typeof tag.icon === 'string'
                     ? tag.icon
-                    : tag.icon.component && <tag.icon.component size={tag.icon.size} />}
+                    : tag.icon.component && <tag.icon.component size={tag.icon.size ? (window.innerWidth < 640 ? tag.icon.size - 4 : tag.icon.size) : 16} />}
                 </span>
               )}
               <span className="truncate">{tag.name}</span>

@@ -1,6 +1,5 @@
-
 import { useState } from "react";
-import {  useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import type { MarketCard } from "../lib/interface";
 
 interface MarketCardsProps {
@@ -11,7 +10,7 @@ const MarketCards = ({ data }: MarketCardsProps) => {
   const hasBuyOptions = data.some((card) => card.buyOptions !== undefined);
   
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-6 m-[2rem]">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 lg:gap-6 px-3 sm:px-5 md:px-6 mx-2 sm:mx-4 md:mx-6">
       {data.map((data, index) => (
         <EnhancedCard key={index} data={data} hasBuyOptions={hasBuyOptions} />
       ))}
@@ -88,31 +87,31 @@ const EnhancedCard = ({ data, hasBuyOptions }: { data: MarketCard, hasBuyOptions
       onClick={handleCardClick}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      className="bg-gradient-to-b from-[#111] to-[#0a0a0a] rounded-xl border border-zinc-800 overflow-hidden shadow-xl relative h-[370px] flex flex-col p-0 transition-all duration-500 hover:shadow-2xl hover:shadow-orange-900/10 hover:border-zinc-700 group cursor-pointer"
+      className="bg-gradient-to-b from-[#111] to-[#0a0a0a] rounded-xl border border-zinc-800 overflow-hidden shadow-xl relative h-[350px] sm:h-[370px] flex flex-col p-0 transition-all duration-500 hover:shadow-2xl hover:shadow-orange-900/10 hover:border-zinc-700 group cursor-pointer"
     >
-      {/* Card content (unchanged) */}
+      {/* Card content with responsive improvements */}
       <div className="absolute inset-0 bg-gradient-to-br from-orange-900/5 via-transparent to-transparent pointer-events-none opacity-70 group-hover:opacity-100 transition-opacity duration-500"></div>
       <div className="absolute -top-20 -right-20 w-40 h-40 bg-orange-500/5 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
       
-      <div className="p-5 pb-2 flex items-center gap-3 border-b border-zinc-800/20">
-        <div className="w-10 h-10 rounded overflow-hidden bg-gradient-to-br from-zinc-800 to-black p-0.5 shadow-md shadow-black/20 group-hover:shadow-orange-900/20 transition-all duration-500">
+      <div className="p-3 sm:p-5 pb-2 flex items-center gap-2 sm:gap-3 border-b border-zinc-800/20">
+        <div className="w-8 h-8 sm:w-10 sm:h-10 rounded overflow-hidden bg-gradient-to-br from-zinc-800 to-black p-0.5 shadow-md shadow-black/20 group-hover:shadow-orange-900/20 transition-all duration-500">
           <img
             src={data.icon}
             alt={data.title}
             className="w-full h-full object-cover rounded-sm transform group-hover:scale-110 transition-transform duration-500"
           />
         </div>
-        <h3 className="text-white font-serif font-bold text-xl flex-1 tracking-wide group-hover:text-orange-50 transition-colors duration-300">
+        <h3 className="text-white font-serif font-bold text-base sm:text-lg md:text-xl flex-1 tracking-wide group-hover:text-orange-50 transition-colors duration-300 line-clamp-1">
           {data.title}
         </h3>
       </div>
 
       <div
-        className="px-5 pt-4 overflow-hidden flex-grow"
+        className="px-3 sm:px-5 pt-3 sm:pt-4 overflow-hidden flex-grow"
         style={{ minHeight: minContentHeight }}
       >
-        <div className="flex flex-col gap-y-4 items-start rounded-lg">
-          <p className="text-white font-serif text-xl leading-snug tracking-wide">
+        <div className="flex flex-col gap-y-3 sm:gap-y-4 items-start rounded-lg">
+          <p className="text-white font-serif text-base sm:text-lg md:text-xl leading-snug tracking-wide line-clamp-4 sm:line-clamp-3">
             {data.description}
           </p>
           
@@ -122,9 +121,9 @@ const EnhancedCard = ({ data, hasBuyOptions }: { data: MarketCard, hasBuyOptions
                 ? "bg-red-500 animate-pulse" 
                 : "bg-green-500"
             }`}></div>
-            <span className="text-zinc-300 text-sm">
+            <span className="text-zinc-300 text-xs sm:text-sm">
               Closes: {formatDate(data.closingAt)}
-              <span className="ml-2 text-xs text-orange-400 font-medium">
+              <span className="ml-2 text-xs text-orange-400 font-medium hidden sm:inline">
                 ({getTimeUntilClosing(data.closingAt.toString())})
               </span>
             </span>
@@ -132,26 +131,26 @@ const EnhancedCard = ({ data, hasBuyOptions }: { data: MarketCard, hasBuyOptions
         </div>
       </div>
       
-      <div className="flex justify-between items-center p-5 bg-gradient-to-r from-zinc-900/30 to-zinc-800/20">
+      <div className="flex justify-between items-center p-3 sm:p-5 bg-gradient-to-r from-zinc-900/30 to-zinc-800/20">
         <div className="flex items-center group/creator">
-          <span className="text-orange-400 font-bold text-md group-hover/creator:text-orange-300 transition-colors duration-300 underline decoration-orange-500/30 underline-offset-2 decoration-1">
+          <span className="text-orange-400 font-bold text-sm sm:text-md group-hover/creator:text-orange-300 transition-colors duration-300 underline decoration-orange-500/30 underline-offset-2 decoration-1 truncate max-w-[110px] sm:max-w-none">
             {data.creatorName}
           </span>
-          <span className="ml-2 px-2 py-0.5 bg-orange-500/10 rounded-full text-xs text-zinc-400 opacity-0 group-hover/creator:opacity-100 transition-all duration-300 transform translate-x-[-10px] group-hover/creator:translate-x-0">
+          <span className="ml-2 px-2 py-0.5 bg-orange-500/10 rounded-full text-xs text-zinc-400 hidden sm:inline-block opacity-0 group-hover/creator:opacity-100 transition-all duration-300 transform translate-x-[-10px] group-hover/creator:translate-x-0">
             Creator
           </span>
         </div>
 
-        <span className="text-zinc-500 font-serif text-sm">
+        <span className="text-zinc-500 font-serif text-xs sm:text-sm truncate max-w-[110px] sm:max-w-none">
           Created {formatDate(data.createdAt)}
         </span>
       </div>
       
       {hasBuyOptions && (
-        <div className="px-5 py-4 bg-gradient-to-b from-transparent to-zinc-900/20">
-          <div className="grid grid-cols-2 gap-3">
+        <div className="px-3 sm:px-5 py-3 sm:py-4 bg-gradient-to-b from-transparent to-zinc-900/20">
+          <div className="grid grid-cols-2 gap-2 sm:gap-3">
             <button 
-              className="bg-gradient-to-br from-green-600 to-green-800 hover:from-green-500 hover:to-green-700 py-3 rounded-md text-sm text-white flex items-center justify-center gap-1 transition-all duration-300 hover:shadow-lg hover:shadow-green-800/30 transform hover:translate-y-[-1px] group/buy"
+              className="bg-gradient-to-br from-green-600 to-green-800 hover:from-green-500 hover:to-green-700 py-2 sm:py-3 rounded-md text-xs sm:text-sm text-white flex items-center justify-center gap-1 transition-all duration-300 hover:shadow-lg hover:shadow-green-800/30 transform hover:translate-y-[-1px] group/buy"
               onClick={(e) => {
                 e.stopPropagation();
                 navigate(`/trade/${data.id}`, { 
@@ -183,21 +182,21 @@ const EnhancedCard = ({ data, hasBuyOptions }: { data: MarketCard, hasBuyOptions
               <span className="font-medium">Buy Yes</span>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
+                width="14"
+                height="14"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
                 strokeWidth="2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                className="group-hover/buy:translate-y-0.5 transition-transform duration-300"
+                className="group-hover/buy:translate-y-0.5 transition-transform duration-300 hidden sm:inline-block"
               >
                 <path d="m6 9 6 6 6-6" />
               </svg>
             </button>
             <button 
-              className="bg-gradient-to-br from-red-600 to-red-800 hover:from-red-500 hover:to-red-700 py-3 rounded-md text-sm text-white flex items-center justify-center gap-1 transition-all duration-300 hover:shadow-lg hover:shadow-red-800/30 transform hover:translate-y-[-1px] group/buy"
+              className="bg-gradient-to-br from-red-600 to-red-800 hover:from-red-500 hover:to-red-700 py-2 sm:py-3 rounded-md text-xs sm:text-sm text-white flex items-center justify-center gap-1 transition-all duration-300 hover:shadow-lg hover:shadow-red-800/30 transform hover:translate-y-[-1px] group/buy"
               onClick={(e) => {
                 e.stopPropagation();
                 navigate(`/trade/${data.id}`, { 
@@ -229,15 +228,15 @@ const EnhancedCard = ({ data, hasBuyOptions }: { data: MarketCard, hasBuyOptions
               <span className="font-medium">Buy No</span>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
+                width="14"
+                height="14"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
                 strokeWidth="2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                className="group-hover/buy:translate-y-0.5 transition-transform duration-300"
+                className="group-hover/buy:translate-y-0.5 transition-transform duration-300 hidden sm:inline-block"
               >
                 <path d="m6 9 6 6 6-6" />
               </svg>
@@ -246,13 +245,13 @@ const EnhancedCard = ({ data, hasBuyOptions }: { data: MarketCard, hasBuyOptions
         </div>
       )}
 
-      <div className="px-5 py-3 flex justify-between items-center border-t border-zinc-800/40 bg-black/30">
+      <div className="px-3 sm:px-5 py-2 sm:py-3 flex justify-between items-center border-t border-zinc-800/40 bg-black/30">
         <span className="text-white text-xs font-medium bg-zinc-800/50 px-2 py-1 rounded-full">
           {data.volume}
         </span>
         
         {data.timeframe && (
-          <span className="text-zinc-500 text-xs flex items-center gap-1 bg-zinc-800/30 px-2 py-1 rounded-full">
+          <span className="text-zinc-500 text-xs hidden sm:flex items-center gap-1 bg-zinc-800/30 px-2 py-1 rounded-full">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="12"
@@ -271,39 +270,41 @@ const EnhancedCard = ({ data, hasBuyOptions }: { data: MarketCard, hasBuyOptions
           </span>
         )}
         
-        <div className="flex gap-3">
+        <div className="flex gap-2 sm:gap-3">
           <button 
-            className="text-zinc-500 hover:text-orange-500 transition-colors hover:scale-110 duration-300 p-1.5 rounded-full hover:bg-zinc-800/40" 
+            className="text-zinc-500 hover:text-orange-500 transition-colors hover:scale-110 duration-300 p-1 sm:p-1.5 rounded-full hover:bg-zinc-800/40" 
             onClick={(e) => e.stopPropagation()}
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              width="14"
-              height="14"
+              width="12"
+              height="12"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
               strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
+              className="sm:w-14 sm:h-14"
             >
               <path d="M3 3h18v18H3zM8 12h8" />
             </svg>
           </button>
           <button 
-            className="text-zinc-500 hover:text-orange-500 transition-colors hover:scale-110 duration-300 p-1.5 rounded-full hover:bg-zinc-800/40" 
+            className="text-zinc-500 hover:text-orange-500 transition-colors hover:scale-110 duration-300 p-1 sm:p-1.5 rounded-full hover:bg-zinc-800/40" 
             onClick={(e) => e.stopPropagation()}
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              width="14"
-              height="14"
+              width="12"
+              height="12"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
               strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
+              className="sm:w-14 sm:h-14"
             >
               <path d="m19 21-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
             </svg>
