@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { FiX, FiInfo, FiCalendar } from 'react-icons/fi';
+import { FiInfo, FiCalendar } from 'react-icons/fi';
 import { Link } from 'react-router-dom';
 import { useToast } from '../hooks/useToast';
 import { uploadFile } from '../apis/files';
@@ -39,11 +39,11 @@ const CreatePredictionForm = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleOptionChange = (index: number, value: string) => {
-    const newOptions = [...formData.options];
-    newOptions[index] = value;
-    setFormData((prev) => ({ ...prev, options: newOptions }));
-  };
+  // const handleOptionChange = (index: number, value: string) => {
+  //   const newOptions = [...formData.options];
+  //   newOptions[index] = value;
+  //   setFormData((prev) => ({ ...prev, options: newOptions }));
+  // };
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -90,7 +90,7 @@ const CreatePredictionForm = () => {
     const dateStr = toISO8601(formData.endDate, formData.endTime);
     const authToken = await getAccessToken();
 
-    const [data, status] = await createMarket(
+    const [, status] = await createMarket(
       authToken!,
       formData.title,
       formData.resolutionCriteria,
@@ -119,21 +119,21 @@ const CreatePredictionForm = () => {
 
   };
 
-  const addOption = () => {
-    if (formData.options.length < 5) {
-      setFormData((prev) => ({
-        ...prev,
-        options: [...prev.options, '']
-      }));
-    }
-  };
+  // const addOption = () => {
+  //   if (formData.options.length < 5) {
+  //     setFormData((prev) => ({
+  //       ...prev,
+  //       options: [...prev.options, '']
+  //     }));
+  //   }
+  // };
 
-  const removeOption = (index: number) => {
-    if (formData.options.length > 2) {
-      const newOptions = formData.options.filter((_, i) => i !== index);
-      setFormData((prev) => ({ ...prev, options: newOptions }));
-    }
-  };
+  // const removeOption = (index: number) => {
+  //   if (formData.options.length > 2) {
+  //     const newOptions = formData.options.filter((_, i) => i !== index);
+  //     setFormData((prev) => ({ ...prev, options: newOptions }));
+  //   }
+  // };
 
   return (
     <div className="w-full max-w-2xl mx-auto py-6 px-4 sm:px-0">

@@ -108,7 +108,7 @@ const EditProfileModal = ({ isOpen, onClose, userData }: EditProfileModalProps) 
 
       const authToken = await getAccessToken();
 
-      const [data, status] = await updateMe(
+      const [, status] = await updateMe(
         formData.username,
         formData.about,
         imageUrl!,

@@ -1,5 +1,4 @@
 import axios from 'axios';
-import type { MarketListResponse } from '../types/apis';
 
 
 export const createMarket = async (authToken: string, question: string, resolution_criteria: string, description: string, expiry_date: string, image: string) => {
