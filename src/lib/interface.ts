@@ -126,3 +126,11 @@ export interface TradeState {
   marketData: MarketData | null;
   chartData: ChartDataPoint[] | null;
 }
+
+
+export interface UpdateProfileData {
+  username: string;
+  profile_pic?: File;
+  about: string;
+  keepExistingImage: boolean;
+}

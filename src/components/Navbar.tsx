@@ -14,7 +14,7 @@ import { PRIVY_APP_ID } from "../lib/privy";
 import { loginApi } from "../apis/auth";
 import { useToast } from "../hooks/useToast";
 import { useAtom } from "jotai";
-import { userAtom } from "../atoms/user";
+import { refreshUserAtom, userAtom } from "../atoms/user";
 
 const Navbar = () => {
   const [networkName, setNetworkName] = useState("Base");
@@ -32,6 +32,7 @@ const Navbar = () => {
   const { login, authenticated, logout, getAccessToken, user, ready } = usePrivy();
   const {success, error: toastError} = useToast();
   const [, setUser] = useAtom(userAtom);
+  const [refreshUser,] = useAtom(refreshUserAtom);
 
   // Copy address to clipboard
   const copyToClipboard = (text: string) => {
@@ -177,7 +178,7 @@ const Navbar = () => {
       toastError("Something went wrong!", 2);
     })  
 
-  }, [authenticated])
+  }, [authenticated, refreshUser])
 
   return (
     <nav className="flex flex-col md:flex-row md:items-center md:justify-between px-4 lg:px-8 py-4 bg-black text-white border-b border-gray-800 ">

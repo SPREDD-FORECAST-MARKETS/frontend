@@ -3,3 +3,4 @@ import type { User } from "../types/apis";
 
 
 export const userAtom = atom<User | null>(null);
+export const refreshUserAtom = atom<number>(0);

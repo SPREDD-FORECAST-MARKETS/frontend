@@ -4,11 +4,14 @@ import { Link } from 'react-router-dom';
 import { useAtom } from 'jotai';
 import { userAtom } from '../atoms/user';
 import { useWallets } from '@privy-io/react-auth';
+import EditProfileModal from './EditProfile';
 
 const UserProfile = () => {
 
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [userData,] = useAtom(userAtom);
   const { wallets } = useWallets();
+
 
   const transactions = [
     { id: '1', date: '2024-01-1', amount: '$100.00', type: 'buy', status: 'completed' },
@@ -198,7 +201,7 @@ const UserProfile = () => {
                 </div>
               </div>
 
-              <button className="bg-zinc-900 px-4 py-2 sm:px-5 sm:py-2.5 rounded-lg border border-zinc-800 hover:border-orange-500/50 hover:bg-zinc-800 transition-all duration-300 flex items-center gap-2 text-sm group mt-2 sm:mt-0 md:mt-12">
+              <button onClick={() => { setIsEditModalOpen(true) }} className="bg-zinc-900 px-4 py-2 sm:px-5 sm:py-2.5 rounded-lg border border-zinc-800 hover:border-orange-500/50 hover:bg-zinc-800 transition-all duration-300 flex items-center gap-2 text-sm group mt-2 sm:mt-0 md:mt-12">
                 <Edit3 size={16} className="text-orange-500 group-hover:rotate-12 transition-transform duration-200" />
                 <span>Edit Profile</span>
               </button>
@@ -506,6 +509,16 @@ const UserProfile = () => {
           <Zap size={20} className="text-white" />
         </button>
       </div>
+
+      <EditProfileModal
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        userData={{
+          username: userData?.username,
+          profile_pic: userData?.profile_pic!,
+          about: userData?.about
+        }}
+      />
     </div>
   );
 };
