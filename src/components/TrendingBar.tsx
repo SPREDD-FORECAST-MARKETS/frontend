@@ -3,10 +3,11 @@ import { ChevronDown, ChevronRight, X } from 'lucide-react';
 import type { TrendingTagsData } from '../lib/interface';
 
 interface TrendingTagsProps {
-  data: TrendingTagsData[]
+  data: TrendingTagsData[],
+  onChangeTag:  React.Dispatch<React.SetStateAction<string | undefined>>
 }
 
-const TrendingTags = ({data}:TrendingTagsProps) => {
+const TrendingTags = ({data, onChangeTag}:TrendingTagsProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [scrollPosition, setScrollPosition] = useState(0);
   const [selectedTag, setSelectedTag] = useState<number>(0);
@@ -89,8 +90,10 @@ const TrendingTags = ({data}:TrendingTagsProps) => {
   };
 
   // Handle tag selection with smooth scroll into view
-  const handleTagSelect = (index: number) => {
+  const handleTagSelect = (index: number, tag: string) => {
     setSelectedTag(index);
+    
+    onChangeTag(tag);
     
     // Scroll tag into view if needed
     const tagElements = scrollContainerRef.current?.children;
@@ -139,7 +142,7 @@ const TrendingTags = ({data}:TrendingTagsProps) => {
             {data.map((tag, index) => (
               <button
                 key={tag.id}
-                onClick={() => handleTagSelect(index)}
+                onClick={() => handleTagSelect(index, tag.name)}
                 className={`flex items-center gap-1 sm:gap-2 px-3 sm:px-5 py-1.5 sm:py-2 rounded-full font-serif text-sm sm:text-base md:text-lg
                   ${index === selectedTag 
                     ? 'bg-orange-500 text-white shadow-md font-medium' 
@@ -218,7 +221,7 @@ const TrendingTags = ({data}:TrendingTagsProps) => {
             <button
               key={`dropdown-${index}`}
               onClick={() => {
-                handleTagSelect(index);
+                handleTagSelect(index, tag.name);
                 setIsOpen(false);
               }}
               className={`flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3.5 py-2 sm:py-2.5 rounded-lg ${selectedTag === index 

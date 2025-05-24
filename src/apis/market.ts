@@ -1,4 +1,6 @@
 import axios from 'axios';
+import type { MarketListResponse } from '../types/apis';
+
 
 export const createMarket = async (authToken: string, question: string, resolution_criteria: string, description: string, expiry_date: string, image: string) => {
   try {
@@ -26,4 +28,39 @@ export const createMarket = async (authToken: string, question: string, resoluti
     console.error('Failed to create market:', error.response?.data || error.message);
     throw [null, -1];
   }
+};
+
+
+
+export const fetchMarkets = async ({
+  tags,
+  sortBy = 'desc',
+  orderBy = 'createdAt',
+  page = 1,
+  size = 100,
+}: {
+  tags?: string[];
+  sortBy?: string;
+  orderBy?: string;
+  page?: number;
+  size?: number;
+}) => {
+  const response = await axios.post(
+    `${import.meta.env.VITE_BACKEND_URL}/market/markets`,
+    {
+      tags,
+      sortBy,
+      orderBy,
+      page,
+      size,
+    },
+    {
+      headers: {
+        'Content-Type': 'application/json',
+        accept: '*/*',
+      },
+    }
+  );
+
+  return response.data;
 };

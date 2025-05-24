@@ -1,14 +1,15 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import type { MarketCard } from "../lib/interface";
+import type { Market } from "../types/apis";
 
 interface MarketCardsProps {
-  data: MarketCard[];
+  data: Market[];
 }
 
 const MarketCards = ({ data }: MarketCardsProps) => {
-  const hasBuyOptions = data.some((card) => card.buyOptions !== undefined);
-  
+  // const hasBuyOptions = data.some((card) => card.buyOptions !== undefined);
+  const hasBuyOptions = true;
+
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 lg:gap-6 px-3 sm:px-5 md:px-6 mx-2 sm:mx-4 md:mx-6">
       {data.map((data, index) => (
@@ -19,12 +20,13 @@ const MarketCards = ({ data }: MarketCardsProps) => {
 };
 
 // Separate component for each card to enable individual state management
-const EnhancedCard = ({ data, hasBuyOptions }: { data: MarketCard, hasBuyOptions: boolean }) => {
+const EnhancedCard = ({ data, hasBuyOptions }: { data: Market, hasBuyOptions: boolean }) => {
   const [, setIsHovered] = useState(false);
   const navigate = useNavigate();
-  const optionsCount = data.options?.length || 0;
+  // const optionsCount = data.options?.length || 0;
+  const optionsCount = 2;
   const minContentHeight = Math.max(40 * optionsCount, 120);
-  
+
   // Format dates nicely
   const formatDate = (date: string | Date) => {
     const dateObj = typeof date === "string" ? new Date(date) : date;
@@ -33,18 +35,18 @@ const EnhancedCard = ({ data, hasBuyOptions }: { data: MarketCard, hasBuyOptions
       timeStyle: "short",
     });
   };
-  
+
   // Calculate time until closing
   const getTimeUntilClosing = (closingDate: string) => {
     const now = new Date();
     const closing = new Date(closingDate);
     const diffTime = closing.getTime() - now.getTime();
-    
+
     if (diffTime <= 0) return "Closed";
-    
+
     const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
     const diffHours = Math.floor((diffTime % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    
+
     if (diffDays > 0) {
       return `${diffDays}d ${diffHours}h left`;
     } else {
@@ -56,34 +58,28 @@ const EnhancedCard = ({ data, hasBuyOptions }: { data: MarketCard, hasBuyOptions
   // Handle navigation with state
   const handleCardClick = (e: React.MouseEvent) => {
     e.preventDefault();
-    
+
     // Transform MarketCard data into the expected MarketData format
     const marketData = {
       id: data.id,
-      name: data.title,
-      type: data.timeframe || 'Standard',
-      outcomes: { 
-        yes: `Yes - ${data.description}`, 
-        no: `No - ${data.description}` 
+      name: data.question,
+      outcomes: {
+        yes: `Yes`,
+        no: `No`
       },
-      category: data.category || 'General',
-      endDate: formatDate(data.closingAt),
-      creator: data.creatorName,
-      volume: data.volume || '$0',
-      probabilities: { 
-        yes: data.yesPercentage || 0.5, 
-        no: data.noPercentage || 0.5 
-      },
+      tags: data.tags,
+      endDate: formatDate(data.expiry_date),
+      creator: data.creator.username,
       description: data.description,
-      iconUrl: data.icon
+      iconUrl: data.image
     };
-    
+
     // Navigate programmatically with state
     navigate(`/trade/${data.id}`, { state: { marketData } });
   };
 
   return (
-    <div 
+    <div
       onClick={handleCardClick}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
@@ -92,17 +88,17 @@ const EnhancedCard = ({ data, hasBuyOptions }: { data: MarketCard, hasBuyOptions
       {/* Card content with responsive improvements */}
       <div className="absolute inset-0 bg-gradient-to-br from-orange-900/5 via-transparent to-transparent pointer-events-none opacity-70 group-hover:opacity-100 transition-opacity duration-500"></div>
       <div className="absolute -top-20 -right-20 w-40 h-40 bg-orange-500/5 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
-      
+
       <div className="p-3 sm:p-5 pb-2 flex items-center gap-2 sm:gap-3 border-b border-zinc-800/20">
         <div className="w-8 h-8 sm:w-10 sm:h-10 rounded overflow-hidden bg-gradient-to-br from-zinc-800 to-black p-0.5 shadow-md shadow-black/20 group-hover:shadow-orange-900/20 transition-all duration-500">
           <img
-            src={data.icon}
-            alt={data.title}
+            src={data.image}
+            alt={data.question}
             className="w-full h-full object-cover rounded-sm transform group-hover:scale-110 transition-transform duration-500"
           />
         </div>
         <h3 className="text-white font-serif font-bold text-base sm:text-lg md:text-xl flex-1 tracking-wide group-hover:text-orange-50 transition-colors duration-300 line-clamp-1">
-          {data.title}
+          {data.question}
         </h3>
       </div>
 
@@ -114,27 +110,26 @@ const EnhancedCard = ({ data, hasBuyOptions }: { data: MarketCard, hasBuyOptions
           <p className="text-white font-serif text-base sm:text-lg md:text-xl leading-snug tracking-wide line-clamp-4 sm:line-clamp-3">
             {data.description}
           </p>
-          
+
           <div className="flex items-center mt-1 bg-zinc-800/30 rounded-full pl-2 pr-3 py-1 group-hover:bg-zinc-800/50 transition-colors duration-300">
-            <div className={`w-2 h-2 rounded-full mr-2 ${
-              new Date(data.closingAt).getTime() - new Date().getTime() < 86400000 
-                ? "bg-red-500 animate-pulse" 
-                : "bg-green-500"
-            }`}></div>
+            <div className={`w-2 h-2 rounded-full mr-2 ${new Date(data.expiry_date).getTime() - new Date().getTime() < 86400000
+              ? "bg-red-500 animate-pulse"
+              : "bg-green-500"
+              }`}></div>
             <span className="text-zinc-300 text-xs sm:text-sm">
-              Closes: {formatDate(data.closingAt)}
+              Closes: {formatDate(data.expiry_date)}
               <span className="ml-2 text-xs text-orange-400 font-medium hidden sm:inline">
-                ({getTimeUntilClosing(data.closingAt.toString())})
+                ({getTimeUntilClosing(data.expiry_date.toString())})
               </span>
             </span>
           </div>
         </div>
       </div>
-      
+
       <div className="flex justify-between items-center p-3 sm:p-5 bg-gradient-to-r from-zinc-900/30 to-zinc-800/20">
         <div className="flex items-center group/creator">
           <span className="text-orange-400 font-bold text-sm sm:text-md group-hover/creator:text-orange-300 transition-colors duration-300 underline decoration-orange-500/30 underline-offset-2 decoration-1 truncate max-w-[110px] sm:max-w-none">
-            {data.creatorName}
+            {data.creator.username}
           </span>
           <span className="ml-2 px-2 py-0.5 bg-orange-500/10 rounded-full text-xs text-zinc-400 hidden sm:inline-block opacity-0 group-hover/creator:opacity-100 transition-all duration-300 transform translate-x-[-10px] group-hover/creator:translate-x-0">
             Creator
@@ -145,36 +140,30 @@ const EnhancedCard = ({ data, hasBuyOptions }: { data: MarketCard, hasBuyOptions
           Created {formatDate(data.createdAt)}
         </span>
       </div>
-      
+
       {hasBuyOptions && (
         <div className="px-3 sm:px-5 py-3 sm:py-4 bg-gradient-to-b from-transparent to-zinc-900/20">
           <div className="grid grid-cols-2 gap-2 sm:gap-3">
-            <button 
+            <button
               className="bg-gradient-to-br from-green-600 to-green-800 hover:from-green-500 hover:to-green-700 py-2 sm:py-3 rounded-md text-xs sm:text-sm text-white flex items-center justify-center gap-1 transition-all duration-300 hover:shadow-lg hover:shadow-green-800/30 transform hover:translate-y-[-1px] group/buy"
               onClick={(e) => {
                 e.stopPropagation();
-                navigate(`/trade/${data.id}`, { 
-                  state: { 
+                navigate(`/trade/${data.id}`, {
+                  state: {
                     marketData: {
                       id: data.id,
-                      name: data.title,
-                      type: data.timeframe || 'Standard',
-                      outcomes: { 
-                        yes: `Yes - ${data.description}`, 
-                        no: `No - ${data.description}` 
+                      name: data.question,
+                      outcomes: {
+                        yes: `Yes`,
+                        no: `No`
                       },
-                      category: data.category || 'General',
-                      endDate: formatDate(data.closingAt),
-                      creator: data.creatorName,
-                      volume: data.volume || '$0',
-                      probabilities: { 
-                        yes: data.yesPercentage || 0.5, 
-                        no: data.noPercentage || 0.5 
-                      },
+                      tags: data.tags,
+                      endDate: formatDate(data.expiry_date),
+                      creator: data.creator.username,
                       description: data.description,
-                      iconUrl: data.icon
-                    }, 
-                    initialBuy: true 
+                      iconUrl: data.image
+                    },
+                    initialBuy: true
                   }
                 });
               }}
@@ -195,32 +184,26 @@ const EnhancedCard = ({ data, hasBuyOptions }: { data: MarketCard, hasBuyOptions
                 <path d="m6 9 6 6 6-6" />
               </svg>
             </button>
-            <button 
+            <button
               className="bg-gradient-to-br from-red-600 to-red-800 hover:from-red-500 hover:to-red-700 py-2 sm:py-3 rounded-md text-xs sm:text-sm text-white flex items-center justify-center gap-1 transition-all duration-300 hover:shadow-lg hover:shadow-red-800/30 transform hover:translate-y-[-1px] group/buy"
               onClick={(e) => {
                 e.stopPropagation();
-                navigate(`/trade/${data.id}`, { 
-                  state: { 
+                navigate(`/trade/${data.id}`, {
+                  state: {
                     marketData: {
                       id: data.id,
-                      name: data.title,
-                      type: data.timeframe || 'Standard',
-                      outcomes: { 
-                        yes: `Yes - ${data.description}`, 
-                        no: `No - ${data.description}` 
+                      name: data.question,
+                      outcomes: {
+                        yes: `Yes`,
+                        no: `No`
                       },
-                      category: data.category || 'General',
-                      endDate: formatDate(data.closingAt),
-                      creator: data.creatorName,
-                      volume: data.volume || '$0',
-                      probabilities: { 
-                        yes: data.yesPercentage || 0.5, 
-                        no: data.noPercentage || 0.5 
-                      },
+                      tags: data.tags,
+                      endDate: formatDate(data.expiry_date),
+                      creator: data.creator.username,
                       description: data.description,
-                      iconUrl: data.icon
-                    }, 
-                    initialBuy: false 
+                      iconUrl: data.image
+                    },
+                    initialBuy: false
                   }
                 });
               }}
@@ -245,72 +228,6 @@ const EnhancedCard = ({ data, hasBuyOptions }: { data: MarketCard, hasBuyOptions
         </div>
       )}
 
-      <div className="px-3 sm:px-5 py-2 sm:py-3 flex justify-between items-center border-t border-zinc-800/40 bg-black/30">
-        <span className="text-white text-xs font-medium bg-zinc-800/50 px-2 py-1 rounded-full">
-          {data.volume}
-        </span>
-        
-        {data.timeframe && (
-          <span className="text-zinc-500 text-xs hidden sm:flex items-center gap-1 bg-zinc-800/30 px-2 py-1 rounded-full">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="12"
-              height="12"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <circle cx="12" cy="12" r="10" />
-              <polyline points="12 6 12 12 16 14" />
-            </svg>
-            {data.timeframe}
-          </span>
-        )}
-        
-        <div className="flex gap-2 sm:gap-3">
-          <button 
-            className="text-zinc-500 hover:text-orange-500 transition-colors hover:scale-110 duration-300 p-1 sm:p-1.5 rounded-full hover:bg-zinc-800/40" 
-            onClick={(e) => e.stopPropagation()}
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="12"
-              height="12"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="sm:w-14 sm:h-14"
-            >
-              <path d="M3 3h18v18H3zM8 12h8" />
-            </svg>
-          </button>
-          <button 
-            className="text-zinc-500 hover:text-orange-500 transition-colors hover:scale-110 duration-300 p-1 sm:p-1.5 rounded-full hover:bg-zinc-800/40" 
-            onClick={(e) => e.stopPropagation()}
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="12"
-              height="12"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="sm:w-14 sm:h-14"
-            >
-              <path d="m19 21-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
-            </svg>
-          </button>
-        </div>
-      </div>
     </div>
   );
 };

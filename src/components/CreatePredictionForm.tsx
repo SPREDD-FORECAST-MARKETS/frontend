@@ -89,7 +89,7 @@ const CreatePredictionForm = () => {
 
     const dateStr = toISO8601(formData.endDate, formData.endTime);
     const authToken = await getAccessToken();
-    console.log(dateStr)
+
     const [data, status] = await createMarket(
       authToken!,
       formData.title,
