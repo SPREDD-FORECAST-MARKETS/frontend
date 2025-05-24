@@ -12,6 +12,7 @@
   "dependencies": {
     "@privy-io/react-auth": "^2.13.2",
     "axios": "^1.9.0",
+    "jotai": "^2.12.4",
     "lightweight-charts": "^5.0.7",
     "lucide-react": "^0.511.0",
     "react": "^19.1.0",

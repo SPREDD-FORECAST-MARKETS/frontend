@@ -11,19 +11,40 @@ import { formatEther } from "viem";
 import { UserRound, Wallet, LogOut, Copy, ExternalLink } from "lucide-react";
 
 import { PRIVY_APP_ID } from "../lib/privy";
+import { loginApi } from "../apis/auth";
+import { useToast } from "../hooks/useToast";
+import { useAtom } from "jotai";
+import { userAtom } from "../atoms/user";
 
 const Navbar = () => {
-  const { login, authenticated, logout, getAccessToken, user, ready } =
-    usePrivy();
   const [networkName, setNetworkName] = useState("Base");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [balance, setBalance] = useState<string | null>(null);
   const [isLoadingBalance, setIsLoadingBalance] = useState(false);
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
   const [copySuccess, setCopySuccess] = useState(false);
-
+  
+  
+  
   const profileDropdownRef = useRef<HTMLDivElement>(null);
   const profileButtonRef = useRef<HTMLButtonElement>(null);
+  
+  const { login, authenticated, logout, getAccessToken, user, ready } = usePrivy();
+  const {success, error: toastError} = useToast();
+  const [, setUser] = useAtom(userAtom);
+
+  // Copy address to clipboard
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text);
+    setCopySuccess(true);
+    setTimeout(() => setCopySuccess(false), 2000);
+  };
+
+  // Format address for display
+  const formatAddress = (address: string | undefined) => {
+    if (!address) return "";
+    return `${address.slice(0, 6)}...${address.slice(-4)}`;
+  };
 
   // Handle clicks outside to close dropdown
   useEffect(() => {
@@ -119,7 +140,7 @@ const Navbar = () => {
 
           setNetworkName(
             chainIdMap[user.wallet.chainType] ||
-              `Chain ${user.wallet.chainType}`
+            `Chain ${user.wallet.chainType}`
           );
         }
       } catch (error) {
@@ -134,18 +155,29 @@ const Navbar = () => {
     }
   }, [authenticated, user, ready, getAccessToken]);
 
-  // Copy address to clipboard
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text);
-    setCopySuccess(true);
-    setTimeout(() => setCopySuccess(false), 2000);
-  };
 
-  // Format address for display
-  const formatAddress = (address: string | undefined) => {
-    if (!address) return "";
-    return `${address.slice(0, 6)}...${address.slice(-4)}`;
-  };
+
+  useEffect(()=> {
+
+    if (!authenticated) return;
+
+    getAccessToken().then(async (authToken)=> {
+      const [data, status] = await loginApi(authToken!);
+
+      if (status === -1) {
+        toastError("Failed to login!", 2);
+        return;
+      }
+
+      setUser(data);
+
+      success("Welcome to Spredd!", 2);
+    }).catch((error: any) => {
+      console.error("Error: ", error);
+      toastError("Something went wrong!", 2);
+    })  
+
+  }, [authenticated])
 
   return (
     <nav className="flex flex-col md:flex-row md:items-center md:justify-between px-4 lg:px-8 py-4 bg-black text-white border-b border-gray-800 ">
@@ -285,11 +317,10 @@ const Navbar = () => {
                 <button
                   ref={profileButtonRef}
                   onClick={() => setShowProfileDropdown(!showProfileDropdown)}
-                  className={`text-gray-300 p-2 rounded-full transition-all duration-300 transform ${
-                    showProfileDropdown
-                      ? "bg-orange-500 text-black rotate-[360deg]"
-                      : "hover:bg-gray-800 hover:text-white"
-                  }`}
+                  className={`text-gray-300 p-2 rounded-full transition-all duration-300 transform ${showProfileDropdown
+                    ? "bg-orange-500 text-black rotate-[360deg]"
+                    : "hover:bg-gray-800 hover:text-white"
+                    }`}
                 >
                   <UserRound className="h-6 w-6" />
                 </button>
@@ -394,11 +425,10 @@ const Navbar = () => {
             <button
               ref={profileButtonRef}
               onClick={() => setShowProfileDropdown(!showProfileDropdown)}
-              className={`text-gray-300 p-2 rounded-full transition-all duration-300 transform ${
-                showProfileDropdown
-                  ? "bg-orange-500 text-black rotate-[360deg]"
-                  : "hover:bg-gray-800 hover:text-white"
-              }`}
+              className={`text-gray-300 p-2 rounded-full transition-all duration-300 transform ${showProfileDropdown
+                ? "bg-orange-500 text-black rotate-[360deg]"
+                : "hover:bg-gray-800 hover:text-white"
+                }`}
             >
               <UserRound className="h-6 w-6" />
             </button>

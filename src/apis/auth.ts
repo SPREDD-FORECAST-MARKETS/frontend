@@ -4,7 +4,7 @@ import type { User } from "../types/apis";
 
 
 
-export const login  = async (authToken: string): Promise<[User | null, number]> => {
+export const loginApi  = async (authToken: string): Promise<[User | null, number]> => {
     
     try {
         const resp = await axios.post<User>(`${import.meta.env.VITE_BACKEND_URL}/auth/login`, '', {
