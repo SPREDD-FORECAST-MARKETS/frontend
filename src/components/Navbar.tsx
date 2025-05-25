@@ -310,100 +310,27 @@ const Navbar = () => {
           {/* Wallet Section */}
           <div className="px-6 py-4 border-t border-zinc-800">
             {authenticated ? (
-              <div className="relative">
-                {/* Profile button */}
-                <button
-                  ref={profileButtonRef}
-                  onClick={() => setShowProfileDropdown(!showProfileDropdown)}
-                  className={`text-gray-300 p-2 rounded-full transition-all duration-300 transform ${
-                    showProfileDropdown
-                      ? "bg-orange-500 text-black rotate-[360deg]"
-                      : "hover:bg-gray-800 hover:text-white"
-                  }`}
+              <div className="space-y-4">
+                {/* Profile Link */}
+                <Link
+                  to="/user/profile"
+                  className="flex items-center gap-2 hover:text-orange-500 transition-colors duration-200"
                 >
-                  <UserRound className="h-6 w-6" />
+                  <UserRound className="h-4 w-4" />
+                  <span className="text- font-medium">My Profile</span>
+                </Link>
+
+                {/* Disconnect Wallet Button */}
+                <button
+                  onClick={() => {
+                    logout();
+                    setShowProfileDropdown(false);
+                  }}
+                  className="flex items-center w-full font-medium  text-left text-md text-white hover:bg-zinc-800 rounded-lg transition-colors"
+                >
+                  <LogOut className="h-4 w-4 mr-3 text-orange-500" />
+                  Disconnect Wallet
                 </button>
-
-                {/* Dropdown */}
-                {showProfileDropdown && (
-                  <div
-                    ref={profileDropdownRef}
-                    className="absolute  w-80 bg-gradient-to-b from-zinc-900 to-zinc-950 border border-zinc-700/50 rounded-xl shadow-2xl z-50 mt-4"
-                  >
-                    {/* Header */}
-                    <div className="px-5 py-4 border-b border-zinc-800/70 bg-gradient-to-r from-orange-500/5 to-transparent">
-                      <div className="flex items-start justify-between">
-                        <div>
-                          <h3 className="text-white font-medium">My Profile</h3>
-                          <p className="text-sm text-zinc-400 mt-1 flex items-center">
-                            <span className="bg-green-500 w-2 h-2 rounded-full mr-2" />
-                            Connected to {networkName}
-                          </p>
-                        </div>
-                        <div className="bg-zinc-800 h-12 w-12 rounded-full flex items-center justify-center text-orange-500">
-                          <UserRound size={22} />
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Wallet Info */}
-                    <div className="px-5 py-4 border-b border-zinc-800/50">
-                      <h4 className="text-sm text-zinc-400 mb-2 flex items-center">
-                        <Wallet size={14} className="mr-2 text-orange-500" />
-                        Wallet
-                      </h4>
-                      <div className="flex justify-between items-center mb-2">
-                        <p className="text-sm text-white flex items-center">
-                          <span>{formatAddress(user?.wallet?.address)}</span>
-                          <button
-                            onClick={() =>
-                              user?.wallet?.address &&
-                              copyToClipboard(user.wallet.address)
-                            }
-                            className="ml-2 text-zinc-400 hover:text-orange-500 transition-colors"
-                          >
-                            {copySuccess ? (
-                              <span className="text-green-500 text-xs">
-                                Copied!
-                              </span>
-                            ) : (
-                              <Copy size={14} />
-                            )}
-                          </button>
-                        </p>
-                        <a
-                          href={`https://basescan.org/address/${user?.wallet?.address}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-orange-500 hover:text-orange-400 text-xs flex items-center"
-                        >
-                          View <ExternalLink size={12} className="ml-1" />
-                        </a>
-                      </div>
-                    </div>
-
-                    {/* Profile Actions */}
-                    <div className="px-2 py-2">
-                      <Link
-                        to="/user/profile"
-                        className="flex items-center px-3 py-2 text-sm text-white hover:bg-zinc-800 rounded-lg transition-colors"
-                      >
-                        <FaUser className="h-4 w-4 mr-3 text-orange-500" />
-                        My Profile
-                      </Link>
-                      <button
-                        onClick={() => {
-                          logout();
-                          setShowProfileDropdown(false);
-                        }}
-                        className="flex items-center px-3 py-2 w-full text-left text-sm text-white hover:bg-zinc-800 rounded-lg transition-colors"
-                      >
-                        <LogOut className="h-4 w-4 mr-3 text-orange-500" />
-                        Disconnect Wallet
-                      </button>
-                    </div>
-                  </div>
-                )}
               </div>
             ) : (
               <button
