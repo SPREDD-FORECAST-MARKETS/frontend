@@ -23,16 +23,15 @@ const Navbar = () => {
   const [isLoadingBalance, setIsLoadingBalance] = useState(false);
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
   const [copySuccess, setCopySuccess] = useState(false);
-  
-  
-  
+
   const profileDropdownRef = useRef<HTMLDivElement>(null);
   const profileButtonRef = useRef<HTMLButtonElement>(null);
-  
-  const { login, authenticated, logout, getAccessToken, user, ready } = usePrivy();
-  const {success, error: toastError} = useToast();
+
+  const { login, authenticated, logout, getAccessToken, user, ready } =
+    usePrivy();
+  const { success, error: toastError } = useToast();
   const [, setUser] = useAtom(userAtom);
-  const [refreshUser,] = useAtom(refreshUserAtom);
+  const [refreshUser] = useAtom(refreshUserAtom);
 
   // Copy address to clipboard
   const copyToClipboard = (text: string) => {
@@ -141,7 +140,7 @@ const Navbar = () => {
 
           setNetworkName(
             chainIdMap[user.wallet.chainType] ||
-            `Chain ${user.wallet.chainType}`
+              `Chain ${user.wallet.chainType}`
           );
         }
       } catch (error) {
@@ -156,29 +155,27 @@ const Navbar = () => {
     }
   }, [authenticated, user, ready, getAccessToken]);
 
-
-
-  useEffect(()=> {
-
+  useEffect(() => {
     if (!authenticated) return;
 
-    getAccessToken().then(async (authToken)=> {
-      const [data, status] = await loginApi(authToken!);
+    getAccessToken()
+      .then(async (authToken) => {
+        const [data, status] = await loginApi(authToken!);
 
-      if (status === -1) {
-        toastError("Failed to login!", 2);
-        return;
-      }
+        if (status === -1) {
+          toastError("Failed to login!", 2);
+          return;
+        }
 
-      setUser(data);
+        setUser(data);
 
-      success("Welcome to Spredd!", 2);
-    }).catch((error: any) => {
-      console.error("Error: ", error);
-      toastError("Something went wrong!", 2);
-    })  
-
-  }, [authenticated, refreshUser])
+        success("Welcome to Spredd!", 2);
+      })
+      .catch((error) => {
+        console.error("Error: ", error);
+        toastError("Something went wrong!", 2);
+      });
+  }, [authenticated, refreshUser]);
 
   return (
     <nav className="flex flex-col md:flex-row md:items-center md:justify-between px-4 lg:px-8 py-4 bg-black text-white border-b border-gray-800 ">
@@ -318,10 +315,11 @@ const Navbar = () => {
                 <button
                   ref={profileButtonRef}
                   onClick={() => setShowProfileDropdown(!showProfileDropdown)}
-                  className={`text-gray-300 p-2 rounded-full transition-all duration-300 transform ${showProfileDropdown
-                    ? "bg-orange-500 text-black rotate-[360deg]"
-                    : "hover:bg-gray-800 hover:text-white"
-                    }`}
+                  className={`text-gray-300 p-2 rounded-full transition-all duration-300 transform ${
+                    showProfileDropdown
+                      ? "bg-orange-500 text-black rotate-[360deg]"
+                      : "hover:bg-gray-800 hover:text-white"
+                  }`}
                 >
                   <UserRound className="h-6 w-6" />
                 </button>
@@ -426,10 +424,11 @@ const Navbar = () => {
             <button
               ref={profileButtonRef}
               onClick={() => setShowProfileDropdown(!showProfileDropdown)}
-              className={`text-gray-300 p-2 rounded-full transition-all duration-300 transform ${showProfileDropdown
-                ? "bg-orange-500 text-black rotate-[360deg]"
-                : "hover:bg-gray-800 hover:text-white"
-                }`}
+              className={`text-gray-300 p-2 rounded-full transition-all duration-300 transform ${
+                showProfileDropdown
+                  ? "bg-orange-500 text-black rotate-[360deg]"
+                  : "hover:bg-gray-800 hover:text-white"
+              }`}
             >
               <UserRound className="h-6 w-6" />
             </button>
