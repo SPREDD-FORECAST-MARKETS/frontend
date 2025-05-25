@@ -10,7 +10,9 @@ const TrendingMarket = ({ data }: TrendingMarketProps) => {
     <div className="border border-zinc-800 rounded-xl w-full">
       <div className="bg-gradient-to-b from-[#111] to-[#0a0a0a] rounded-xl p-4 sm:p-6 shadow-lg">
         <div className="flex flex-col xs:flex-row items-start xs:items-center justify-between mb-4 sm:mb-6 gap-3">
-          <h2 className="text-white font-serif text-xl sm:text-2xl md:text-3xl font-bold">Trending Markets</h2>
+          <h2 className="text-white font-serif text-2xl sm:text-2xl md:text-3xl font-bold">
+            Trending Markets
+          </h2>
           <div className="flex space-x-2">
             <button className="bg-gradient-to-br from-orange-600 to-orange-700 p-1.5 sm:p-2 rounded-full shadow-lg shadow-orange-500/20 transition-all duration-300 hover:shadow-orange-500/40 hover:scale-110 hover:from-orange-500 hover:to-orange-600">
               <Flame className="text-orange-500 w-4 h-4 sm:w-5 sm:h-5" />
@@ -23,7 +25,7 @@ const TrendingMarket = ({ data }: TrendingMarketProps) => {
             </button>
           </div>
         </div>
-        
+
         <div className="space-y-2">
           {data.map((item) => (
             <div
@@ -41,11 +43,11 @@ const TrendingMarket = ({ data }: TrendingMarketProps) => {
                 />
               </div>
               <div className="flex-1 mr-2 sm:mr-4">
-                <p className="text-white font-serif text-xs sm:text-sm md:text-base group-hover:text-orange-100 transition-colors duration-300 line-clamp-1 sm:line-clamp-none">
+                <p className="text-white font-serif text-md sm:text-sm md:text-base group-hover:text-orange-100 transition-colors duration-300 line-clamp-1 sm:line-clamp-none">
                   {item.title}
                 </p>
               </div>
-              <div className="text-orange-500 font-serif text-xs sm:text-sm md:text-base whitespace-nowrap group-hover:text-orange-400 group-hover:scale-105 transition-all duration-300">
+              <div className="text-orange-500 font-serif text-md sm:text-sm md:text-base whitespace-nowrap group-hover:text-orange-400 group-hover:scale-105 transition-all duration-300">
                 {item.value}
               </div>
             </div>
