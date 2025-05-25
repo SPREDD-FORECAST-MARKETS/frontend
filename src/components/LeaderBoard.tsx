@@ -12,7 +12,9 @@ const LeaderBoard = ({ data }: LeaderBoardProps) => {
       <Link to="/leaderboard" className="block">
         <div className="bg-gradient-to-b from-[#111] to-[#0a0a0a] rounded-xl p-4 sm:p-6 shadow-lg">
           <div className="flex flex-col xs:flex-row items-start xs:items-center justify-between mb-4 sm:mb-6 gap-3">
-            <h2 className="text-white text-xl sm:text-2xl md:text-3xl font-serif font-bold">Leaderboards</h2>
+            <h2 className="text-white text-2xl sm:text-2xl md:text-3xl font-serif font-bold">
+              Leaderboards
+            </h2>
             <div className="flex space-x-2">
               <button className="bg-gradient-to-br from-teal-600 to-teal-700 p-1.5 sm:p-2 rounded-full shadow-lg shadow-teal-500/20 transition-all duration-300 hover:shadow-teal-500/40 hover:scale-110 hover:from-teal-500 hover:to-teal-600">
                 <Users className="text-teal-500 w-4 h-4 sm:w-5 sm:h-5" />
@@ -25,7 +27,7 @@ const LeaderBoard = ({ data }: LeaderBoardProps) => {
               </button>
             </div>
           </div>
-          
+
           <div className="space-y-2">
             {data.map((item) => (
               <div
@@ -43,11 +45,11 @@ const LeaderBoard = ({ data }: LeaderBoardProps) => {
                   />
                 </div>
                 <div className="flex-1 mr-2 sm:mr-4">
-                  <p className="text-white font-serif text-xs sm:text-sm md:text-base group-hover:text-teal-100 transition-colors duration-300 line-clamp-1 sm:line-clamp-none">
+                  <p className="text-white font-serif text-md sm:text-sm md:text-base group-hover:text-teal-100 transition-colors duration-300 line-clamp-1 sm:line-clamp-none">
                     {item.name}
                   </p>
                 </div>
-                <div className="text-orange-500 font-serif text-xs sm:text-sm md:text-base whitespace-nowrap group-hover:text-orange-400 group-hover:scale-105 transition-all duration-300">
+                <div className="text-orange-500 font-serif text-md sm:text-sm md:text-base whitespace-nowrap group-hover:text-orange-400 group-hover:scale-105 transition-all duration-300">
                   {item.reward}
                 </div>
               </div>
