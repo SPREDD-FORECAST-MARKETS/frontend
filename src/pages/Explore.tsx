@@ -69,13 +69,13 @@ const Explore = () => {
       </div>
 
       {/* Markets Header Section */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4 sm:mb-6 px-2 sm:px-4">
-        <h2 className="text-2xl sm:text-3xl font-bold font-serif text-white underline">Markets</h2>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 px-2 sm:px-4">
+        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold font-serif text-white underline">Markets</h2>
         <Link
           to="/create-prediction"
-          className="bg-orange-500 hover:bg-orange-600 text-black font-semibold px-3 py-2 sm:px-4 sm:py-2 rounded-full transition-colors duration-200 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-opacity-50 flex items-center text-sm sm:text-base"
+          className="bg-orange-500 hover:bg-orange-600 text-black font-semibold px-4 py-2.5 sm:px-5 sm:py-3 lg:px-6 lg:py-3 rounded-full transition-colors duration-200 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-opacity-50 flex items-center text-sm sm:text-base lg:text-lg whitespace-nowrap"
         >
-          <Plus size={16} className="mr-1" />
+          <Plus size={16} className="mr-2 sm:w-5 sm:h-5" />
           Create Prediction
         </Link>
       </div>
@@ -93,8 +93,8 @@ const Explore = () => {
           <MarketCards data={markets} />
         ) : (
           <div className="text-center py-16">
-            <p className="text-gray-400 text-lg">No markets found for this category.</p>
-            <p className="text-orange-500 mt-2">Try a different filter or create your own prediction!</p>
+            <p className="text-gray-400 text-lg sm:text-xl lg:text-2xl">No markets found for this category.</p>
+            <p className="text-orange-500 mt-2 text-base sm:text-lg lg:text-xl">Try a different filter or create your own prediction!</p>
           </div>
         )}
       </div>

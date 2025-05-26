@@ -178,8 +178,7 @@ const Navbar = () => {
   }, [authenticated, refreshUser]);
 
   return (
-    <nav className="flex flex-col md:flex-row md:items-center md:justify-between px-4 lg:px-8 py-4 bg-black text-white border-b border-gray-800 ">
-      {/* <nav className="flex flex-col  md:flex-row md:items-center px-4 lg:px-8 py-4 bg-black text-white border-b border-gray-800"> */}
+    <nav className="flex flex-col md:flex-row md:items-center md:justify-between px-4 lg:px-8 py-4 bg-black text-white border-b border-gray-800">
       <div className="flex justify-between items-center md:contents">
         <div className="flex items-center">
           <Link to="/" className="flex items-center">
@@ -189,14 +188,14 @@ const Navbar = () => {
               className="h-10 w-auto mr-3"
             />
 
-            <span className="text-2xl font-extrabold leading-tight">
+            <span className="text-xl md:text-2xl font-extrabold leading-tight">
               <span className="text-white">SPREDD</span>
               <span className="text-orange-500 ml-1">MARKETS</span>
             </span>
           </Link>
         </div>
 
-        <div className="hidden md:flex items-center space-x-10 lg:space-x-12 text-base font-medium">
+        <div className="hidden md:flex items-center space-x-6 lg:space-x-8 text-sm lg:text-base font-medium">
           <Link
             to="/trade"
             className="hover:text-orange-500 transition-colors duration-200 py-2"
@@ -210,7 +209,7 @@ const Navbar = () => {
               className="flex items-center hover:text-orange-500 transition-colors duration-200 py-2"
             >
               DAO
-              <FaChevronDown className="h-4 w-4 ml-1 text-current group-hover:text-orange-500 transition-colors duration-200" />
+              <FaChevronDown className="h-3 w-3 lg:h-4 lg:w-4 ml-1 text-current group-hover:text-orange-500 transition-colors duration-200" />
             </Link>
           </div>
 
@@ -234,7 +233,7 @@ const Navbar = () => {
             className="flex items-center hover:text-orange-500 transition-colors duration-200 py-2"
           >
             Buy Crypto
-            <FaExternalLinkAlt className="h-4 w-4 ml-1 text-current group-hover:text-orange-500 transition-colors duration-200" />
+            <FaExternalLinkAlt className="h-3 w-3 lg:h-4 lg:w-4 ml-1 text-current group-hover:text-orange-500 transition-colors duration-200" />
           </Link>
         </div>
 
@@ -271,21 +270,21 @@ const Navbar = () => {
           <div className="flex flex-col space-y-4 px-6 py-6">
             <Link
               to="/trade"
-              className="block hover:text-orange-500 transition-colors duration-200"
+              className="block hover:text-orange-500 transition-colors duration-200 text-base"
               onClick={() => setIsMobileMenuOpen(false)}
             >
               Trade
             </Link>
             <Link
               to="/dao"
-              className="block hover:text-orange-500 transition-colors duration-200"
+              className="block hover:text-orange-500 transition-colors duration-200 text-base"
               onClick={() => setIsMobileMenuOpen(false)}
             >
               DAO
             </Link>
             <Link
               to="/earn"
-              className="block hover:text-orange-500 transition-colors duration-200"
+              className="block hover:text-orange-500 transition-colors duration-200 text-base"
               onClick={() => setIsMobileMenuOpen(false)}
             >
               Earn
@@ -294,13 +293,13 @@ const Navbar = () => {
               href="https://retroservices1121.gitbook.io/decentralized-forecasting-powered-by-smart-contracts.-predict-rank-and-earn-weekly."
               target="_blank"
               rel="noopener noreferrer"
-              className="block hover:text-orange-500 transition-colors duration-200"
+              className="block hover:text-orange-500 transition-colors duration-200 text-base"
             >
               Whitepaper
             </a>
             <Link
               to="/buy-crypto"
-              className="block hover:text-orange-500 transition-colors duration-200"
+              className="block hover:text-orange-500 transition-colors duration-200 text-base"
               onClick={() => setIsMobileMenuOpen(false)}
             >
               Buy Crypto
@@ -314,10 +313,10 @@ const Navbar = () => {
                 {/* Profile Link */}
                 <Link
                   to="/user/profile"
-                  className="flex items-center gap-2 hover:text-orange-500 transition-colors duration-200"
+                  className="flex items-center gap-2 hover:text-orange-500 transition-colors duration-200 text-base"
                 >
                   <UserRound className="h-4 w-4" />
-                  <span className="text- font-medium">My Profile</span>
+                  <span className="font-medium">My Profile</span>
                 </Link>
 
                 {/* Disconnect Wallet Button */}
@@ -326,7 +325,7 @@ const Navbar = () => {
                     logout();
                     setShowProfileDropdown(false);
                   }}
-                  className="flex items-center w-full font-medium  text-left text-md text-white hover:bg-zinc-800 rounded-lg transition-colors"
+                  className="flex items-center w-full font-medium text-left text-base text-white hover:bg-zinc-800 rounded-lg transition-colors"
                 >
                   <LogOut className="h-4 w-4 mr-3 text-orange-500" />
                   Disconnect Wallet
@@ -335,7 +334,7 @@ const Navbar = () => {
             ) : (
               <button
                 onClick={() => login()}
-                className="w-full mt-4 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-black font-semibold px-6 py-2.5 rounded-full transition-all duration-300 shadow-md hover:shadow-orange-500/20 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-opacity-50 transform hover:-translate-y-0.5"
+                className="w-full mt-4 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-black font-semibold px-6 py-3 rounded-full transition-all duration-300 shadow-md hover:shadow-orange-500/20 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-opacity-50 transform hover:-translate-y-0.5 text-base"
               >
                 Connect Wallet
               </button>
@@ -370,14 +369,14 @@ const Navbar = () => {
                 <div className="px-5 py-4 border-b border-zinc-800/70 bg-gradient-to-r from-orange-500/5 to-transparent">
                   <div className="flex items-start justify-between">
                     <div>
-                      <h3 className="text-white font-medium">My Profile</h3>
+                      <h3 className="text-white font-medium text-base">My Profile</h3>
                       <p className="text-sm text-zinc-400 mt-1 flex items-center">
                         <span className="bg-green-500 w-2 h-2 rounded-full mr-2"></span>
                         Connected to {networkName}
                       </p>
                     </div>
                     <div className="bg-zinc-800 h-12 w-12 rounded-full flex items-center justify-center text-orange-500">
-                      <UserRound size={22} />
+                      <UserRound size={20} />
                     </div>
                   </div>
                 </div>
@@ -460,7 +459,7 @@ const Navbar = () => {
         ) : (
           <button
             onClick={() => login()}
-            className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-black font-semibold px-6 py-2.5 rounded-full transition-all duration-300 shadow-md hover:shadow-orange-500/20 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-opacity-50 transform hover:-translate-y-0.5"
+            className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-black font-semibold px-4 lg:px-6 py-2 lg:py-2.5 rounded-full transition-all duration-300 shadow-md hover:shadow-orange-500/20 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-opacity-50 transform hover:-translate-y-0.5 text-sm lg:text-base"
           >
             Connect Wallet
           </button>

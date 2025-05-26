@@ -3,92 +3,92 @@ import { FaTwitter, FaDiscord, FaInstagram, FaTelegram } from 'react-icons/fa';
 
 const Footer = () => {
   return (
-    <footer className="bg-black text-white py-10 sm:py-16 md:py-20 px-4 sm:px-6 lg:px-16">
+    <footer className="bg-black text-white py-8 md:py-12 lg:py-16 px-4 sm:px-6 lg:px-8">
       <div className="container mx-auto max-w-screen-xl">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 sm:gap-12 md:gap-16 mb-8 sm:mb-12 md:mb-16 border-b border-gray-800 pb-8 sm:pb-10 md:pb-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 lg:gap-16 mb-8 md:mb-12 border-b border-gray-800 pb-8 md:pb-10">
           {/* Logo and Description Section */}
-          <div className="col-span-1 md:col-span-1 pr-0 md:pr-8 lg:pr-16"> 
-            <div className="flex items-start space-x-3 sm:space-x-4 mb-4 sm:mb-6"> 
+          <div className="col-span-1 pr-0 md:pr-8"> 
+            <div className="flex items-start space-x-3 mb-4"> 
               <img
                 src="/logo.jpg" 
                 alt="SPREDD MARKETS Logo"
-                className="h-10 sm:h-12 md:h-14 w-auto mt-0.5" 
+                className="h-10 md:h-12 w-auto mt-0.5" 
               />
               <div className="flex flex-col leading-tight">
-                <div className="font-extrabold text-xl sm:text-2xl md:text-3xl">
+                <div className="font-extrabold text-xl md:text-2xl lg:text-3xl">
                   <span className="text-white">SPREDD</span>
                   <span className="text-orange-500 ml-1">MARKETS</span>
                 </div>
-                <div className="text-xs sm:text-sm text-gray-500 font-medium tracking-wide mt-1">
+                <div className="text-xs md:text-sm text-gray-500 font-medium tracking-wide mt-1">
                   The Future of Prediction Is Skill, Not Luck
                 </div>
               </div>
             </div>
-            <p className="text-xs sm:text-sm text-gray-400 leading-relaxed max-w-lg">
+            <p className="text-sm md:text-base text-gray-400 leading-relaxed max-w-lg">
               Decentralized forecasting powered by smart contracts. Predict, rank, and earn weekly. Our system evaluates users based on accuracy, timing, and contrarian insight—rewarding forecasters who consistently demonstrate expertise.
             </p>
           </div>
 
           {/* Navigation Links Section */}
-          <div className="col-span-1 md:col-span-1 mt-6 md:mt-0">
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-6 sm:gap-8"> 
+          <div className="col-span-1 mt-6 md:mt-0">
+            <div className="grid grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8"> 
               {/* Platform Links */}
-              <div className="flex flex-col space-y-2 sm:space-y-3">
-                <div className="font-semibold text-white text-base sm:text-lg mb-2 sm:mb-4">Platform</div>
-                <Link to="/predict" className="text-gray-400 hover:text-orange-500 transition-colors duration-300 ease-in-out text-xs sm:text-sm">Predict</Link>
-                <Link to="/rank" className="text-gray-400 hover:text-orange-500 transition-colors duration-300 ease-in-out text-xs sm:text-sm">Ranking</Link>
-                <Link to="/earn" className="text-gray-400 hover:text-orange-500 transition-colors duration-300 ease-in-out text-xs sm:text-sm">Earn Rewards</Link>
-                <Link to="/how-it-works" className="text-gray-400 hover:text-orange-500 transition-colors duration-300 ease-in-out text-xs sm:text-sm">How it Works</Link>
+              <div className="flex flex-col space-y-3">
+                <div className="font-semibold text-white text-base md:text-lg mb-2 md:mb-3">Platform</div>
+                <Link to="/predict" className="text-gray-400 hover:text-orange-500 transition-colors duration-300 ease-in-out text-sm md:text-base">Predict</Link>
+                <Link to="/rank" className="text-gray-400 hover:text-orange-500 transition-colors duration-300 ease-in-out text-sm md:text-base">Ranking</Link>
+                <Link to="/earn" className="text-gray-400 hover:text-orange-500 transition-colors duration-300 ease-in-out text-sm md:text-base">Earn Rewards</Link>
+                <Link to="/how-it-works" className="text-gray-400 hover:text-orange-500 transition-colors duration-300 ease-in-out text-sm md:text-base">How it Works</Link>
               </div>
 
               {/* Company Links */}
-              <div className="flex flex-col space-y-2 sm:space-y-3">
-                <div className="font-semibold text-white text-base sm:text-lg mb-2 sm:mb-4">Company</div>
-                <Link to="/about" className="text-gray-400 hover:text-orange-500 transition-colors duration-300 ease-in-out text-xs sm:text-sm">About Us</Link>
-                <Link to="/contact" className="text-gray-400 hover:text-orange-500 transition-colors duration-300 ease-in-out text-xs sm:text-sm">Contact</Link>
-                <Link to="/whitepaper" className="text-gray-400 hover:text-orange-500 transition-colors duration-300 ease-in-out text-xs sm:text-sm">Whitepaper</Link>
-                <Link to="/tokenomics" className="text-gray-400 hover:text-orange-500 transition-colors duration-300 ease-in-out text-xs sm:text-sm">Tokenomics</Link>
+              <div className="flex flex-col space-y-3">
+                <div className="font-semibold text-white text-base md:text-lg mb-2 md:mb-3">Company</div>
+                <Link to="/about" className="text-gray-400 hover:text-orange-500 transition-colors duration-300 ease-in-out text-sm md:text-base">About Us</Link>
+                <Link to="/contact" className="text-gray-400 hover:text-orange-500 transition-colors duration-300 ease-in-out text-sm md:text-base">Contact</Link>
+                <Link to="/whitepaper" className="text-gray-400 hover:text-orange-500 transition-colors duration-300 ease-in-out text-sm md:text-base">Whitepaper</Link>
+                <Link to="/tokenomics" className="text-gray-400 hover:text-orange-500 transition-colors duration-300 ease-in-out text-sm md:text-base">Tokenomics</Link>
               </div>
 
               {/* Connect Section */}
-              <div className="flex flex-col col-span-2 sm:col-span-1 mt-6 sm:mt-0"> 
-                <div className="font-semibold text-white text-base sm:text-lg mb-2 sm:mb-4">Connect</div>
-                <div className="flex space-x-3 sm:space-x-4">
+              <div className="flex flex-col col-span-2 lg:col-span-1 mt-6 lg:mt-0"> 
+                <div className="font-semibold text-white text-base md:text-lg mb-2 md:mb-3">Connect</div>
+                <div className="flex space-x-4">
                   <a 
                     href="https://t.me/spreddguard" 
                     target="_blank" 
                     rel="noopener noreferrer" 
                     aria-label="telegram" 
-                    className="inline-flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-full border border-orange-500 text-orange-500 hover:bg-orange-500 hover:text-black transition-colors duration-300 ease-in-out"
+                    className="inline-flex items-center justify-center w-10 h-10 md:w-12 md:h-12 rounded-full border border-orange-500 text-orange-500 hover:bg-orange-500 hover:text-black transition-colors duration-300 ease-in-out"
                   >
-                    <FaTelegram className="w-4 h-4 sm:w-5 sm:h-5" />
+                    <FaTelegram className="w-5 h-5 md:w-6 md:h-6" />
                   </a>
                   <a 
                     href="https://www.instagram.com/spredd.ai" 
                     target="_blank" 
                     rel="noopener noreferrer" 
                     aria-label="Instagram" 
-                    className="inline-flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-full border border-orange-500 text-orange-500 hover:bg-orange-500 hover:text-black transition-colors duration-300 ease-in-out"
+                    className="inline-flex items-center justify-center w-10 h-10 md:w-12 md:h-12 rounded-full border border-orange-500 text-orange-500 hover:bg-orange-500 hover:text-black transition-colors duration-300 ease-in-out"
                   >
-                    <FaInstagram className="w-4 h-4 sm:w-5 sm:h-5" />
+                    <FaInstagram className="w-5 h-5 md:w-6 md:h-6" />
                   </a>
                   <a 
                     href="https://x.com/spreddai" 
                     target="_blank" 
                     rel="noopener noreferrer" 
                     aria-label="Twitter" 
-                    className="inline-flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-full border border-orange-500 text-orange-500 hover:bg-orange-500 hover:text-black transition-colors duration-300 ease-in-out"
+                    className="inline-flex items-center justify-center w-10 h-10 md:w-12 md:h-12 rounded-full border border-orange-500 text-orange-500 hover:bg-orange-500 hover:text-black transition-colors duration-300 ease-in-out"
                   >
-                    <FaTwitter className="w-4 h-4 sm:w-5 sm:h-5" />
+                    <FaTwitter className="w-5 h-5 md:w-6 md:h-6" />
                   </a>
                   <a 
                     href="https://discord.com/invite/spredd" 
                     target="_blank" 
                     rel="noopener noreferrer" 
                     aria-label="Discord" 
-                    className="inline-flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-full border border-orange-500 text-orange-500 hover:bg-orange-500 hover:text-black transition-colors duration-300 ease-in-out"
+                    className="inline-flex items-center justify-center w-10 h-10 md:w-12 md:h-12 rounded-full border border-orange-500 text-orange-500 hover:bg-orange-500 hover:text-black transition-colors duration-300 ease-in-out"
                   >
-                    <FaDiscord className="w-4 h-4 sm:w-5 sm:h-5" />
+                    <FaDiscord className="w-5 h-5 md:w-6 md:h-6" />
                   </a>
                 </div>
               </div>
@@ -97,13 +97,13 @@ const Footer = () => {
         </div>
 
         {/* Copyright and Legal Links */}
-        <div className="flex flex-col sm:flex-row justify-between items-center text-xs sm:text-sm text-gray-500">
-          <div className="mb-4 sm:mb-0 text-center sm:text-left">
+        <div className="flex flex-col md:flex-row justify-between items-center text-sm md:text-base text-gray-500">
+          <div className="mb-4 md:mb-0 text-center md:text-left">
             &copy; {new Date().getFullYear()} SPREDD MARKETS. All Rights Reserved.
           </div>
-          <div className="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-6">
-            <Link to="/privacy-policy" className="hover:text-orange-500 transition-colors duration-300 ease-in-out text-gray-500">Privacy Policy</Link>
-            <Link to="/terms-conditions" className="hover:text-orange-500 transition-colors duration-300 ease-in-out text-gray-500">Terms & Conditions</Link>
+          <div className="flex flex-col md:flex-row items-center space-y-2 md:space-y-0 md:space-x-6">
+            <Link to="/privacy-policy" className="hover:text-orange-500 transition-colors duration-300 ease-in-out text-gray-500 text-sm md:text-base">Privacy Policy</Link>
+            <Link to="/terms-conditions" className="hover:text-orange-500 transition-colors duration-300 ease-in-out text-gray-500 text-sm md:text-base">Terms & Conditions</Link>
           </div>
         </div>
       </div>
