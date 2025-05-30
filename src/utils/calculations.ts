@@ -1,6 +1,6 @@
 import type { ChartDataPoint, Market, TimeframeOption } from "../lib/interface";
 
-export const calculateOdds = (isBuy: boolean, marketData: Market | null): number => {
+export const calculateOdds = ( marketData: Market | null): number => {
     if (!marketData) return 0;
     
     // const probability = isBuy ? marketData.probabilities.yes : marketData.probabilities.no;

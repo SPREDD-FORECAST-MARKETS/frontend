@@ -6,7 +6,7 @@ interface MarketInfoCardProps {
 }
 
 const MarketInfoCard = ({ marketData }: MarketInfoCardProps) => {
-  const { tags, creator, createdAt, description, resolution_criteria, image, question } = marketData;
+  const { creator, createdAt, description, resolution_criteria, image, question } = marketData;
 
   return (
     <div className="border border-[#222] rounded-lg overflow-hidden bg-[#0d1117] p-3 sm:p-4 md:p-5 shadow-lg">
