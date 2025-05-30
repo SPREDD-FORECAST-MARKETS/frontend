@@ -1,15 +1,16 @@
-import type { ChartDataPoint, MarketData, TimeframeOption } from "../lib/interface";
+import type { ChartDataPoint, Market, TimeframeOption } from "../lib/interface";
 
-export const calculateOdds = (isBuy: boolean, marketData: MarketData | null): number => {
+export const calculateOdds = (isBuy: boolean, marketData: Market | null): number => {
     if (!marketData) return 0;
     
-    const probability = isBuy ? marketData.probabilities.yes : marketData.probabilities.no;
+    // const probability = isBuy ? marketData.probabilities.yes : marketData.probabilities.no;
     
-    const odds = probability >= 0.5 
-      ? Math.round(-100 * probability / (1 - probability))
-      : Math.round(100 * (1 - probability) / probability);
+    // const odds = probability >= 0.5 
+    //   ? Math.round(-100 * probability / (1 - probability))
+    //   : Math.round(100 * (1 - probability) / probability);
       
-    return isBuy ? odds : -odds;
+    // return isBuy ? odds : -odds;
+    return 0;
   };
   
   export const calculateReturn = (quantity: number, isBuy: boolean): string => {

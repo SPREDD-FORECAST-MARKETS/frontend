@@ -1,10 +1,11 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { ArrowUp, ArrowDown, Info, RefreshCw, Settings } from 'lucide-react';
-import type { MarketData, ChartDataPoint, TimeframeOption } from '../lib/interface';
+import type { Market, ChartDataPoint, TimeframeOption } from '../lib/interface';
 import { calculateOdds, generateChartData } from '../utils/calculations';
+import { formatDateTime } from '../utils/helpers';
 
 interface ChartCardProps {
-  marketData: MarketData;
+  marketData: Market;
   marketId: string;
   chartData: ChartDataPoint[] | null;
   currentPrice: number;
@@ -20,7 +21,7 @@ const ChartCard = ({ marketData, marketId }: ChartCardProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [activeTimeframe, setActiveTimeframe] = useState<TimeframeOption>('1D');
   const [chartData, setChartData] = useState<ChartDataPoint[] | null>(null);
-  const [currentPrice, setCurrentPrice] = useState<number>(marketData.probabilities.yes);
+  const [currentPrice, setCurrentPrice] = useState<number>(1);
   const [priceChange, setPriceChange] = useState<number>(0);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [hoveredPoint, setHoveredPoint] = useState<{
@@ -611,9 +612,9 @@ const ChartCard = ({ marketData, marketId }: ChartCardProps) => {
         >
           <RefreshCw size={16} className={isLoading ? "animate-spin" : ""} />
         </button>
-        <button className="p-2 text-[#888] hover:text-white rounded-md hover:bg-[#1f2429] transition-colors">
+        {/* <button className="p-2 text-[#888] hover:text-white rounded-md hover:bg-[#1f2429] transition-colors">
           <Settings size={16} />
-        </button>
+        </button> */}
       </div>
     );
   };
@@ -623,18 +624,18 @@ const ChartCard = ({ marketData, marketId }: ChartCardProps) => {
       {/* Header */}
       <div className="px-5 py-4 border-b border-[#222] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
         <div className="flex items-center gap-3">
-          <div className="h-10 w-10 rounded-full overflow-hidden bg-orange-500 flex items-center justify-center">
-            <span className="text-black font-bold">{marketData.category.substring(0, 1)}</span>
+          <div className="h-10 w-10 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center">
+            <img src={marketData.image} alt={marketData.question}/>
           </div>
           <div>
             <div className="flex items-center">
-              <h1 className="text-xl font-bold text-white">{marketData.name}</h1>
+              <h1 className="text-xl font-bold text-white">{marketData.question}</h1>
               <span className="ml-2 px-2 py-0.5 bg-green-500/20 text-green-400 text-xs rounded">YES</span>
             </div>
             <div className="text-[#888] text-sm flex items-center">
-              <span>Volume: {marketData.volume}</span>
+              <span>Volume: 200K</span>
               <span className="mx-2">•</span>
-              <span>Ending: {marketData.endDate}</span>
+              <span><span className='text-red-500'>Ending:</span> {formatDateTime(marketData.expiry_date)}</span>
             </div>
           </div>
         </div>

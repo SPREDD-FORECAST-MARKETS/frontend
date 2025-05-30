@@ -7,28 +7,32 @@ import {
   FaUser,
 } from "react-icons/fa";
 import { useEffect, useState, useRef } from "react";
+import { getBalance } from "@wagmi/core";
+
 import { formatEther } from "viem";
 import { UserRound, Wallet, LogOut, Copy, ExternalLink } from "lucide-react";
 
-import { PRIVY_APP_ID } from "../lib/privy";
 import { loginApi } from "../apis/auth";
 import { useToast } from "../hooks/useToast";
 import { useAtom } from "jotai";
-import { refreshUserAtom, userAtom } from "../atoms/user";
+import { balanceAtom, refreshUserAtom, userAtom } from "../atoms/user";
+import { wagmiConfig } from "../utils/wagmiConfig";
 
 const Navbar = () => {
-  const [networkName, setNetworkName] = useState("Base");
+  const [networkName,] = useState("Base");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [balance, setBalance] = useState<string | null>(null);
-  const [isLoadingBalance, setIsLoadingBalance] = useState(false);
+
+  const [isLoadingBalance,] = useState(false);
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
   const [copySuccess, setCopySuccess] = useState(false);
 
   const profileDropdownRef = useRef<HTMLDivElement>(null);
   const profileButtonRef = useRef<HTMLButtonElement>(null);
 
-  const { login, authenticated, logout, getAccessToken, user, ready } =
-    usePrivy();
+  const { login, authenticated, logout, getAccessToken, user, ready } = usePrivy();
+
+  const [userBalance, setUserBalance] = useAtom(balanceAtom);
+
   const { success, error: toastError } = useToast();
   const [, setUser] = useAtom(userAtom);
   const [refreshUser] = useAtom(refreshUserAtom);
@@ -79,81 +83,25 @@ const Navbar = () => {
     fetchAccessToken();
   }, [authenticated, getAccessToken]);
 
-  // Fetch wallet balance using Privy API
   useEffect(() => {
-    const fetchWalletBalance = async () => {
-      if (!authenticated || !user || !user.wallet?.address) return;
+    let intervalId: NodeJS.Timeout;
 
-      try {
-        setIsLoadingBalance(true);
-
-        // First get the access token
-        const accessToken = await getAccessToken();
-
-        // Determine the wallet ID - this is typically the user's wallet address
-        const walletId = user.wallet.address;
-
-        // Make the API request to get the wallet balance
-        const response = await fetch(
-          `https://api.privy.io/v1/wallets/${walletId}/balance`,
-          {
-            method: "GET",
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-              "privy-app-id": PRIVY_APP_ID || "",
-              "Content-Type": "application/json",
-            },
-          }
-        );
-
-        if (!response.ok) {
-          throw new Error(
-            `Failed to fetch balance: ${response.status} ${response.statusText}`
-          );
-        }
-
-        const data = await response.json();
-
-        // Format and set the balance
-        if (data && data.balance) {
-          // The API might return the balance in wei, so we need to format it
-          const formattedBalance = Number(
-            formatEther(BigInt(data.balance))
-          ).toFixed(4);
-          setBalance(formattedBalance);
-        }
-
-        // If the API provides network info, set it
-        if (data && data.network) {
-          setNetworkName(data.network);
-        } else if (user.wallet.chainType) {
-          const chainIdMap: Record<string, string> = {
-            "0x1": "Ethereum",
-            "0x5": "Goerli",
-            "0xaa36a7": "Sepolia",
-            "0x89": "Polygon",
-            "0x38": "BSC",
-            "0xa4b1": "Arbitrum",
-            "0xa": "Optimism",
-            "0x2105": "Base",
-          };
-
-          setNetworkName(
-            chainIdMap[user.wallet.chainType] ||
-              `Chain ${user.wallet.chainType}`
-          );
-        }
-      } catch (error) {
-        console.error("Error fetching wallet balance:", error);
-      } finally {
-        setIsLoadingBalance(false);
-      }
-    };
-
-    if (authenticated && ready) {
-      fetchWalletBalance();
+    async function fetchBalance() {
+      const balance = await getBalance(wagmiConfig, {
+        address: user?.wallet?.address! as `0x${string}`
+      });
+      setUserBalance(balance);
     }
-  }, [authenticated, user, ready, getAccessToken]);
+
+    if (user) {
+      fetchBalance(); // Initial fetch
+      intervalId = setInterval(fetchBalance, 2000); // Fetch every 2s
+    }
+
+    return () => {
+      if (intervalId) clearInterval(intervalId);
+    };
+  }, [authenticated, user, ready]);
 
   useEffect(() => {
     if (!authenticated) return;
@@ -350,11 +298,10 @@ const Navbar = () => {
             <button
               ref={profileButtonRef}
               onClick={() => setShowProfileDropdown(!showProfileDropdown)}
-              className={`text-gray-300 p-2 rounded-full transition-all duration-300 transform ${
-                showProfileDropdown
-                  ? "bg-orange-500 text-black rotate-[360deg]"
-                  : "hover:bg-gray-800 hover:text-white"
-              }`}
+              className={`text-gray-300 p-2 rounded-full transition-all duration-300 transform ${showProfileDropdown
+                ? "bg-orange-500 text-black rotate-[360deg]"
+                : "hover:bg-gray-800 hover:text-white"
+                }`}
             >
               <UserRound className="h-6 w-6" />
             </button>
@@ -423,8 +370,8 @@ const Navbar = () => {
                       <FaEthereum className="h-3 w-3 mr-1 text-orange-500" />
                       {isLoadingBalance ? (
                         <span className="text-zinc-400">Loading...</span>
-                      ) : balance ? (
-                        <span>{balance} ETH</span>
+                      ) : userBalance ? (
+                        <span>{parseFloat(formatEther(BigInt(userBalance?.value!), "wei")).toFixed(4)} ETH</span>
                       ) : (
                         <span className="text-zinc-400">--</span>
                       )}

@@ -1,11 +1,13 @@
-import type { MarketData } from '../lib/interface';
+import type { Market } from '../lib/interface';
 import { calculateOdds, calculateReturn } from '../utils/calculations';
 
 interface TradingPanelProps {
-  marketData: MarketData;
+  marketData: Market;
   isBuy: boolean;
+  isYes: boolean;
   quantity: number;
   onBuySellToggle: (isBuy: boolean) => void;
+  onYesNoToggle: (isYes: boolean) => void;
   onQuantityChange: (quantity: number) => void;
   onSubmit: () => void;
 }
@@ -13,12 +15,13 @@ interface TradingPanelProps {
 const TradingPanel = ({ 
   marketData, 
   isBuy, 
+  isYes,
   quantity, 
   onBuySellToggle, 
+  onYesNoToggle,
   onQuantityChange, 
   onSubmit
 }: TradingPanelProps) => {
-  const { outcomes } = marketData;
   
   const handleQuantityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = parseFloat(e.target.value);
@@ -35,7 +38,7 @@ const TradingPanel = ({
           }`}
           onClick={() => onBuySellToggle(true)}
         >
-          {outcomes.yes}
+          BUY
         </button>
         <button 
           className={`py-4 text-center font-medium text-lg transition-all ${
@@ -43,7 +46,7 @@ const TradingPanel = ({
           }`}
           onClick={() => onBuySellToggle(false)}
         >
-          {outcomes.no}
+          SELL
         </button>
       </div>
 
@@ -53,38 +56,30 @@ const TradingPanel = ({
         <div className="grid grid-cols-2 gap-4">
           <div 
             className={`p-4 rounded transition-all cursor-pointer ${
-              isBuy ? 'bg-[#132416] border border-green-900' : 'bg-[#171c21] hover:bg-[#1f2429]'
+              isYes ? 'bg-[#132416] border border-green-900' : 'bg-[#171c21] hover:bg-[#1f2429]'
             }`}
-            onClick={() => onBuySellToggle(true)}
+            onClick={() => onYesNoToggle(true)}
           >
             <div className="flex items-center justify-between mb-2">
               <span className="text-green-500 font-bold flex items-center">
                 <span className="h-6 w-6 rounded-full bg-green-600 text-white flex items-center justify-center text-xs mr-2">Y</span>
                 YES
               </span>
-              <span className="text-[#ccc] font-medium">${marketData.probabilities.yes.toFixed(2)}</span>
-            </div>
-            <div className="flex items-center justify-between text-xs">
-              <span className="text-[#888]">{outcomes.yes}</span>
-              <span className="text-[#888]">{Math.round(marketData.probabilities.yes * 100)}%</span>
+              <span className="text-[#ccc] font-medium">$2</span>
             </div>
           </div>
           <div 
             className={`p-4 rounded transition-all cursor-pointer ${
-              !isBuy ? 'bg-[#241313] border border-red-900' : 'bg-[#171c21] hover:bg-[#1f2429]'
+              !isYes ? 'bg-[#241313] border border-red-900' : 'bg-[#171c21] hover:bg-[#1f2429]'
             }`}
-            onClick={() => onBuySellToggle(false)}
+            onClick={() => onYesNoToggle(false)}
           >
             <div className="flex items-center justify-between mb-2">
               <span className="text-red-500 font-bold flex items-center">
                 <span className="h-6 w-6 rounded-full bg-red-600 text-white flex items-center justify-center text-xs mr-2">N</span>
                 NO
               </span>
-              <span className="text-[#ccc] font-medium">${marketData.probabilities.no.toFixed(2)}</span>
-            </div>
-            <div className="flex items-center justify-between text-xs">
-              <span className="text-[#888]">{outcomes.no}</span>
-              <span className="text-[#888]">{Math.round(marketData.probabilities.no * 100)}%</span>
+              <span className="text-[#ccc] font-medium">$3</span>
             </div>
           </div>
         </div>

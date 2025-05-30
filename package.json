@@ -13,6 +13,7 @@
     "@privy-io/react-auth": "^2.13.2",
     "@privy-io/wagmi": "^1.0.3",
     "@tanstack/react-query": "^5.77.2",
+    "@wagmi/core": "^2.17.2",
     "axios": "^1.9.0",
     "jotai": "^2.12.4",
     "lightweight-charts": "^5.0.7",

@@ -1,4 +1,5 @@
 import axios from 'axios';
+import type { Market } from '../lib/interface';
 
 
 export const createMarket = async (authToken: string, question: string, resolution_criteria: string, description: string, expiry_date: string, image: string) => {
@@ -63,3 +64,19 @@ export const fetchMarkets = async ({
 
   return response.data;
 };
+
+
+export const fetchMarket = async (marketId: string) => {
+
+    const response = await axios.get<Market>(
+    `${import.meta.env.VITE_BACKEND_URL}/market/${marketId}`,
+    {
+      headers: {
+        'Content-Type': 'application/json',
+        accept: '*/*',
+      },
+    }
+  );
+
+  return response.data
+}

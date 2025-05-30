@@ -83,27 +83,33 @@ export interface LeaderBoardTableData{
 
 
 }
+type Outcome = {
+  id: number;
+  outcome_title: string;
+};
 
+type Creator = {
+  id: number;
+  username: string;
+  wallet_address: string;
+};
 
-export interface MarketData {
-  id: string;
-  name: string;
-  type: string;
-  outcomes: {
-    yes: string;
-    no: string;
-  };
-  category: string;
-  endDate: string;
-  creator: string;
-  volume: string;
-  probabilities: {
-    yes: number;
-    no: number;
-  };
+export type Market = {
+  id: number;
   description: string;
-  iconUrl?: string;
-}
+  resolution_criteria: string;
+  question: string;
+  expiry_date: string; // ISO string format
+  image: string;
+  tags: string[];
+  status: "ACTIVE" | "RESOLVED" | "CANCELLED"; // expand as needed
+  outcomeWon: number | null;
+  creatorId: number;
+  createdAt: string;
+  updatedAt: string;
+  creator: Creator;
+  outcome: Outcome[];
+};
 
 export interface ChartDataPoint {
   time: number;
@@ -123,7 +129,6 @@ export interface TradeState {
   priceChange: number;
   status: 'idle' | 'loading' | 'success' | 'error';
   error: string | null;
-  marketData: MarketData | null;
   chartData: ChartDataPoint[] | null;
 }
 
