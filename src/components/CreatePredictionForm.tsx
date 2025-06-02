@@ -1,16 +1,17 @@
-import { useState } from 'react';
-import { FiInfo, FiCalendar } from 'react-icons/fi';
-import { Link } from 'react-router-dom';
-import { useToast } from '../hooks/useToast';
-import { uploadFile } from '../apis/files';
-import { toISO8601 } from '../utils/helpers';
-import { createMarket } from '../apis/market';
-import { usePrivy } from '@privy-io/react-auth';
+import { useState } from "react";
+import { FiInfo, FiCalendar } from "react-icons/fi";
+import { Link } from "react-router-dom";
+import { useToast } from "../hooks/useToast";
+import { uploadFile } from "../apis/files";
+import { toISO8601 } from "../utils/helpers";
+import { createMarket } from "../apis/market";
+import { usePrivy } from "@privy-io/react-auth";
 
 interface FormData {
   title: string;
   options: string[];
   resolutionCriteria: string;
+  marketCategory: string[];
   endDate: string;
   endTime: string;
   image?: File;
@@ -22,19 +23,22 @@ const MAX_IMAGE_SIZE = 1024 * 1024; // 1MB in bytes
 const CreatePredictionForm = () => {
   const { error, success } = useToast(); // Use the toast hook
   const [formData, setFormData] = useState<FormData>({
-    title: '',
-    options: ['', ''],
-    description: '',
-    resolutionCriteria: '',
-    endDate: '',
-    endTime: '',
+    title: "",
+    options: ["", ""],
+    description: "",
+    resolutionCriteria: "",
+    marketCategory: [""],
+    endDate: "",
+    endTime: "",
   });
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [uploadedImageUrl, setUploadedImageUrl] = useState<string>("");
 
   const { getAccessToken } = usePrivy();
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
@@ -51,7 +55,7 @@ const CreatePredictionForm = () => {
       // Check if file size is less than 1MB
       if (file.size > MAX_IMAGE_SIZE) {
         error("Image size must be less than 1MB");
-        e.target.value = ''; // Reset the input
+        e.target.value = ""; // Reset the input
         return;
       }
 
@@ -79,13 +83,12 @@ const CreatePredictionForm = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    console.log(formData.endDate, formData.endTime)
+    console.log(formData.endDate, formData.endTime);
 
     if (!formData.image) {
       error("Please upload an image");
       return;
     }
-
 
     const dateStr = toISO8601(formData.endDate, formData.endTime);
     const authToken = await getAccessToken();
@@ -97,7 +100,7 @@ const CreatePredictionForm = () => {
       formData.description,
       dateStr!,
       uploadedImageUrl
-    )
+    );
 
     if (status === -1) {
       error("Failed to create Prediction!", 3);
@@ -107,18 +110,19 @@ const CreatePredictionForm = () => {
     success("Prediction created successfully!");
 
     setFormData({
-      title: '',
-      options: ['', ''],
-      description: '',
-      resolutionCriteria: '',
-      endDate: '',
-      endTime: '',
-    })
+      title: "",
+      options: ["", ""],
+      description: "",
+      resolutionCriteria: "",
+      marketCategory: [""],
+      endDate: "",
+      endTime: "",
+    });
 
     setImagePreview(null);
-
   };
 
+  console.log("Form Data:", formData);
   // const addOption = () => {
   //   if (formData.options.length < 5) {
   //     setFormData((prev) => ({
@@ -138,18 +142,26 @@ const CreatePredictionForm = () => {
   return (
     <div className="w-full max-w-2xl mx-auto py-6 px-4 sm:px-0">
       <div className="text-center mb-6">
-        <Link to="/" className="text-gray-400 hover:text-gray-200 transition-colors duration-200 text-sm uppercase tracking-wider">
+        <Link
+          to="/"
+          className="text-gray-400 hover:text-gray-200 transition-colors duration-200 text-sm uppercase tracking-wider"
+        >
           [ Go Back ]
         </Link>
       </div>
 
       <div className="bg-gray-900 border border-gray-800 rounded-lg shadow-xl overflow-hidden">
         <div className="p-5 sm:p-6">
-          <h2 className="text-2xl font-bold text-white mb-7 text-center">Create Prediction</h2>
+          <h2 className="text-2xl font-bold text-white mb-7 text-center">
+            Create Prediction
+          </h2>
 
           <form onSubmit={handleSubmit}>
             <div className="mb-5">
-              <label htmlFor="title" className="block text-gray-400 font-medium mb-2 text-sm uppercase tracking-wider">
+              <label
+                htmlFor="title"
+                className="block text-gray-400 font-medium mb-2 text-sm uppercase tracking-wider"
+              >
                 Event Title
               </label>
 
@@ -166,7 +178,10 @@ const CreatePredictionForm = () => {
             </div>
 
             <div className="mb-5">
-              <label htmlFor="description" className="block text-gray-400 font-medium mb-2 text-sm uppercase tracking-wider">
+              <label
+                htmlFor="description"
+                className="block text-gray-400 font-medium mb-2 text-sm uppercase tracking-wider"
+              >
                 Description
               </label>
 
@@ -182,7 +197,10 @@ const CreatePredictionForm = () => {
             </div>
 
             <div className="mb-5">
-              <label htmlFor="resolutionCriteria" className="block text-gray-400 font-medium mb-2 text-sm uppercase tracking-wider">
+              <label
+                htmlFor="resolutionCriteria"
+                className="block text-gray-400 font-medium mb-2 text-sm uppercase tracking-wider"
+              >
                 Resolution Criteria
               </label>
 
@@ -196,15 +214,34 @@ const CreatePredictionForm = () => {
                 className="w-full bg-gray-800 border border-gray-700 rounded-md px-4 py-2.5 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-colors duration-200"
               />
             </div>
+            <div className="mb-5">
+              <label
+                htmlFor="marketCategory"
+                className="block text-gray-400 font-medium mb-2 text-sm uppercase tracking-wider"
+              >
+                Market Category
+              </label>
 
+              <textarea
+                id="marketCategory"
+                name="marketCategory"
+                value={formData.marketCategory}
+                onChange={handleInputChange}
+                rows={3}
+                placeholder="Enter the category for this market (e.g., Sports, Politics, Entertainment)"
+                className="w-full bg-gray-800 border border-gray-700 rounded-md px-4 py-2.5 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-colors duration-200"
+              />
+            </div>
             <div className="mb-5">
               <label className="block text-gray-400 font-medium mb-2 text-sm uppercase tracking-wider">
-                Upload Image <span className="text-red-500">*</span>
+                Upload Image <span className="text-red-500">(Optional)</span>
               </label>
 
               <div
-                className={`border-2 border-dashed ${imagePreview ? 'border-green-500' : 'border-gray-700'} rounded-md p-5 sm:p-6 text-center cursor-pointer hover:border-orange-500 transition-colors duration-200`}
-                onClick={() => document.getElementById('image-upload')?.click()}
+                className={`border-2 border-dashed ${
+                  imagePreview ? "border-green-500" : "border-gray-700"
+                } rounded-md p-5 sm:p-6 text-center cursor-pointer hover:border-orange-500 transition-colors duration-200`}
+                onClick={() => document.getElementById("image-upload")?.click()}
               >
                 {imagePreview ? (
                   <div className="flex justify-center">
@@ -216,7 +253,9 @@ const CreatePredictionForm = () => {
                   </div>
                 ) : (
                   <div className="text-gray-500 text-sm">
-                    <p>Drag and drop photo or click to upload (Required, max 1MB)</p>
+                    <p>
+                      Drag and drop photo or click to upload (Required, max 1MB)
+                    </p>
                   </div>
                 )}
                 <input
@@ -225,12 +264,8 @@ const CreatePredictionForm = () => {
                   accept="image/*"
                   className="hidden"
                   onChange={handleImageUpload}
-                  required
                 />
               </div>
-              {!imagePreview && (
-                <p className="mt-2 text-red-500 text-xs">Image is required</p>
-              )}
             </div>
 
             <div className="mb-6">
@@ -259,8 +294,14 @@ const CreatePredictionForm = () => {
                     className="w-full bg-gray-800 border border-gray-700 rounded-md px-4 py-2.5 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-colors duration-200 appearance-none"
                     required
                   />
-                  <label htmlFor="endDate" className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer">
-                    <FiCalendar className="text-gray-500 hover:text-orange-500 transition-colors duration-200" size={18} />
+                  <label
+                    htmlFor="endDate"
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer"
+                  >
+                    <FiCalendar
+                      className="text-gray-500 hover:text-orange-500 transition-colors duration-200"
+                      size={18}
+                    />
                   </label>
                 </div>
 
@@ -290,8 +331,8 @@ const CreatePredictionForm = () => {
 
 export default CreatePredictionForm;
 
-
-{/* <div className="mb-5"> 
+{
+  /* <div className="mb-5"> 
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center">
                   <label className="text-gray-400 font-medium text-sm uppercase tracking-wider">Outcomes</label>
@@ -361,4 +402,5 @@ export default CreatePredictionForm;
               >
                 + Add another option
               </button>
-            </div> */}
+            </div> */
+}
