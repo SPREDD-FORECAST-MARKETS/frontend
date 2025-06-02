@@ -3,38 +3,47 @@ import { FiInfo, FiCalendar } from "react-icons/fi";
 import { Link } from "react-router-dom";
 import { useToast } from "../hooks/useToast";
 import { uploadFile } from "../apis/files";
-import { toISO8601 } from "../utils/helpers";
 import { createMarket } from "../apis/market";
-import { usePrivy } from "@privy-io/react-auth";
+import { getAccessToken } from "@privy-io/react-auth";
+import { useCreateMarket, useInitializeMarket } from "../hooks/useCreateMarket";
+import React from "react";
+import { toISO8601 } from "../utils/helpers";
 
 interface FormData {
   title: string;
   options: string[];
   resolutionCriteria: string;
   marketCategory: string[];
-  endDate: string;
-  endTime: string;
+  endDate: number | string;
+  endTime: number | string;
   image?: File;
   description: string;
+  initialLiquidity: string;
+  createOnChain: boolean;
 }
 
-const MAX_IMAGE_SIZE = 1024 * 1024; // 1MB in bytes
+const MAX_IMAGE_SIZE = 1024 * 1024;
 
 const CreatePredictionForm = () => {
-  const { error, success } = useToast(); // Use the toast hook
+  const { error, success } = useToast();
+
   const [formData, setFormData] = useState<FormData>({
-    title: "",
-    options: ["", ""],
-    description: "",
-    resolutionCriteria: "",
-    marketCategory: [""],
-    endDate: "",
-    endTime: "",
+    title: "Will Bitcoin reach $100k by June 10th?",
+    options: ["Yes", "No"],
+    description: "Bitcoin price prediction market",
+    resolutionCriteria: "Based on CoinGecko price data",
+    marketCategory: ["Crypto"],
+    endDate: "2025-06-10",
+    endTime: "14:00",
+    initialLiquidity: "0.01",
+    createOnChain: true,
   });
+
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [uploadedImageUrl, setUploadedImageUrl] = useState<string>("");
-
-  const { getAccessToken } = usePrivy();
+  const [transactionHash, setTransactionHash] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [, setHasInitialized] = useState(false);
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -51,19 +60,20 @@ const CreatePredictionForm = () => {
     }
   };
 
-  // const handleOptionChange = (index: number, value: string) => {
-  //   const newOptions = [...formData.options];
-  //   newOptions[index] = value;
-  //   setFormData((prev) => ({ ...prev, options: newOptions }));
-  // };
+  const {
+    createMarket: createSmartContractMarket,
+    isSuccess: isContractSuccess,
+    hash: contractHash,
+  } = useCreateMarket();
+
+  const { initializeMarket } = useInitializeMarket();
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      // Check if file size is less than 1MB
       if (file.size > MAX_IMAGE_SIZE) {
         error("Image size must be less than 1MB");
-        e.target.value = ""; // Reset the input
+        e.target.value = "";
         return;
       }
 
@@ -83,7 +93,6 @@ const CreatePredictionForm = () => {
       }
 
       setUploadedImageUrl(imageUrl);
-
       success("Image uploaded successfully");
     }
   };
@@ -91,60 +100,120 @@ const CreatePredictionForm = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    console.log(formData.endDate, formData.endTime);
+    if (isSubmitting) return;
+    setIsSubmitting(true);
 
-    if (!formData.image) {
-      error("Please upload an image");
-      return;
+    try {
+      console.log(formData.endDate, formData.endTime);
+
+      if (!formData.image) {
+        error("Please upload an image");
+        return;
+      }
+
+      const endDateTime = new Date(`${formData.endDate}T${formData.endTime}`);
+      const now = new Date();
+      const durationDays = Math.ceil(
+        (endDateTime.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)
+      );
+
+      if (durationDays <= 0) {
+        error("End date must be in the future");
+        return;
+      }
+
+      const dateStr = toISO8601(
+        String(formData.endDate),
+        String(formData.endTime)
+      );
+
+      // Step 1: Create smart contract market
+      const data = await createSmartContractMarket(
+        formData.title,
+        formData.options[0],
+        formData.options[1],
+        endDateTime.getTime() / 1000
+      );
+      console.log("Smart contract data:", data);
+
+      // Step 2: Create market in backend (can be done in parallel)
+      const authToken = await getAccessToken();
+      const [, status] = await createMarket(
+        authToken!,
+        formData.title,
+        formData.resolutionCriteria,
+        formData.description,
+        dateStr || 0,
+        uploadedImageUrl
+      );
+
+      if (status === -1) {
+        error("Failed to create Prediction!", 3);
+        return;
+      }
+
+      success("Prediction created successfully!");
+      setImagePreview(null);
+      setHasInitialized(false);
+      // Note: Market initialization will be handled by the useEffect when contractHash is available
+    } catch (err) {
+      console.error("Error in handleSubmit:", err);
+      error("Failed to create prediction");
+    } finally {
+      setIsSubmitting(false);
     }
-
-    const dateStr = toISO8601(formData.endDate, formData.endTime);
-    const authToken = await getAccessToken();
-
-    const [, status] = await createMarket(
-      authToken!,
-      formData.title,
-      formData.resolutionCriteria,
-      formData.description,
-      dateStr!,
-      uploadedImageUrl
-    );
-
-    if (status === -1) {
-      error("Failed to create Prediction!", 3);
-      return;
-    }
-
-    success("Prediction created successfully!");
-
-    setFormData({
-      title: "",
-      options: ["", ""],
-      description: "",
-      resolutionCriteria: "",
-      marketCategory: [""],
-      endDate: "",
-      endTime: "",
-    });
-
-    setImagePreview(null);
   };
-  console.log(formData);
-  // const addOption = () => {
-  //   if (formData.options.length < 5) {
-  //     setFormData((prev) => ({
-  //       ...prev,
-  //       options: [...prev.options, '']
-  //     }));
-  //   }
-  // };
 
-  // const removeOption = (index: number) => {
-  //   if (formData.options.length > 2) {
-  //     const newOptions = formData.options.filter((_, i) => i !== index);
-  //     setFormData((prev) => ({ ...prev, options: newOptions }));
-  //   }
-  // };
+  // Handle smart contract success and initialize market
+  React.useEffect(() => {
+    const handleMarketInitialization = async () => {
+      if (isContractSuccess && contractHash && !transactionHash) {
+        try {
+          success("Smart contract market created successfully!");
+          console.log("Transaction hash:", contractHash);
+          setTransactionHash(contractHash);
+
+          // Initialize the market with liquidity
+          await initializeMarket(
+            contractHash as `0x${string}`,
+            formData.initialLiquidity
+          );
+          success("Market initialization transaction submitted!");
+        } catch (err) {
+          console.error("Error initializing market:", err);
+          error("Failed to initialize market");
+        }
+      }
+    };
+
+    handleMarketInitialization();
+  }, [
+    isContractSuccess,
+    contractHash,
+    transactionHash,
+    initializeMarket,
+    formData.initialLiquidity,
+    success,
+    error,
+  ]);
+
+  const handleInitializeMarket = async () => {
+    if (!transactionHash) {
+      error("No transaction hash available. Please create a market first.");
+      return;
+    }
+
+    try {
+      await initializeMarket(
+        contractHash as `0x${string}`,
+        formData.initialLiquidity
+      );
+      success("Market initialization transaction submitted!");
+    } catch (err) {
+      console.error("Error initializing market:", err);
+      error("Failed to initialize market");
+    }
+  };
 
   return (
     <div className="w-full max-w-2xl mx-auto py-6 px-4 sm:px-0">
@@ -171,7 +240,6 @@ const CreatePredictionForm = () => {
               >
                 Event Title
               </label>
-
               <input
                 type="text"
                 id="title"
@@ -191,7 +259,6 @@ const CreatePredictionForm = () => {
               >
                 Description
               </label>
-
               <textarea
                 id="description"
                 name="description"
@@ -210,7 +277,6 @@ const CreatePredictionForm = () => {
               >
                 Resolution Criteria
               </label>
-
               <textarea
                 id="resolutionCriteria"
                 name="resolutionCriteria"
@@ -221,6 +287,7 @@ const CreatePredictionForm = () => {
                 className="w-full bg-gray-800 border border-gray-700 rounded-md px-4 py-2.5 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-colors duration-200"
               />
             </div>
+
             <div className="mb-5">
               <label
                 htmlFor="marketCategory"
@@ -228,7 +295,6 @@ const CreatePredictionForm = () => {
               >
                 Market Category
               </label>
-
               <textarea
                 id="marketCategory"
                 name="marketCategory"
@@ -239,11 +305,32 @@ const CreatePredictionForm = () => {
                 className="w-full bg-gray-800 border border-gray-700 rounded-md px-4 py-2.5 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-colors duration-200"
               />
             </div>
+
+            <div className="mb-5">
+              <label
+                htmlFor="initialLiquidity"
+                className="block text-gray-400 font-medium mb-2 text-sm uppercase tracking-wider"
+              >
+                Initial Liquidity (ETH)
+              </label>
+              <input
+                type="number"
+                id="initialLiquidity"
+                name="initialLiquidity"
+                value={formData.initialLiquidity}
+                onChange={handleInputChange}
+                step="0.001"
+                min="0.001"
+                placeholder="Enter initial liquidity amount"
+                className="w-full bg-gray-800 border border-gray-700 rounded-md px-4 py-2.5 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-colors duration-200"
+                required
+              />
+            </div>
+
             <div className="mb-5">
               <label className="block text-gray-400 font-medium mb-2 text-sm uppercase tracking-wider">
-                Upload Image <span className="text-red-500">(Optional)</span>
+                Upload Image <span className="text-red-500">(Required)</span>
               </label>
-
               <div
                 className={`border-2 border-dashed ${
                   imagePreview ? "border-green-500" : "border-gray-700"
@@ -280,7 +367,6 @@ const CreatePredictionForm = () => {
                 <label className="block text-gray-400 font-medium mb-2 text-sm uppercase tracking-wider">
                   End Time
                 </label>
-
                 <button
                   type="button"
                   className="ml-2 text-gray-500 hover:text-orange-500 transition-colors duration-200"
@@ -289,7 +375,6 @@ const CreatePredictionForm = () => {
                   <FiInfo size={16} />
                 </button>
               </div>
-
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="relative">
                   <input
@@ -311,7 +396,6 @@ const CreatePredictionForm = () => {
                     />
                   </label>
                 </div>
-
                 <input
                   type="time"
                   name="endTime"
@@ -325,11 +409,22 @@ const CreatePredictionForm = () => {
 
             <button
               type="submit"
-              className="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-4 rounded-md transition-colors duration-200 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-opacity-50 text-lg"
+              disabled={isSubmitting}
+              className="w-full bg-orange-500 hover:bg-orange-600 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-bold py-3 px-4 rounded-md transition-colors duration-200 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-opacity-50 text-lg mb-4"
             >
-              Create Event
+              {isSubmitting ? "Creating..." : "Create Event"}
             </button>
           </form>
+
+          <button
+            onClick={handleInitializeMarket}
+            disabled={!transactionHash}
+            className="w-full bg-green-500 hover:bg-green-600 disabled:bg-red-700 disabled:cursor-not-allowed text-white font-bold py-3 px-4 rounded-md transition-colors duration-200 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 text-lg"
+          >
+            {transactionHash
+              ? "Initialize Market"
+              : "Initialize Market (After Creation)"}
+          </button>
         </div>
       </div>
     </div>
@@ -337,77 +432,3 @@ const CreatePredictionForm = () => {
 };
 
 export default CreatePredictionForm;
-
-{
-  /* <div className="mb-5"> 
-              <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center">
-                  <label className="text-gray-400 font-medium text-sm uppercase tracking-wider">Outcomes</label>
-
-                  <button
-                    type="button"
-                    className="ml-2 text-gray-500 hover:text-orange-500 transition-colors duration-200"
-                    title="Help"
-                  >
-                    <FiInfo size={16} />
-                  </button>
-                </div>
-              </div>
-
-              <div className="space-y-2"> 
-                <div className="flex gap-2 w-full mb-2">
-                  {formData.options.slice(0, 2).map((option, index) => (
-                    <div key={index} className="flex-1">
-                      <input
-                        type="text"
-                        value={option}
-                        onChange={(e) => handleOptionChange(index, e.target.value)}
-                        className={`w-full bg-gray-800 border border-gray-700 rounded-md px-4 py-1.5 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-colors duration-200
-                          ${
-                            index === 0
-                              ? 'text-green-500 placeholder-green-300/50'
-                              : index === 1
-                                ? 'text-red-500 placeholder-red-300/50' 
-                                : 'text-white placeholder-gray-500' 
-                          }
-                        `}
-                        placeholder={`Option ${index + 1}`}
-                        required
-                      />
-                    </div>
-                  ))}
-                </div>
-                
-                {formData.options.slice(2).map((option, idx) => {
-                  const index = idx + 2;
-                  return (
-                    <div key={index} className="flex items-center gap-2 w-full">
-                      <input
-                        type="text"
-                        value={option}
-                        onChange={(e) => handleOptionChange(index, e.target.value)}
-                        className="flex-1 bg-gray-800 border border-gray-700 rounded-md px-4 py-1.5 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-colors duration-200 min-w-0"
-                        placeholder={`Option ${index + 1}`}
-                        required
-                      />
-                      <button
-                        type="button"
-                        onClick={() => removeOption(index)}
-                        className="p-2 text-gray-500 hover:text-red-500 transition-colors duration-200 flex-shrink-0"
-                        title="Remove option"
-                      >
-                        <FiX size={16} />
-                      </button>
-                    </div>
-                  );
-                })}
-              </div>
-              <button
-                type="button"
-                onClick={addOption}
-                className="mt-3 text-sm text-orange-500 hover:text-orange-600 transition-colors duration-200 font-medium"
-              >
-                + Add another option
-              </button>
-            </div> */
-}

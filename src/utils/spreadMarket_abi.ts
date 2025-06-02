@@ -1,4 +1,4 @@
-[
+export const MARKET_ABI = [
 	{
 		"inputs": [
 			{
