@@ -40,7 +40,15 @@ const CreatePredictionForm = () => {
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+
+    if (name === "marketCategory") {
+      setFormData((prev) => ({
+        ...prev,
+        marketCategory: value.split(",").map((cat) => cat.trim()),
+      }));
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    }
   };
 
   // const handleOptionChange = (index: number, value: string) => {
@@ -121,8 +129,7 @@ const CreatePredictionForm = () => {
 
     setImagePreview(null);
   };
-
-  console.log("Form Data:", formData);
+  console.log(formData);
   // const addOption = () => {
   //   if (formData.options.length < 5) {
   //     setFormData((prev) => ({
@@ -225,10 +232,10 @@ const CreatePredictionForm = () => {
               <textarea
                 id="marketCategory"
                 name="marketCategory"
-                value={formData.marketCategory}
+                value={formData.marketCategory.join(", ")}
                 onChange={handleInputChange}
                 rows={3}
-                placeholder="Enter the category for this market (e.g., Sports, Politics, Entertainment)"
+                placeholder="Enter categories separated by commas (e.g., Sports, Politics)"
                 className="w-full bg-gray-800 border border-gray-700 rounded-md px-4 py-2.5 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-colors duration-200"
               />
             </div>
