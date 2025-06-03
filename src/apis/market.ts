@@ -2,7 +2,7 @@ import axios from 'axios';
 import type { Market } from '../lib/interface';
 
 
-export const createMarket = async (authToken: string, question: string, resolution_criteria: string, description: string, expiry_date: string | number, image: string) => {
+export const createMarket = async (authToken: string, question: string, resolution_criteria: string, description: string, expiry_date: string | number, image: string, contract_address: string) => {
   try {
     const response = await axios.post(
       `${import.meta.env.VITE_BACKEND_URL}/market/create-market`,
@@ -11,6 +11,7 @@ export const createMarket = async (authToken: string, question: string, resoluti
         resolution_criteria,
         description,
         expiry_date,
+        contract_address,
         image
       },
       {

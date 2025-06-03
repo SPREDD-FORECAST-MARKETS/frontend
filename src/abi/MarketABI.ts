@@ -12,6 +12,11 @@ export const MARKET_ABI = [
 				"type": "address"
 			},
 			{
+				"internalType": "address",
+				"name": "_token",
+				"type": "address"
+			},
+			{
 				"internalType": "string",
 				"name": "_question",
 				"type": "string"
@@ -38,6 +43,17 @@ export const MARKET_ABI = [
 	{
 		"inputs": [],
 		"name": "OwnableUnauthorized",
+		"type": "error"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "token",
+				"type": "address"
+			}
+		],
+		"name": "SafeERC20FailedOperation",
 		"type": "error"
 	},
 	{
@@ -265,10 +281,6 @@ export const MARKET_ABI = [
 		"type": "event"
 	},
 	{
-		"stateMutability": "payable",
-		"type": "fallback"
-	},
-	{
 		"inputs": [],
 		"name": "FEE_DENOMINATOR",
 		"outputs": [
@@ -321,10 +333,16 @@ export const MARKET_ABI = [
 		"type": "function"
 	},
 	{
-		"inputs": [],
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "_amount",
+				"type": "uint256"
+			}
+		],
 		"name": "addLiquidity",
 		"outputs": [],
-		"stateMutability": "payable",
+		"stateMutability": "nonpayable",
 		"type": "function"
 	},
 	{
@@ -336,13 +354,18 @@ export const MARKET_ABI = [
 			},
 			{
 				"internalType": "uint256",
+				"name": "_amount",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
 				"name": "_minTokensOut",
 				"type": "uint256"
 			}
 		],
 		"name": "buyTokens",
 		"outputs": [],
-		"stateMutability": "payable",
+		"stateMutability": "nonpayable",
 		"type": "function"
 	},
 	{
@@ -570,6 +593,19 @@ export const MARKET_ABI = [
 	},
 	{
 		"inputs": [],
+		"name": "getTokenAddress",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
 		"name": "getTotalValue",
 		"outputs": [
 			{
@@ -630,10 +666,16 @@ export const MARKET_ABI = [
 		"type": "function"
 	},
 	{
-		"inputs": [],
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "_amount",
+				"type": "uint256"
+			}
+		],
 		"name": "initializeMarket",
 		"outputs": [],
-		"stateMutability": "payable",
+		"stateMutability": "nonpayable",
 		"type": "function"
 	},
 	{
@@ -732,10 +774,16 @@ export const MARKET_ABI = [
 		"type": "function"
 	},
 	{
-		"inputs": [],
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "_amount",
+				"type": "uint256"
+			}
+		],
 		"name": "marketMake",
 		"outputs": [],
-		"stateMutability": "payable",
+		"stateMutability": "nonpayable",
 		"type": "function"
 	},
 	{
@@ -866,6 +914,19 @@ export const MARKET_ABI = [
 	},
 	{
 		"inputs": [],
+		"name": "token",
+		"outputs": [
+			{
+				"internalType": "contract IERC20",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
 		"name": "tradingFee",
 		"outputs": [
 			{
@@ -883,9 +944,5 @@ export const MARKET_ABI = [
 		"outputs": [],
 		"stateMutability": "nonpayable",
 		"type": "function"
-	},
-	{
-		"stateMutability": "payable",
-		"type": "receive"
 	}
 ]

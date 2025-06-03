@@ -1,21 +1,17 @@
-import {createConfig} from '@privy-io/wagmi';
+import { createConfig } from '@privy-io/wagmi';
 import { http } from 'viem';
-import { base,sepolia} from 'viem/chains';
+import { baseSepolia } from 'viem/chains';
 
 
 export const wagmiConfig = createConfig({
-  chains: [sepolia],
+  chains: [baseSepolia],
   transports: {
-    [sepolia.id]: http(),
+    [baseSepolia.id]: http(),
   },
 });
 
 
 export const CONTRACT_ADDRESSES = {
-  [base.id]: {
-    factory: '0x...', // Your deployed factory address
-  },
-  [sepolia.id]: {
-    factory: '0x0fcd9457E434E5D956a197A4810f6E706317f5F7', 
-  },
+  token: "0x4a2661Ab44eD073Eb8a5834cBcBD287bfB4d1CFF",
+  factory: "0x1a3b347fd06620B014C9F0f54933023F3B6803d3"
 } as const

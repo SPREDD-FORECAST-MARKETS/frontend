@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FiInfo, FiCalendar } from "react-icons/fi";
 import { Link } from "react-router-dom";
 import { useToast } from "../hooks/useToast";
@@ -8,6 +8,11 @@ import { getAccessToken } from "@privy-io/react-auth";
 import { useCreateMarket, useInitializeMarket } from "../hooks/useCreateMarket";
 import React from "react";
 import { toISO8601 } from "../utils/helpers";
+import { useSwitchChain, useWaitForTransactionReceipt } from "wagmi";
+import { decodeEventLog, parseAbiItem } from "viem";
+import { baseSepolia } from "viem/chains";
+import { useUsdtToken } from "../hooks/useToken";
+import { CONTRACT_ADDRESSES } from "../utils/wagmiConfig";
 
 interface FormData {
   title: string;
@@ -35,15 +40,30 @@ const CreatePredictionForm = () => {
     marketCategory: ["Crypto"],
     endDate: "2025-06-10",
     endTime: "14:00",
-    initialLiquidity: "0.01",
+    initialLiquidity: "10",
     createOnChain: true,
   });
 
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [uploadedImageUrl, setUploadedImageUrl] = useState<string>("");
-  const [transactionHash, setTransactionHash] = useState<string | null>(null);
+  const [marketContractAddress, setMarketContractAddress] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [, setHasInitialized] = useState(false);
+
+  const { switchChain } = useSwitchChain();
+
+  const {
+    createMarket: createSmartContractMarket,
+    hash: contractHash,
+  } = useCreateMarket();
+
+  const { data: receipt } = useWaitForTransactionReceipt({ hash: contractHash });
+  const marketCreatedEvent = parseAbiItem(
+    'event MarketCreated(bytes32 indexed marketId, address indexed marketContract, address indexed owner, address token, string question, string optionA, string optionB, uint256 endTime)'
+  );
+
+  const { initializeMarket } = useInitializeMarket();
+  const { approve } = useUsdtToken();
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -59,14 +79,6 @@ const CreatePredictionForm = () => {
       setFormData((prev) => ({ ...prev, [name]: value }));
     }
   };
-
-  const {
-    createMarket: createSmartContractMarket,
-    isSuccess: isContractSuccess,
-    hash: contractHash,
-  } = useCreateMarket();
-
-  const { initializeMarket } = useInitializeMarket();
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -100,11 +112,13 @@ const CreatePredictionForm = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    await switchChain({ chainId: baseSepolia.id });
+
+
     if (isSubmitting) return;
     setIsSubmitting(true);
 
     try {
-      console.log(formData.endDate, formData.endTime);
 
       if (!formData.image) {
         error("Please upload an image");
@@ -122,39 +136,14 @@ const CreatePredictionForm = () => {
         return;
       }
 
-      const dateStr = toISO8601(
-        String(formData.endDate),
-        String(formData.endTime)
-      );
-
       // Step 1: Create smart contract market
-      const data = await createSmartContractMarket(
+      await createSmartContractMarket(
         formData.title,
         formData.options[0],
         formData.options[1],
         endDateTime.getTime() / 1000
       );
-      console.log("Smart contract data:", data);
 
-      // Step 2: Create market in backend (can be done in parallel)
-      const authToken = await getAccessToken();
-      const [, status] = await createMarket(
-        authToken!,
-        formData.title,
-        formData.resolutionCriteria,
-        formData.description,
-        dateStr || 0,
-        uploadedImageUrl
-      );
-
-      if (status === -1) {
-        error("Failed to create Prediction!", 3);
-        return;
-      }
-
-      success("Prediction created successfully!");
-      setImagePreview(null);
-      setHasInitialized(false);
       // Note: Market initialization will be handled by the useEffect when contractHash is available
     } catch (err) {
       console.error("Error in handleSubmit:", err);
@@ -164,56 +153,94 @@ const CreatePredictionForm = () => {
     }
   };
 
-  // Handle smart contract success and initialize market
-  React.useEffect(() => {
-    const handleMarketInitialization = async () => {
-      if (isContractSuccess && contractHash && !transactionHash) {
-        try {
-          success("Smart contract market created successfully!");
-          console.log("Transaction hash:", contractHash);
-          setTransactionHash(contractHash);
 
-          // Initialize the market with liquidity
-          await initializeMarket(
-            contractHash as `0x${string}`,
-            formData.initialLiquidity
-          );
-          success("Market initialization transaction submitted!");
-        } catch (err) {
-          console.error("Error initializing market:", err);
-          error("Failed to initialize market");
+  useEffect(() => {
+    if (marketContractAddress === null) return;
+
+    const handleMarketInitialization = async () => {
+
+      try {
+
+        approve({
+          tokenAddress: CONTRACT_ADDRESSES.token as `0x${string}`,
+          spender: marketContractAddress as `0x${string}`,
+          usdAmount: parseFloat(formData.initialLiquidity),
+          decimals: 6
+        });
+
+      } catch (err) {
+        error("Couldn't approve USDT token");
+        return;
+      }
+
+      try {
+        initializeMarket(
+          marketContractAddress as `0x${string}`,
+          formData.initialLiquidity
+        );
+
+        const dateStr = toISO8601(
+          String(formData.endDate),
+          String(formData.endTime)
+        );
+
+        const authToken = await getAccessToken();
+        const [, status] = await createMarket(
+          authToken!,
+          formData.title,
+          formData.resolutionCriteria,
+          formData.description,
+          dateStr || 0,
+          uploadedImageUrl,
+          marketContractAddress
+        );
+
+        if (status === -1) {
+          error("Failed to create Prediction!", 3);
+          return;
         }
+
+        success("Prediction created successfully!");
+        setImagePreview(null);
+        setHasInitialized(false);
+        success("Market initialization transaction submitted!");
+      } catch (err) {
+        console.error("Error initializing market:", err);
+        error("Failed to initialize market");
       }
     };
 
     handleMarketInitialization();
   }, [
-    isContractSuccess,
-    contractHash,
-    transactionHash,
-    initializeMarket,
-    formData.initialLiquidity,
-    success,
-    error,
+    marketContractAddress
   ]);
 
-  const handleInitializeMarket = async () => {
-    if (!transactionHash) {
-      error("No transaction hash available. Please create a market first.");
-      return;
-    }
 
-    try {
-      await initializeMarket(
-        contractHash as `0x${string}`,
-        formData.initialLiquidity
-      );
-      success("Market initialization transaction submitted!");
-    } catch (err) {
-      console.error("Error initializing market:", err);
-      error("Failed to initialize market");
+  useEffect(() => {
+    if (!receipt?.logs) return;
+
+    for (const log of receipt.logs) {
+      try {
+        const parsed = decodeEventLog({
+          abi: [marketCreatedEvent],
+          data: log.data,
+          topics: log.topics,
+        });
+
+        if (parsed.eventName === 'MarketCreated') {
+          const marketContract = parsed.args.marketContract;
+          console.log("Market Created: ", marketContract)
+          setMarketContractAddress(marketContract);
+          break;
+        }
+      } catch (err) {
+        // Not a MarketCreated log
+        console.log("error occurred: ", err);
+        setMarketContractAddress(null);
+      }
     }
-  };
+  }, [receipt])
+
 
   return (
     <div className="w-full max-w-2xl mx-auto py-6 px-4 sm:px-0">
@@ -311,7 +338,7 @@ const CreatePredictionForm = () => {
                 htmlFor="initialLiquidity"
                 className="block text-gray-400 font-medium mb-2 text-sm uppercase tracking-wider"
               >
-                Initial Liquidity (ETH)
+                Initial Liquidity (USDT)
               </label>
               <input
                 type="number"
@@ -332,9 +359,8 @@ const CreatePredictionForm = () => {
                 Upload Image <span className="text-red-500">(Required)</span>
               </label>
               <div
-                className={`border-2 border-dashed ${
-                  imagePreview ? "border-green-500" : "border-gray-700"
-                } rounded-md p-5 sm:p-6 text-center cursor-pointer hover:border-orange-500 transition-colors duration-200`}
+                className={`border-2 border-dashed ${imagePreview ? "border-green-500" : "border-gray-700"
+                  } rounded-md p-5 sm:p-6 text-center cursor-pointer hover:border-orange-500 transition-colors duration-200`}
                 onClick={() => document.getElementById("image-upload")?.click()}
               >
                 {imagePreview ? (
@@ -415,16 +441,6 @@ const CreatePredictionForm = () => {
               {isSubmitting ? "Creating..." : "Create Event"}
             </button>
           </form>
-
-          <button
-            onClick={handleInitializeMarket}
-            disabled={!transactionHash}
-            className="w-full bg-green-500 hover:bg-green-600 disabled:bg-red-700 disabled:cursor-not-allowed text-white font-bold py-3 px-4 rounded-md transition-colors duration-200 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 text-lg"
-          >
-            {transactionHash
-              ? "Initialize Market"
-              : "Initialize Market (After Creation)"}
-          </button>
         </div>
       </div>
     </div>

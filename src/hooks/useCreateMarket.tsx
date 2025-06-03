@@ -1,10 +1,11 @@
 import { useWriteContract, useWaitForTransactionReceipt } from "wagmi";
-import { FACTORY_ABI } from "../utils/spreadMarketFactory_abi";
-import { MARKET_ABI } from "../utils/spreadMarket_abi";
+import { MARKET_ABI } from "../abi/MarketABI";
+import { FACTORY_ABI } from "../abi/FactoryABI";
 import { CONTRACT_ADDRESSES } from "../utils/wagmiConfig";
-import { parseEther, type Address, decodeEventLog } from "viem";
+import { type Address, decodeEventLog, parseUnits } from "viem";
 import { usePublicClient } from "wagmi";
 import { useState, useEffect } from "react";
+import { baseSepolia } from "viem/chains";
 
 export function useCreateMarket() {
   const { writeContract, data: hash, isPending } = useWriteContract();
@@ -65,7 +66,7 @@ export function useCreateMarket() {
     optionB: string,
     durationDays: number
   ) => {
-    const factoryAddress = CONTRACT_ADDRESSES[11155111]?.factory || "";
+    const factoryAddress = CONTRACT_ADDRESSES.factory || "";
     console.log("Factory Address:", factoryAddress);
     if (!factoryAddress) throw new Error("Factory not deployed on this chain");
 
@@ -99,20 +100,19 @@ export function useInitializeMarket() {
 
   const initializeMarket = (
     marketAddress: Address,
-    initialLiquidityETH: string
+    initialLiquidity: string
   ) => {
-    console.log("Market Address:", marketAddress);
-    console.log("Initial Liquidity ETH:", initialLiquidityETH);
 
     if (!marketAddress) {
       throw new Error("Market address is required");
     }
+    const parsedAmount = parseUnits(initialLiquidity, 6);
 
     return writeContract({
       address: marketAddress,
       abi: MARKET_ABI,
       functionName: "initializeMarket",
-      value: parseEther(initialLiquidityETH),
+      args: [parsedAmount]
     });
   };
 
