@@ -3,20 +3,20 @@ import { Link } from "react-router-dom";
 import {
   FaChevronDown,
   FaExternalLinkAlt,
-  FaEthereum,
+  FaDollarSign,
   FaUser,
 } from "react-icons/fa";
 import { useEffect, useState, useRef } from "react";
 import { getBalance } from "@wagmi/core";
 
-import { formatEther } from "viem";
+import { formatEther, formatUnits } from "viem";
 import { UserRound, Wallet, LogOut, Copy, ExternalLink } from "lucide-react";
 
 import { loginApi } from "../apis/auth";
 import { useToast } from "../hooks/useToast";
 import { useAtom } from "jotai";
 import { balanceAtom, refreshUserAtom, userAtom } from "../atoms/user";
-import { wagmiConfig } from "../utils/wagmiConfig";
+import { CONTRACT_ADDRESSES, wagmiConfig } from "../utils/wagmiConfig";
 
 const Navbar = () => {
   const [networkName,] = useState("Base");
@@ -88,7 +88,8 @@ const Navbar = () => {
 
     async function fetchBalance() {
       const balance = await getBalance(wagmiConfig, {
-        address: user?.wallet?.address! as `0x${string}`
+        address: user?.wallet?.address! as `0x${string}`,
+        token: CONTRACT_ADDRESSES.token
       });
       setUserBalance(balance);
     }
@@ -367,11 +368,11 @@ const Navbar = () => {
                   <div className="flex justify-between items-center">
                     <p className="text-sm text-zinc-400">Balance</p>
                     <p className="text-sm font-medium text-white flex items-center">
-                      <FaEthereum className="h-3 w-3 mr-1 text-orange-500" />
+                      <FaDollarSign className="h-3 w-3 mr-1 text-orange-500" />
                       {isLoadingBalance ? (
                         <span className="text-zinc-400">Loading...</span>
                       ) : userBalance ? (
-                        <span>{parseFloat(formatEther(BigInt(userBalance?.value!), "wei")).toFixed(4)} ETH</span>
+                        <span>{parseFloat(formatUnits(BigInt(userBalance?.value!), 6)).toFixed(4)} USD</span>
                       ) : (
                         <span className="text-zinc-400">--</span>
                       )}
