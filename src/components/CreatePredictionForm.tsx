@@ -46,20 +46,22 @@ const CreatePredictionForm = () => {
 
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [uploadedImageUrl, setUploadedImageUrl] = useState<string>("");
-  const [marketContractAddress, setMarketContractAddress] = useState<string | null>(null);
+  const [marketContractAddress, setMarketContractAddress] = useState<
+    string | null
+  >(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [, setHasInitialized] = useState(false);
 
   const { switchChain } = useSwitchChain();
 
-  const {
-    createMarket: createSmartContractMarket,
-    hash: contractHash,
-  } = useCreateMarket();
+  const { createMarket: createSmartContractMarket, hash: contractHash } =
+    useCreateMarket();
 
-  const { data: receipt } = useWaitForTransactionReceipt({ hash: contractHash });
+  const { data: receipt } = useWaitForTransactionReceipt({
+    hash: contractHash,
+  });
   const marketCreatedEvent = parseAbiItem(
-    'event MarketCreated(bytes32 indexed marketId, address indexed marketContract, address indexed owner, address token, string question, string optionA, string optionB, uint256 endTime)'
+    "event MarketCreated(bytes32 indexed marketId, address indexed marketContract, address indexed owner, address token, string question, string optionA, string optionB, uint256 endTime)"
   );
 
   const { initializeMarket } = useInitializeMarket();
@@ -114,12 +116,10 @@ const CreatePredictionForm = () => {
 
     await switchChain({ chainId: baseSepolia.id });
 
-
     if (isSubmitting) return;
     setIsSubmitting(true);
 
     try {
-
       if (!formData.image) {
         error("Please upload an image");
         return;
@@ -153,28 +153,24 @@ const CreatePredictionForm = () => {
     }
   };
 
-
   useEffect(() => {
     if (marketContractAddress === null) return;
 
     const handleMarketInitialization = async () => {
-
       try {
-
-        approve({
+        await approve({
           tokenAddress: CONTRACT_ADDRESSES.token as `0x${string}`,
           spender: marketContractAddress as `0x${string}`,
           usdAmount: parseFloat(formData.initialLiquidity),
-          decimals: 6
+          decimals: 6,
         });
-
       } catch (err) {
         error("Couldn't approve USDT token");
         return;
       }
 
       try {
-        initializeMarket(
+        await initializeMarket(
           marketContractAddress as `0x${string}`,
           formData.initialLiquidity
         );
@@ -211,10 +207,7 @@ const CreatePredictionForm = () => {
     };
 
     handleMarketInitialization();
-  }, [
-    marketContractAddress
-  ]);
-
+  }, [marketContractAddress]);
 
   useEffect(() => {
     if (!receipt?.logs) return;
@@ -227,9 +220,9 @@ const CreatePredictionForm = () => {
           topics: log.topics,
         });
 
-        if (parsed.eventName === 'MarketCreated') {
+        if (parsed.eventName === "MarketCreated") {
           const marketContract = parsed.args.marketContract;
-          console.log("Market Created: ", marketContract)
+          console.log("Market Created: ", marketContract);
           setMarketContractAddress(marketContract);
           break;
         }
@@ -239,8 +232,7 @@ const CreatePredictionForm = () => {
         setMarketContractAddress(null);
       }
     }
-  }, [receipt])
-
+  }, [receipt]);
 
   return (
     <div className="w-full max-w-2xl mx-auto py-6 px-4 sm:px-0">
@@ -359,8 +351,9 @@ const CreatePredictionForm = () => {
                 Upload Image <span className="text-red-500">(Required)</span>
               </label>
               <div
-                className={`border-2 border-dashed ${imagePreview ? "border-green-500" : "border-gray-700"
-                  } rounded-md p-5 sm:p-6 text-center cursor-pointer hover:border-orange-500 transition-colors duration-200`}
+                className={`border-2 border-dashed ${
+                  imagePreview ? "border-green-500" : "border-gray-700"
+                } rounded-md p-5 sm:p-6 text-center cursor-pointer hover:border-orange-500 transition-colors duration-200`}
                 onClick={() => document.getElementById("image-upload")?.click()}
               >
                 {imagePreview ? (

@@ -5,7 +5,6 @@ import { CONTRACT_ADDRESSES } from "../utils/wagmiConfig";
 import { type Address, decodeEventLog, parseUnits } from "viem";
 import { usePublicClient } from "wagmi";
 import { useState, useEffect } from "react";
-import { baseSepolia } from "viem/chains";
 
 export function useCreateMarket() {
   const { writeContract, data: hash, isPending } = useWriteContract();
@@ -93,26 +92,25 @@ export function useCreateMarket() {
 }
 
 export function useInitializeMarket() {
-  const { writeContract, data: hash, isPending } = useWriteContract();
+  const { writeContractAsync, data: hash, isPending } = useWriteContract();
   const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({
     hash,
   });
 
-  const initializeMarket = (
+  const initializeMarket = async (
     marketAddress: Address,
     initialLiquidity: string
   ) => {
-
     if (!marketAddress) {
       throw new Error("Market address is required");
     }
     const parsedAmount = parseUnits(initialLiquidity, 6);
 
-    return writeContract({
+    return await writeContractAsync({
       address: marketAddress,
       abi: MARKET_ABI,
       functionName: "initializeMarket",
-      args: [parsedAmount]
+      args: [parsedAmount],
     });
   };
 
