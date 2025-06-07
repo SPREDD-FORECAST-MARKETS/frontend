@@ -9,7 +9,7 @@ import {
 import { useEffect, useState, useRef } from "react";
 import { getBalance } from "@wagmi/core";
 
-import { formatEther, formatUnits } from "viem";
+import { formatUnits } from "viem";
 import { UserRound, Wallet, LogOut, Copy, ExternalLink } from "lucide-react";
 
 import { loginApi } from "../apis/auth";
