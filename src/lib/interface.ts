@@ -98,6 +98,7 @@ export type Market = {
   id: number;
   description: string;
   resolution_criteria: string;
+  contract_address: string;
   question: string;
   expiry_date: string; // ISO string format
   image: string;
