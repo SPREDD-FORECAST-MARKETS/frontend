@@ -1,4 +1,4 @@
-import { useReadContract } from 'wagmi';
+import { useReadContract, useWriteContract } from 'wagmi';
 import type { Market } from '../lib/interface';
 import { calculateReturn } from '../utils/calculations';
 import { MARKET_ABI } from '../abi/MarketABI';
@@ -7,6 +7,9 @@ import { useEffect, useState } from 'react';
 import { useAtom } from 'jotai';
 import { balanceAtom } from '../atoms/user';
 import { usePrivy } from '@privy-io/react-auth';
+import { useUsdtToken } from '../hooks/useToken';
+import { CONTRACT_ADDRESSES } from '../utils/wagmiConfig';
+import { useToast } from '../hooks/useToast';
 
 interface TradingPanelProps {
   marketData: Market;
@@ -36,10 +39,15 @@ const TradingPanel = ({
   const [userSharesNo, setUserShareNo] = useState(0);
   const [totalShares, setTotalShares] = useState(0.0);
   const [balanceLow, setBalanceLow] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [transactionHash, setTransactionHash] = useState<string | null>(null);
+  const [transactionType, setTransactionType] = useState<'buy' | 'sell' | null>(null);
 
   const [userBalance,] = useAtom(balanceAtom);
-
   const { user } = usePrivy();
+  const { writeContractAsync, isSuccess, isError } = useWriteContract();
+  const { approve } = useUsdtToken();
+  const toast = useToast();
 
   const { data } = useReadContract({
     address: marketData.contract_address as `0x${string}`,
@@ -51,9 +59,46 @@ const TradingPanel = ({
   const { data: sharesData } = useReadContract({
     address: marketData.contract_address as `0x${string}`,
     abi: MARKET_ABI,
-    functionName: "getUserBalance",
+    functionName: "getUserBalances",
     args: [user?.wallet?.address],
   }) as { data: [bigint, bigint, bigint] }
+
+  // Handle transaction success/failure with useEffect
+  useEffect(() => {
+    if (transactionHash && isSuccess && transactionType) {
+      if (transactionType === 'buy') {
+        toast.success("Buy order successful!");
+      } else {
+        toast.success("Sell order successful!");
+      }
+      
+      // Call the original onSubmit callback for any additional handling
+      onSubmit();
+      
+      // Reset form
+      onQuantityChange(0);
+      
+      // Reset transaction state
+      setTransactionHash(null);
+      setTransactionType(null);
+      setIsSubmitting(false);
+    }
+  }, [isSuccess, transactionHash, transactionType, toast, onSubmit, onQuantityChange]);
+
+  useEffect(() => {
+    if (transactionHash && isError && transactionType) {
+      if (transactionType === 'buy') {
+        toast.error("Failed to buy shares.");
+      } else {
+        toast.error("Failed to sell shares.");
+      }
+      
+      // Reset transaction state
+      setTransactionHash(null);
+      setTransactionType(null);
+      setIsSubmitting(false);
+    }
+  }, [isError, transactionHash, transactionType, toast]);
 
   const handleQuantityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = parseFloat(e.target.value);
@@ -68,6 +113,68 @@ const TradingPanel = ({
       // When selling, use user's shares for the selected outcome
       const maxShares = isYes ? userSharesYes : userSharesNo;
       onQuantityChange(maxShares);
+    }
+  };
+
+  const handleSubmit = async () => {
+    if (quantity <= 0 || balanceLow || isSubmitting) return;
+
+    setIsSubmitting(true);
+
+    try {
+      if (isBuy) {
+        // Buy tokens
+        const amountIn = parseUnits(quantity.toString(), 6); // Assuming USDT has 6 decimals
+        const minTokensOut = BigInt(Math.floor(totalShares * 0.95)); // 5% slippage tolerance
+        
+        // Approve first (no toast here)
+        await approve({
+          tokenAddress: CONTRACT_ADDRESSES.token as `0x${string}`,
+          spender: marketData.contract_address as `0x${string}`,
+          usdAmount: quantity,
+          decimals: 6,
+        });
+        
+        // Then execute buy transaction
+        const result = await writeContractAsync({
+          address: marketData.contract_address as `0x${string}`,
+          abi: MARKET_ABI,
+          functionName: 'buyTokens',
+          args: [
+            isYes, // _buyOptionA (true for YES, false for NO)
+            amountIn, // _amount
+            minTokensOut // _minTokensOut
+          ]
+        });
+
+        // Set transaction details for useEffect to handle
+        setTransactionHash(result);
+        setTransactionType('buy');
+
+      } else {
+        // Sell tokens
+        const tokensIn = BigInt(quantity); // quantity is already in shares
+        
+        const result = await writeContractAsync({
+          address: marketData.contract_address as `0x${string}`,
+          abi: MARKET_ABI,
+          functionName: 'sellTokens',
+          args: [
+            isYes, // _sellOptionA (true for YES, false for NO)
+            tokensIn, // _tokensIn
+            1 // _minAmountOut
+          ]
+        });
+        
+        // Set transaction details for useEffect to handle
+        setTransactionHash(result);
+        setTransactionType('sell');
+      }
+
+    } catch (error) {
+      console.error('Transaction failed:', error);
+      toast.error('Transaction failed. Please try again.');
+      setIsSubmitting(false);
     }
   };
 
@@ -152,9 +259,9 @@ const TradingPanel = ({
                 ) : (
                   <span className="flex items-center">
                     <span className="text-xs mr-1">S</span>
-                    {userSharesYes > 999999 ? `${(userSharesYes / 1000000).toFixed(1)}M` : 
-                     userSharesYes > 9999 ? `${(userSharesYes / 1000).toFixed(1)}K` : 
-                     userSharesYes.toString()}
+                    {userSharesYes > 999999 ? `${(userSharesYes / 1000000).toFixed(1)}M` :
+                      userSharesYes > 9999 ? `${(userSharesYes / 1000).toFixed(1)}K` :
+                        userSharesYes.toString()}
                   </span>
                 )}
               </span>
@@ -176,9 +283,9 @@ const TradingPanel = ({
                 ) : (
                   <span className="flex items-center">
                     <span className="text-xs mr-1">S</span>
-                    {userSharesNo > 999999 ? `${(userSharesNo / 1000000).toFixed(1)}M` : 
-                     userSharesNo > 9999 ? `${(userSharesNo / 1000).toFixed(1)}K` : 
-                     userSharesNo.toString()}
+                    {userSharesNo > 999999 ? `${(userSharesNo / 1000000).toFixed(1)}M` :
+                      userSharesNo > 9999 ? `${(userSharesNo / 1000).toFixed(1)}K` :
+                        userSharesNo.toString()}
                   </span>
                 )}
               </span>
@@ -257,12 +364,19 @@ const TradingPanel = ({
       <div className="p-5">
         <button
           className={`w-full ${isBuy ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700'
-            } text-white font-bold py-3 px-4 rounded text-lg transition-all ${quantity <= 0 || balanceLow ? 'opacity-50 cursor-not-allowed' : ''
+            } text-white font-bold py-3 px-4 rounded text-lg transition-all ${quantity <= 0 || balanceLow || isSubmitting ? 'opacity-50 cursor-not-allowed' : ''
             }`}
-          onClick={onSubmit}
-          disabled={quantity <= 0 || balanceLow}
+          onClick={handleSubmit}
+          disabled={quantity <= 0 || balanceLow || isSubmitting}
         >
-          Place Forecast
+          {isSubmitting ? (
+            <div className="flex items-center justify-center">
+              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+              Processing...
+            </div>
+          ) : (
+            'Place Forecast'
+          )}
         </button>
       </div>
 
