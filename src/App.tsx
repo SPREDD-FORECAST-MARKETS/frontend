@@ -10,9 +10,10 @@ import UserProfile from "./pages/UserProfile";
 import Trade from "./pages/Trade";
 import LeaderBoard from "./pages/LeaderBoard";
 import { ToastProvider } from "./components/Toast";
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { WagmiProvider } from '@privy-io/wagmi';
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { WagmiProvider } from "@privy-io/wagmi";
 import { wagmiConfig } from "./utils/wagmiConfig";
+import Faucet from "./pages/Faucet";
 
 function App() {
   if (!PRIVY_APP_ID) {
@@ -22,10 +23,6 @@ function App() {
   }
 
   const queryClient = new QueryClient();
-
-
-
-
 
   return (
     <ToastProvider>
@@ -45,12 +42,23 @@ function App() {
                   <Routes>
                     <Route path="/" element={<Explore />} />
                     <Route path="/user/profile" element={<UserProfile />} />
-                    <Route path="/create-prediction" element={<CreatePrediction />} />
+                    <Route
+                      path="/create-prediction"
+                      element={<CreatePrediction />}
+                    />
                     <Route path="/leaderboard" element={<LeaderBoard />} />
                     <Route path="/trade" element={<Trade />} />
                     <Route path="/trade/:marketId" element={<Trade />} />
                     <Route path="/about" element={<div>About</div>} />
                     <Route path="/contact" element={<div>Contact</div>} />
+                    <Route
+                      path="/faucet"
+                      element={
+                        <div>
+                          <Faucet />
+                        </div>
+                      }
+                    />
                   </Routes>
                 </main>
                 <Footer />
