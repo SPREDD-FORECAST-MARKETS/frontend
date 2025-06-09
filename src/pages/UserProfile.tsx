@@ -145,7 +145,8 @@ const UserProfile = () => {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const formatWalletAddress = (address: string) => {
+  const formatWalletAddress = (address: string | undefined) => {
+    if (!address) return "No wallet connected";
     return `${address.substring(0, 6)}...${address.substring(
       address.length - 4
     )}`;
@@ -220,7 +221,7 @@ const UserProfile = () => {
                 {/* Wallet info with copy - Mobile Responsive */}
                 <div className="flex items-center gap-2 text-sm text-gray-400 mt-2 sm:mt-0">
                   <span className="bg-zinc-900 px-3 py-1.5 rounded-lg border border-zinc-800">
-                    {formatWalletAddress(wallets[0].address)}
+                    {formatWalletAddress(wallets[0]?.address)}
                   </span>
                   <button
                     onClick={() => copyToClipboard(wallets[0].address)}
@@ -233,7 +234,7 @@ const UserProfile = () => {
                     )}
                   </button>
                   <a
-                    href={`https://etherscan.io/address/${wallets[0].address}`}
+                    href={`https://etherscan.io/address/${wallets[0]?.address}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-gray-400 hover:text-orange-500 transition-colors"
