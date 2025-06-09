@@ -1,11 +1,6 @@
 import { usePrivy } from "@privy-io/react-auth";
 import { Link } from "react-router-dom";
-import {
-  FaChevronDown,
-  FaExternalLinkAlt,
-  FaDollarSign,
-  FaUser,
-} from "react-icons/fa";
+import { FaExternalLinkAlt, FaDollarSign, FaUser } from "react-icons/fa";
 import { useEffect, useState, useRef } from "react";
 import { getBalance } from "@wagmi/core";
 
@@ -19,17 +14,18 @@ import { balanceAtom, refreshUserAtom, userAtom } from "../atoms/user";
 import { CONTRACT_ADDRESSES, wagmiConfig } from "../utils/wagmiConfig";
 
 const Navbar = () => {
-  const [networkName,] = useState("Base");
+  const [networkName] = useState("Base");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  const [isLoadingBalance,] = useState(false);
+  const [isLoadingBalance] = useState(false);
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
   const [copySuccess, setCopySuccess] = useState(false);
 
   const profileDropdownRef = useRef<HTMLDivElement>(null);
   const profileButtonRef = useRef<HTMLButtonElement>(null);
 
-  const { login, authenticated, logout, getAccessToken, user, ready } = usePrivy();
+  const { login, authenticated, logout, getAccessToken, user, ready } =
+    usePrivy();
 
   const [userBalance, setUserBalance] = useAtom(balanceAtom);
 
@@ -88,8 +84,8 @@ const Navbar = () => {
 
     async function fetchBalance() {
       const balance = await getBalance(wagmiConfig, {
-        address: user?.wallet?.address! as `0x${string}`,
-        token: CONTRACT_ADDRESSES.token
+        address: user?.wallet?.address as `0x${string}`,
+        token: CONTRACT_ADDRESSES.token,
       });
       setUserBalance(balance);
     }
@@ -146,42 +142,35 @@ const Navbar = () => {
 
         <div className="hidden md:flex items-center space-x-6 lg:space-x-8 text-sm lg:text-base font-medium">
           <Link
-            to="/trade"
+            to="/"
             className="hover:text-orange-500 transition-colors duration-200 py-2"
           >
-            Trade
+            Explore
+          </Link>
+          <Link
+            to="/faucet"
+            className="hover:text-orange-500 transition-colors duration-200 py-2"
+          >
+            Faucet
+          </Link>
+          <Link
+            to="/leaderboard"
+            className="hover:text-orange-500 transition-colors duration-200 py-2"
+          >
+            Leaderboard
           </Link>
 
-          <div className="relative group">
-            <Link
-              to="/dao"
-              className="flex items-center hover:text-orange-500 transition-colors duration-200 py-2"
-            >
-              DAO
-              <FaChevronDown className="h-3 w-3 lg:h-4 lg:w-4 ml-1 text-current group-hover:text-orange-500 transition-colors duration-200" />
-            </Link>
-          </div>
-
           <Link
-            to="/earn"
+            to="/stake"
             className="hover:text-orange-500 transition-colors duration-200 py-2"
           >
-            Earn
+            Stake
           </Link>
-          <a
-            href="https://retroservices1121.gitbook.io/decentralized-forecasting-powered-by-smart-contracts.-predict-rank-and-earn-weekly."
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hover:text-orange-500 transition-colors duration-200 py-2"
-          >
-            Whitepaper
-          </a>
-
           <Link
-            to="/buy-crypto"
+            to="/buy-sprdd"
             className="flex items-center hover:text-orange-500 transition-colors duration-200 py-2"
           >
-            Buy Crypto
+            Buy $SPRDD
             <FaExternalLinkAlt className="h-3 w-3 lg:h-4 lg:w-4 ml-1 text-current group-hover:text-orange-500 transition-colors duration-200" />
           </Link>
         </div>
@@ -218,41 +207,44 @@ const Navbar = () => {
           {/* Navigation Links */}
           <div className="flex flex-col space-y-4 px-6 py-6">
             <Link
-              to="/trade"
-              className="block hover:text-orange-500 transition-colors duration-200 text-base"
-              onClick={() => setIsMobileMenuOpen(false)}
+              to="/"
+              className="hover:text-orange-500 transition-colors duration-200 py-2"
             >
-              Trade
+              Explore
             </Link>
             <Link
-              to="/dao"
-              className="block hover:text-orange-500 transition-colors duration-200 text-base"
-              onClick={() => setIsMobileMenuOpen(false)}
+              to="/faucet"
+              className="hover:text-orange-500 transition-colors duration-200 py-2"
             >
-              DAO
+              Faucet
             </Link>
             <Link
-              to="/earn"
-              className="block hover:text-orange-500 transition-colors duration-200 text-base"
-              onClick={() => setIsMobileMenuOpen(false)}
+              to="/leaderboard"
+              className="hover:text-orange-500 transition-colors duration-200 py-2"
             >
-              Earn
+              Leaderboard
             </Link>
-            <a
-              href="https://retroservices1121.gitbook.io/decentralized-forecasting-powered-by-smart-contracts.-predict-rank-and-earn-weekly."
-              target="_blank"
-              rel="noopener noreferrer"
-              className="block hover:text-orange-500 transition-colors duration-200 text-base"
-            >
-              Whitepaper
-            </a>
+
             <Link
+              to="/stake"
+              className="hover:text-orange-500 transition-colors duration-200 py-2"
+            >
+              Stake
+            </Link>
+            <Link
+              to="/buy-sprdd"
+              className="flex items-center hover:text-orange-500 transition-colors duration-200 py-2"
+            >
+              Buy $SPRDD
+              <FaExternalLinkAlt className="h-3 w-3 lg:h-4 lg:w-4 ml-1 text-current group-hover:text-orange-500 transition-colors duration-200" />
+            </Link>
+            {/* <Link
               to="/buy-crypto"
               className="block hover:text-orange-500 transition-colors duration-200 text-base"
               onClick={() => setIsMobileMenuOpen(false)}
             >
-              Buy Crypto
-            </Link>
+              Buy $SPRDD
+            </Link> */}
           </div>
 
           {/* Wallet Section */}
@@ -299,10 +291,11 @@ const Navbar = () => {
             <button
               ref={profileButtonRef}
               onClick={() => setShowProfileDropdown(!showProfileDropdown)}
-              className={`text-gray-300 p-2 rounded-full transition-all duration-300 transform ${showProfileDropdown
-                ? "bg-orange-500 text-black rotate-[360deg]"
-                : "hover:bg-gray-800 hover:text-white"
-                }`}
+              className={`text-gray-300 p-2 rounded-full transition-all duration-300 transform ${
+                showProfileDropdown
+                  ? "bg-orange-500 text-black rotate-[360deg]"
+                  : "hover:bg-gray-800 hover:text-white"
+              }`}
             >
               <UserRound className="h-6 w-6" />
             </button>
@@ -317,7 +310,9 @@ const Navbar = () => {
                 <div className="px-5 py-4 border-b border-zinc-800/70 bg-gradient-to-r from-orange-500/5 to-transparent">
                   <div className="flex items-start justify-between">
                     <div>
-                      <h3 className="text-white font-medium text-base">My Profile</h3>
+                      <h3 className="text-white font-medium text-base">
+                        My Profile
+                      </h3>
                       <p className="text-sm text-zinc-400 mt-1 flex items-center">
                         <span className="bg-green-500 w-2 h-2 rounded-full mr-2"></span>
                         Connected to {networkName}
@@ -372,7 +367,12 @@ const Navbar = () => {
                       {isLoadingBalance ? (
                         <span className="text-zinc-400">Loading...</span>
                       ) : userBalance ? (
-                        <span>{parseFloat(formatUnits(BigInt(userBalance?.value!), 6)).toFixed(4)} USD</span>
+                        <span>
+                          {parseFloat(
+                            formatUnits(BigInt(userBalance?.value), 6)
+                          ).toFixed(4)}{" "}
+                          USD
+                        </span>
                       ) : (
                         <span className="text-zinc-400">--</span>
                       )}
