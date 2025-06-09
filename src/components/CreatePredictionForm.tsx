@@ -164,7 +164,7 @@ const CreatePredictionForm = () => {
           usdAmount: parseFloat(formData.initialLiquidity),
           decimals: 6,
         });
-      } catch (err) {
+      } catch {
         error("Couldn't approve USDT token");
         return;
       }
