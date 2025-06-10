@@ -161,7 +161,7 @@ const Navbar = () => {
           </Link>
 
           <Link
-            to="/stake"
+            to="/"
             className="hover:text-orange-500 transition-colors duration-200 py-2"
           >
             Stake
