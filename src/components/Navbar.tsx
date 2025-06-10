@@ -238,13 +238,6 @@ const Navbar = () => {
               Buy $SPRDD
               <FaExternalLinkAlt className="h-3 w-3 lg:h-4 lg:w-4 ml-1 text-current group-hover:text-orange-500 transition-colors duration-200" />
             </Link>
-            {/* <Link
-              to="/buy-crypto"
-              className="block hover:text-orange-500 transition-colors duration-200 text-base"
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              Buy $SPRDD
-            </Link> */}
           </div>
 
           {/* Wallet Section */}

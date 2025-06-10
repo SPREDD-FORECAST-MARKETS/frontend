@@ -39,8 +39,11 @@ const USDTFaucet = () => {
               <Droplet size={32} className="text-white" />
             </div>
             <h1 className="text-2xl font-bold text-white mb-2">USDT Faucet</h1>
-            <p className="text-gray-400 text-sm">
+            <p className="text-gray-400 text-lg">
               Claim {claimAmount} USDT every 24 hours
+            </p>
+            <p className="text-gray-500 text-lg">
+              You need to have some base sepolia to pay transaction fees
             </p>
           </div>
 

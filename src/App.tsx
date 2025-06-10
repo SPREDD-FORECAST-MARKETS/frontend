@@ -1,5 +1,5 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import { PrivyProvider } from "@privy-io/react-auth";
+import { PrivyProvider, usePrivy } from "@privy-io/react-auth";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import { privyConfig, PRIVY_APP_ID } from "./lib/privy";
@@ -14,6 +14,164 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { WagmiProvider } from "@privy-io/wagmi";
 import { wagmiConfig } from "./utils/wagmiConfig";
 import Faucet from "./pages/Faucet";
+import LogOut from "./pages/Logout"; // Use LoginPage instead of LogOut
+import type { JSX } from "react";
+
+const queryClient = new QueryClient();
+
+const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
+  const { authenticated, ready } = usePrivy();
+
+  // Show loading while checking auth status
+  if (!ready) {
+    return (
+      <div className="flex items-center justify-center h-screen bg-black">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-12 h-12 border-4 border-orange-500/20 border-t-orange-500 rounded-full animate-spin"></div>
+          <div className="text-white text-xl">Loading...</div>
+        </div>
+      </div>
+    );
+  }
+
+  // If not authenticated, show login page with navigation
+  if (!authenticated) {
+    return (
+      <>
+        <Navbar />
+        <LogOut />
+        <Footer />
+      </>
+    );
+  }
+
+  // If authenticated, render the protected content
+  return children;
+};
+
+function AppContent() {
+  return (
+    <div className="flex flex-col min-h-screen bg-black">
+      <BrowserRouter>
+        <main className="flex-grow">
+          <Routes>
+            {/* Public route - Explore page accessible to everyone */}
+            <Route
+              path="/"
+              element={
+                <>
+                  <Navbar />
+                  <Explore />
+                  <Footer />
+                </>
+              }
+            />
+
+            {/* Protected routes */}
+            <Route
+              path="/user/profile"
+              element={
+                <ProtectedRoute>
+                  <>
+                    <Navbar />
+                    <UserProfile />
+                    <Footer />
+                  </>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/create-prediction"
+              element={
+                <ProtectedRoute>
+                  <>
+                    <Navbar />
+                    <CreatePrediction />
+                    <Footer />
+                  </>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/leaderboard"
+              element={
+                <ProtectedRoute>
+                  <>
+                    <Navbar />
+                    <LeaderBoard />
+                    <Footer />
+                  </>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/trade"
+              element={
+                <>
+                  <Navbar />
+                  <Trade />
+                  <Footer />
+                </>
+              }
+            />
+
+            <Route
+              path="/trade/:marketId"
+              element={
+                <ProtectedRoute>
+                  <>
+                    <Navbar />
+                    <Trade />
+                    <Footer />
+                  </>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/faucet"
+              element={
+                <ProtectedRoute>
+                  <>
+                    <Navbar />
+                    <Faucet />
+                    <Footer />
+                  </>
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Public routes */}
+            <Route
+              path="/about"
+              element={
+                <>
+                  <Navbar />
+                  <div className="text-white p-8">About Page</div>
+                  <Footer />
+                </>
+              }
+            />
+
+            <Route
+              path="/contact"
+              element={
+                <>
+                  <Navbar />
+                  <div className="text-white p-8">Contact Page</div>
+                  <Footer />
+                </>
+              }
+            />
+          </Routes>
+        </main>
+      </BrowserRouter>
+    </div>
+  );
+}
 
 function App() {
   if (!PRIVY_APP_ID) {
@@ -21,8 +179,6 @@ function App() {
       "Privy App ID is not defined. Please set the VITE_PRIVY_APP_ID environment variable."
     );
   }
-
-  const queryClient = new QueryClient();
 
   return (
     <ToastProvider>
@@ -35,35 +191,7 @@ function App() {
       >
         <QueryClientProvider client={queryClient}>
           <WagmiProvider config={wagmiConfig}>
-            <div className="flex flex-col min-h-screen bg-black ">
-              <BrowserRouter>
-                <Navbar />
-                <main className="flex-grow">
-                  <Routes>
-                    <Route path="/" element={<Explore />} />
-                    <Route path="/user/profile" element={<UserProfile />} />
-                    <Route
-                      path="/create-prediction"
-                      element={<CreatePrediction />}
-                    />
-                    <Route path="/leaderboard" element={<LeaderBoard />} />
-                    <Route path="/trade" element={<Trade />} />
-                    <Route path="/trade/:marketId" element={<Trade />} />
-                    <Route path="/about" element={<div>About</div>} />
-                    <Route path="/contact" element={<div>Contact</div>} />
-                    <Route
-                      path="/faucet"
-                      element={
-                        <div>
-                          <Faucet />
-                        </div>
-                      }
-                    />
-                  </Routes>
-                </main>
-                <Footer />
-              </BrowserRouter>
-            </div>
+            <AppContent />
           </WagmiProvider>
         </QueryClientProvider>
       </PrivyProvider>
