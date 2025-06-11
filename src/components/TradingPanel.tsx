@@ -1,4 +1,4 @@
-import { useReadContract, useWriteContract } from 'wagmi';
+import { useReadContract, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 import type { Market } from '../lib/interface';
 import { calculateReturn } from '../utils/calculations';
 import { MARKET_ABI } from '../abi/MarketABI';
@@ -10,6 +10,7 @@ import { usePrivy } from '@privy-io/react-auth';
 import { useUsdtToken } from '../hooks/useToken';
 import { CONTRACT_ADDRESSES } from '../utils/wagmiConfig';
 import { useToast } from '../hooks/useToast';
+import { createOrUpdateTokenAllocation, createTrade } from '../apis/trade';
 
 interface TradingPanelProps {
   marketData: Market;
@@ -44,24 +45,24 @@ const TradingPanel = ({
   const [transactionType, setTransactionType] = useState<'buy' | 'sell' | null>(null);
 
   const [userBalance,] = useAtom(balanceAtom);
-  const { user } = usePrivy();
+  const { user, getAccessToken } = usePrivy();
   const { writeContractAsync, isSuccess, isError } = useWriteContract();
   const { approve } = useUsdtToken();
   const toast = useToast();
 
-  const { data } = useReadContract({
+  const { data, refetch: refetchPrices } = useReadContract({
     address: marketData.contract_address as `0x${string}`,
     abi: MARKET_ABI,
     functionName: "getCurrentPrices",
     args: [],
-  }) as { data: [bigint, bigint] }
+  }) as { data: [bigint, bigint], refetch: () => void }
 
-  const { data: sharesData } = useReadContract({
+  const { data: sharesData, refetch: refetchShares } = useReadContract({
     address: marketData.contract_address as `0x${string}`,
     abi: MARKET_ABI,
     functionName: "getUserBalances",
     args: [user?.wallet?.address],
-  }) as { data: [bigint, bigint, bigint] }
+  }) as { data: [bigint, bigint, bigint], refetch: () => void }
 
   // Handle transaction success/failure with useEffect
   useEffect(() => {
@@ -71,13 +72,13 @@ const TradingPanel = ({
       } else {
         toast.success("Sell order successful!");
       }
-      
+
       // Call the original onSubmit callback for any additional handling
       onSubmit();
-      
+
       // Reset form
       onQuantityChange(0);
-      
+
       // Reset transaction state
       setTransactionHash(null);
       setTransactionType(null);
@@ -92,7 +93,7 @@ const TradingPanel = ({
       } else {
         toast.error("Failed to sell shares.");
       }
-      
+
       // Reset transaction state
       setTransactionHash(null);
       setTransactionType(null);
@@ -120,13 +121,14 @@ const TradingPanel = ({
     if (quantity <= 0 || balanceLow || isSubmitting) return;
 
     setIsSubmitting(true);
+    let transactionHash: string | null = null;
 
     try {
       if (isBuy) {
         // Buy tokens
         const amountIn = parseUnits(quantity.toString(), 6); // Assuming USDT has 6 decimals
         const minTokensOut = BigInt(Math.floor(totalShares * 0.95)); // 5% slippage tolerance
-        
+
         // Approve first (no toast here)
         await approve({
           tokenAddress: CONTRACT_ADDRESSES.token as `0x${string}`,
@@ -134,9 +136,9 @@ const TradingPanel = ({
           usdAmount: quantity,
           decimals: 6,
         });
-        
+
         // Then execute buy transaction
-        const result = await writeContractAsync({
+        transactionHash = await writeContractAsync({
           address: marketData.contract_address as `0x${string}`,
           abi: MARKET_ABI,
           functionName: 'buyTokens',
@@ -147,15 +149,11 @@ const TradingPanel = ({
           ]
         });
 
-        // Set transaction details for useEffect to handle
-        setTransactionHash(result);
-        setTransactionType('buy');
-
       } else {
         // Sell tokens
         const tokensIn = BigInt(quantity); // quantity is already in shares
-        
-        const result = await writeContractAsync({
+
+        transactionHash = await writeContractAsync({
           address: marketData.contract_address as `0x${string}`,
           abi: MARKET_ABI,
           functionName: 'sellTokens',
@@ -165,16 +163,117 @@ const TradingPanel = ({
             1 // _minAmountOut
           ]
         });
+      }
+
+      // The transaction was submitted successfully, but we need to wait for confirmation
+      if (transactionHash) {
+        console.log('Transaction submitted:', transactionHash);
         
-        // Set transaction details for useEffect to handle
-        setTransactionHash(result);
-        setTransactionType('sell');
+        // Wait longer for the transaction to be confirmed
+        await new Promise(resolve => setTimeout(resolve, 8000));
+        
+        // Try to refetch data to see if the transaction was successful
+        await Promise.all([refetchPrices(), refetchShares()]);
+        
+        // Wait a bit more for the refetch to complete
+        await new Promise(resolve => setTimeout(resolve, 3000));
+
+        // Check if we have valid updated data (this indicates transaction success)
+        if (!data || !sharesData) {
+          throw new Error('Transaction may have failed - no updated data received');
+        }
+
+        // If we reach here, transaction likely succeeded - proceed with API calls
+        const authToken = await getAccessToken();
+        
+        // Use the updated data from state
+        const afterPrice = isYes ? 
+          parseFloat(formatUnits(BigInt(data[0]), 6)) : 
+          parseFloat(formatUnits(BigInt(data[1]), 6));
+        
+        const afterActionTotalShares = isYes ? 
+          parseInt(sharesData[0].toString()) : 
+          parseInt(sharesData[1].toString());
+
+        if (isBuy) {
+          // Call APIs for successful buy transaction
+          await createTrade(
+            authToken!,
+            {
+              order_type: "BUY",
+              order_size: totalShares,
+              amount: quantity,
+              afterPrice: afterPrice,
+              marketID: marketData.id,
+              outcomeId: isYes ? marketData.outcome[0].id : marketData.outcome[1].id
+            }
+          );
+
+          await createOrUpdateTokenAllocation(
+            authToken!,
+            {
+              amount: afterActionTotalShares,
+              outcomeId: isYes ? marketData.outcome[0].id : marketData.outcome[1].id,
+            }
+          );
+
+          setTransactionHash(transactionHash);
+          setTransactionType('buy');
+
+        } else {
+          // Call APIs for successful sell transaction
+          const sellAmount = quantity * (isYes ? priceYes : priceNo);
+
+          await createTrade(
+            authToken!,
+            {
+              order_type: "SELL",
+              order_size: quantity,
+              amount: sellAmount,
+              afterPrice: afterPrice,
+              marketID: marketData.id,
+              outcomeId: isYes ? marketData.outcome[0].id : marketData.outcome[1].id
+            }
+          );
+
+          await createOrUpdateTokenAllocation(
+            authToken!,
+            {
+              amount: afterActionTotalShares,
+              outcomeId: isYes ? marketData.outcome[0].id : marketData.outcome[1].id,
+            }
+          );
+
+          setTransactionHash(transactionHash);
+          setTransactionType('sell');
+        }
       }
 
     } catch (error) {
       console.error('Transaction failed:', error);
-      toast.error('Transaction failed. Please try again.');
+      
+      // Reset submission state immediately on error
       setIsSubmitting(false);
+      
+      // Check for specific error types and show appropriate messages
+      const errorMessage = error instanceof Error ? error.message.toLowerCase() : 'unknown error';
+      
+      if (errorMessage.includes('price impact') || 
+          errorMessage.includes('slippage') || 
+          errorMessage.includes('too high') ||
+          errorMessage.includes('exceeds') ||
+          errorMessage.includes('revert')) {
+        toast.error('Price impact too high. Trade a smaller amount and try again.');
+      } else if (errorMessage.includes('insufficient') || errorMessage.includes('balance')) {
+        toast.error('Insufficient balance. Please check your funds.');
+      } else if (errorMessage.includes('user rejected') || errorMessage.includes('denied')) {
+        toast.error('Transaction was cancelled.');
+      } else {
+        toast.error('Transaction failed. Please try again.');
+      }
+      
+      // Don't call any APIs when there's an error
+      return;
     }
   };
 
