@@ -1,4 +1,4 @@
-import { useReadContract, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
+import { useReadContract, useWriteContract } from 'wagmi';
 import type { Market } from '../lib/interface';
 import { calculateReturn } from '../utils/calculations';
 import { MARKET_ABI } from '../abi/MarketABI';
