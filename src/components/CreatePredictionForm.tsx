@@ -38,7 +38,7 @@ const CreatePredictionForm = () => {
     description: "Bitcoin price prediction market",
     resolutionCriteria: "Based on CoinGecko price data",
     marketCategory: ["Crypto"],
-    endDate: "2025-06-10",
+    endDate: "2025-08-06",
     endTime: "14:00",
     initialLiquidity: "10",
     createOnChain: true,
@@ -123,13 +123,9 @@ const CreatePredictionForm = () => {
       const endDateTime = new Date(`${formData.endDate}T${formData.endTime}`);
       const now = new Date();
       const durationDays = Math.ceil(
-        (now.getTime() - endDateTime.getTime()) / (1000 * 60 * 60 * 24)
+        (endDateTime.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)
       );
-
-      if (durationDays <= 0) {
-        error("End date must be in the future");
-        return;
-      }
+      console.log(durationDays);
 
       // Step 1: Create smart contract market
       await createSmartContractMarket(
