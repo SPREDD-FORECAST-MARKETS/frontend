@@ -120,15 +120,10 @@ const CreatePredictionForm = () => {
     setIsSubmitting(true);
 
     try {
-      if (!formData.image) {
-        error("Please upload an image");
-        return;
-      }
-
       const endDateTime = new Date(`${formData.endDate}T${formData.endTime}`);
       const now = new Date();
       const durationDays = Math.ceil(
-        (endDateTime.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)
+        (now.getTime() - endDateTime.getTime()) / (1000 * 60 * 60 * 24)
       );
 
       if (durationDays <= 0) {
@@ -222,7 +217,6 @@ const CreatePredictionForm = () => {
 
         if (parsed.eventName === "MarketCreated") {
           const marketContract = parsed.args.marketContract;
-          console.log("Market Created: ", marketContract);
           setMarketContractAddress(marketContract);
           break;
         }
@@ -348,7 +342,7 @@ const CreatePredictionForm = () => {
 
             <div className="mb-5">
               <label className="block text-gray-400 font-medium mb-2 text-sm uppercase tracking-wider">
-                Upload Image <span className="text-red-500">(Required)</span>
+                Upload Image
               </label>
               <div
                 className={`border-2 border-dashed ${
@@ -366,9 +360,7 @@ const CreatePredictionForm = () => {
                   </div>
                 ) : (
                   <div className="text-gray-500 text-sm">
-                    <p>
-                      Drag and drop photo or click to upload (Required, max 1MB)
-                    </p>
+                    <p>Drag and drop photo or click to upload (max 1MB)</p>
                   </div>
                 )}
                 <input

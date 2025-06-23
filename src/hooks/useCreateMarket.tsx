@@ -69,8 +69,6 @@ export function useCreateMarket() {
     console.log("Factory Address:", factoryAddress);
     if (!factoryAddress) throw new Error("Factory not deployed on this chain");
 
-    console.log(factoryAddress, question, optionA, optionB, durationDays);
-
     // Reset market address when creating new market
     setMarketAddress(null);
 

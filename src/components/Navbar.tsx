@@ -64,20 +64,19 @@ const Navbar = () => {
     };
   }, []);
 
-  useEffect(() => {
-    const fetchAccessToken = async () => {
-      if (authenticated) {
-        try {
-          const token = await getAccessToken();
-          console.log("Access Token:", token);
-        } catch (error) {
-          console.error("Error fetching access token:", error);
-        }
-      }
-    };
+  // useEffect(() => {
+  //   const fetchAccessToken = async () => {
+  //     if (authenticated) {
+  //       try {
+  //         const token = await getAccessToken();
+  //       } catch (error) {
+  //         console.error("Error fetching access token:", error);
+  //       }
+  //     }
+  //   };
 
-    fetchAccessToken();
-  }, [authenticated, getAccessToken]);
+  //   fetchAccessToken();
+  // }, [authenticated, getAccessToken]);
 
   useEffect(() => {
     let intervalId: NodeJS.Timeout;
