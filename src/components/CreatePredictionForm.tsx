@@ -178,7 +178,8 @@ const CreatePredictionForm = () => {
           formData.resolutionCriteria,
           formData.description,
           dateStr || 0,
-          uploadedImageUrl,
+          uploadedImageUrl ||
+            "https://rrgzufevhpeypfviivan.supabase.co/storage/v1/object/public/spreadd/market/1750689653867_photo_5103127210662931859_y.jpg",
           marketContractAddress
         );
 
