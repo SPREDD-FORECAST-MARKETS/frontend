@@ -13,5 +13,6 @@ export const wagmiConfig = createConfig({
 
 export const CONTRACT_ADDRESSES = {
   token: "0x4a2661Ab44eD073Eb8a5834cBcBD287bfB4d1CFF",
-  factory: "0x1a3b347fd06620B014C9F0f54933023F3B6803d3"
+  factory: "0x18080fB292586e8DB1dD08698cd1a168E5F8B669",
+  fpManager: "0x8F982751CDc4FCfD8505999f7C0dC285C0D39616"
 } as const

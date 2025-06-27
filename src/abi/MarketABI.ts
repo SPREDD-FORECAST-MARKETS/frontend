@@ -35,6 +35,11 @@ export const MARKET_ABI = [
 				"internalType": "uint256",
 				"name": "_endTime",
 				"type": "uint256"
+			},
+			{
+				"internalType": "address",
+				"name": "_fpManager",
+				"type": "address"
 			}
 		],
 		"stateMutability": "nonpayable",
@@ -281,6 +286,25 @@ export const MARKET_ABI = [
 		"type": "event"
 	},
 	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "user",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "firstPositionTime",
+				"type": "uint256"
+			}
+		],
+		"name": "UserPositionTracked",
+		"type": "event"
+	},
+	{
 		"inputs": [],
 		"name": "FEE_DENOMINATOR",
 		"outputs": [
@@ -463,6 +487,19 @@ export const MARKET_ABI = [
 	},
 	{
 		"inputs": [],
+		"name": "fpManager",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
 		"name": "getCPMMState",
 		"outputs": [
 			{
@@ -516,6 +553,77 @@ export const MARKET_ABI = [
 			{
 				"internalType": "uint256",
 				"name": "priceB",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "getFPManagerAddress",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "getMarketInfoWithFP",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "question",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "optionA",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "optionB",
+				"type": "string"
+			},
+			{
+				"internalType": "uint256",
+				"name": "endTime",
+				"type": "uint256"
+			},
+			{
+				"internalType": "enum BinaryAMMPredictionMarket.MarketOutcome",
+				"name": "outcome",
+				"type": "uint8"
+			},
+			{
+				"internalType": "bool",
+				"name": "resolved",
+				"type": "bool"
+			},
+			{
+				"internalType": "bool",
+				"name": "initialized",
+				"type": "bool"
+			},
+			{
+				"internalType": "uint256",
+				"name": "totalTrades",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "usersCount",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "creationTime",
 				"type": "uint256"
 			}
 		],
@@ -650,6 +758,53 @@ export const MARKET_ABI = [
 		"inputs": [
 			{
 				"internalType": "address",
+				"name": "_user",
+				"type": "address"
+			}
+		],
+		"name": "getUserPosition",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "firstPositionTime",
+				"type": "uint256"
+			},
+			{
+				"internalType": "bool",
+				"name": "hasPosition",
+				"type": "bool"
+			},
+			{
+				"internalType": "uint256",
+				"name": "optionA",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "optionB",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "getUsersWithPositions",
+		"outputs": [
+			{
+				"internalType": "address[]",
+				"name": "",
+				"type": "address[]"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
 				"name": "",
 				"type": "address"
 			}
@@ -686,7 +841,39 @@ export const MARKET_ABI = [
 				"type": "address"
 			}
 		],
+		"name": "isUserTracked",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
 		"name": "lpTokens",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "marketCreationTime",
 		"outputs": [
 			{
 				"internalType": "uint256",
@@ -927,12 +1114,68 @@ export const MARKET_ABI = [
 	},
 	{
 		"inputs": [],
+		"name": "totalTradeCount",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
 		"name": "tradingFee",
 		"outputs": [
 			{
 				"internalType": "uint256",
 				"name": "",
 				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"name": "userPositions",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "firstPositionTime",
+				"type": "uint256"
+			},
+			{
+				"internalType": "bool",
+				"name": "hasPosition",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"name": "usersWithPositions",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
 			}
 		],
 		"stateMutability": "view",

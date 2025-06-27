@@ -187,6 +187,19 @@ export const FACTORY_ABI = [
 		"type": "function"
 	},
 	{
+		"inputs": [],
+		"name": "fpManager",
+		"outputs": [
+			{
+				"internalType": "contract WeeklyForecastPointManager",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
 		"inputs": [
 			{
 				"internalType": "bytes32",
@@ -395,6 +408,19 @@ export const FACTORY_ABI = [
 			}
 		],
 		"name": "removeSupportedToken",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_fpManager",
+				"type": "address"
+			}
+		],
+		"name": "setFPManager",
 		"outputs": [],
 		"stateMutability": "nonpayable",
 		"type": "function"
