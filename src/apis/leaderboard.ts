@@ -18,6 +18,7 @@ export interface MostTradedMarket {
   id: number;
   question: string;
   tradeCount: number;
+  image: string;
   creator: {
     username: string;
     wallet_address: string;

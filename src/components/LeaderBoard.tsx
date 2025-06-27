@@ -13,15 +13,22 @@ const LeaderBoard = ({ data }: LeaderBoardProps) => {
   const [error, setError] = useState<string | null>(null);
   const [leaderboardPointType, setLeaderboardPointType] = useState<PointType>("CREATOR");
   const [leaderboardUsers, setLeaderboardUsers] = useState<LeaderboardEntry[]>([]);
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
 
-  const getLeaderboard = async (pointType: PointType, limit?: number) => {
-    setLoading(true);
+  const getLeaderboard = async (pointType: PointType, limit?: number, isRefresh = false) => {
+    // Only show loading state on initial load or point type change, not on refresh
+    if (!isRefresh) {
+      setLoading(true);
+    }
     setError(null);
 
     try {
       const [data, status] = await fetchLeaderboard(pointType, limit);
       if (status === 200 && data) {
         setLeaderboardUsers(data);
+        if (isInitialLoad) {
+          setIsInitialLoad(false);
+        }
         return;
       } else {
         throw new Error('Failed to fetch leaderboard');
@@ -31,19 +38,21 @@ const LeaderBoard = ({ data }: LeaderBoardProps) => {
       setError(errorMsg);
       throw err;
     } finally {
-      setLoading(false);
+      if (!isRefresh) {
+        setLoading(false);
+      }
     }
   };
 
   const handlePointTypeChange = (pointType: PointType) => {
     setLeaderboardPointType(pointType);
-    getLeaderboard(pointType, 10);
+    getLeaderboard(pointType, 10, false); // Not a refresh, show loading
   };
 
   useEffect(() => {
-    getLeaderboard(leaderboardPointType, 10);
+    getLeaderboard(leaderboardPointType, 10, false); // Initial load
     const interval = setInterval(() => {
-      getLeaderboard(leaderboardPointType, 10);
+      getLeaderboard(leaderboardPointType, 10, true); // This is a refresh
     }, 10000);
     return () => clearInterval(interval);
   }, [leaderboardPointType]);
@@ -62,9 +71,9 @@ const LeaderBoard = ({ data }: LeaderBoardProps) => {
               onClick={() => handlePointTypeChange('CREATOR')}
               className={`${
                 leaderboardPointType === 'CREATOR' 
-                  ? 'bg-gradient-to-br from-teal-600 to-teal-700 shadow-teal-500/20' 
+                  ? 'bg-gradient-to-br from-orange-600 to-orange-700 shadow-teal-500/20' 
                   : 'bg-gradient-to-br from-zinc-700 to-zinc-800'
-              } p-1.5 sm:p-2 rounded-full transition-all duration-300 hover:shadow-teal-500/40 hover:scale-110 hover:from-teal-500 hover:to-teal-600`}
+              } p-1.5 sm:p-2 rounded-full transition-all duration-300 hover:shadow-orange-500/40 hover:scale-110 hover:from-orange-500 hover:to-orange-600`}
               title="Creators"
             >
               <Lightbulb className={`${leaderboardPointType === 'CREATOR' ? 'text-teal-100' : 'text-white'} w-4 h-4 sm:w-5 sm:h-5`} />
@@ -73,9 +82,9 @@ const LeaderBoard = ({ data }: LeaderBoardProps) => {
               onClick={() => handlePointTypeChange('TRADER')}
               className={`${
                 leaderboardPointType === 'TRADER' 
-                  ? 'bg-gradient-to-br from-teal-600 to-teal-700 shadow-teal-500/20' 
+                  ? 'bg-gradient-to-br from-orange-600 to-orange-700 shadow-teal-500/20' 
                   : 'bg-gradient-to-br from-zinc-700 to-zinc-800'
-              } p-1.5 sm:p-2 rounded-full transition-all duration-300 hover:shadow-teal-500/40 hover:scale-110 hover:from-teal-500 hover:to-teal-600`}
+              } p-1.5 sm:p-2 rounded-full transition-all duration-300 hover:shadow-orange-500/40 hover:scale-110 hover:from-orange-500 hover:to-orange-600`}
               title="Traders"
             >
               <TrendingUp className={`${leaderboardPointType === 'TRADER' ? 'text-teal-100' : 'text-white'} w-4 h-4 sm:w-5 sm:h-5`} />
@@ -91,19 +100,24 @@ const LeaderBoard = ({ data }: LeaderBoardProps) => {
             maxHeight: '280px'
           }}
         >
-          {loading && (
+          {/* Only show loading state on initial load */}
+          {loading && isInitialLoad && (
             <div className="flex items-center justify-center h-full">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-500"></div>
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500"></div>
             </div>
           )}
 
-          {error && !loading && (
+          {/* Show error state */}
+          {error && (
             <div className="flex items-center justify-center h-full">
-              <p className="text-center text-red-500 font-serif">{error}</p>
+              <p className="text-center text-red-400 font-serif">
+                {error}
+              </p>
             </div>
           )}
 
-          {!loading && !error && leaderboardUsers.length === 0 && (
+          {/* Show empty state only when not loading and no error */}
+          {!loading && !error && leaderboardUsers.length === 0 && !isInitialLoad && (
             <div className="flex items-center justify-center h-full">
               <p className="text-center text-gray-500 font-serif">
                 No {leaderboardPointType.toLowerCase()}s found in leaderboard.
@@ -111,7 +125,8 @@ const LeaderBoard = ({ data }: LeaderBoardProps) => {
             </div>
           )}
 
-          {!loading && !error && leaderboardUsers.length > 0 && (
+          {/* Show leaderboard data */}
+          {leaderboardUsers.length > 0 && (
             <div className="space-y-2 pr-2">
               {leaderboardUsers.map((item, index) => (
                 <Link 
