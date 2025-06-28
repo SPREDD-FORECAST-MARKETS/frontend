@@ -1,6 +1,24 @@
 import axios from 'axios';
 import type { Market } from '../lib/interface';
 
+// Types for User Markets API responses
+export interface UserMarket {
+  id: number;
+  contract_address: string;
+  description: string;
+  question: string;
+  expiry_date: string; // ISO date string
+  createdAt: string; // ISO date string
+  image: string | null;
+  status: 'ACTIVE' | 'EXPIRED' | 'CLOSED';
+  outcomeWon: number | null;
+}
+
+export interface UserMarketsQueryParams {
+  page?: number;
+  limit?: number;
+}
+
 
 export const createMarket = async (authToken: string, question: string, resolution_criteria: string, description: string, expiry_date: string | number, image: string, contract_address: string) => {
   try {
@@ -81,3 +99,47 @@ export const fetchMarket = async (marketId: string) => {
 
   return response.data
 }
+
+
+/**
+ * Get markets created by a specific user with pagination
+ */
+export const fetchUserMarkets = async (
+  walletAddress: string,
+  params: UserMarketsQueryParams = {}
+): Promise<[UserMarket[] | null, number]> => {
+  try {
+    const { page = 1, limit = 10 } = params;
+    
+    const response = await axios.get<UserMarket[]>(
+      `${import.meta.env.VITE_BACKEND_URL}/market/user/${walletAddress}`,
+      {
+        params: {
+          page: page.toString(),
+          limit: limit.toString(),
+        },
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': '*/*',
+        },
+      }
+    );
+
+    console.log('User markets fetched:', response.data);
+    return [response.data, response.status];
+  } catch (error: any) {
+    console.error('Failed to fetch user markets:', error.response?.data || error.message);
+    
+    if (error.response?.status === 400) {
+      throw new Error('Invalid wallet address or parameters');
+    }
+    if (error.response?.status === 404) {
+      throw new Error('User not found');
+    }
+    if (error.response?.status === 500) {
+      throw new Error('Server error while fetching user markets');
+    }
+    
+    return [null, error.response?.status || -1];
+  }
+};
