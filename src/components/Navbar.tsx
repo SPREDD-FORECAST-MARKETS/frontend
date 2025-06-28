@@ -12,6 +12,8 @@ import { useToast } from "../hooks/useToast";
 import { useAtom } from "jotai";
 import { balanceAtom, refreshUserAtom, userAtom } from "../atoms/user";
 import { CONTRACT_ADDRESSES, wagmiConfig } from "../utils/wagmiConfig";
+import { baseSepolia } from "viem/chains";
+import { useSwitchChain } from "wagmi";
 
 const Navbar = () => {
   const [networkName] = useState("Base");
@@ -23,6 +25,9 @@ const Navbar = () => {
 
   const profileDropdownRef = useRef<HTMLDivElement>(null);
   const profileButtonRef = useRef<HTMLButtonElement>(null);
+
+  const { switchChain } = useSwitchChain();
+
 
   const { login, authenticated, logout, getAccessToken, user, ready } =
     usePrivy();
@@ -62,6 +67,10 @@ const Navbar = () => {
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
+  }, []);
+
+  useEffect(() => {
+    switchChain({ chainId: baseSepolia.id });
   }, []);
 
   // useEffect(() => {
@@ -283,11 +292,10 @@ const Navbar = () => {
             <button
               ref={profileButtonRef}
               onClick={() => setShowProfileDropdown(!showProfileDropdown)}
-              className={`text-gray-300 p-2 rounded-full transition-all duration-300 transform ${
-                showProfileDropdown
-                  ? "bg-orange-500 text-black rotate-[360deg]"
-                  : "hover:bg-gray-800 hover:text-white"
-              }`}
+              className={`text-gray-300 p-2 rounded-full transition-all duration-300 transform ${showProfileDropdown
+                ? "bg-orange-500 text-black rotate-[360deg]"
+                : "hover:bg-gray-800 hover:text-white"
+                }`}
             >
               <UserRound className="h-6 w-6" />
             </button>

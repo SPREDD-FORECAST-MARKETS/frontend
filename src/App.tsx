@@ -5,7 +5,7 @@ import Footer from "./components/Footer";
 import { privyConfig, PRIVY_APP_ID } from "./lib/privy";
 import Explore from "./pages/Explore";
 import CreatePrediction from "./pages/CreatePrediction";
-import { base } from "viem/chains";
+import { baseSepolia } from "viem/chains";
 import UserProfile from "./pages/UserProfile";
 import Trade from "./pages/Trade";
 import LeaderBoard from "./pages/LeaderBoard";
@@ -50,6 +50,7 @@ const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
 };
 
 function AppContent() {
+
   return (
     <div className="flex flex-col min-h-screen bg-black">
       <BrowserRouter>
@@ -186,7 +187,7 @@ function App() {
         appId={PRIVY_APP_ID || "fallback-app-id"}
         config={{
           ...privyConfig,
-          defaultChain: base,
+          defaultChain: baseSepolia,
         }}
       >
         <QueryClientProvider client={queryClient}>
