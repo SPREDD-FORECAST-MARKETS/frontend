@@ -1,4 +1,4 @@
-import { Flame, Clock, TrendingUp } from "lucide-react";
+import { Flame, Clock } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import {
@@ -7,13 +7,9 @@ import {
   type MostTradedMarket
 } from "../apis/leaderboard";
 
-interface TrendingMarketProps {
-  data?: any[]; // Keep for backward compatibility
-}
-
 type TrendingType = 'MOST_TRADED' | 'RECENT' | 'POPULAR';
 
-const TrendingMarket = ({ data }: TrendingMarketProps) => {
+const TrendingMarket = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [trendingType, setTrendingType] = useState<TrendingType>('MOST_TRADED');

@@ -1,6 +1,6 @@
 import TrendingMarket from "../components/TrendingMarket";
 import LeaderBoard from "../components/LeaderBoard";
-import { trendingMarkets, leaderboardData, tags } from "../lib/data";
+import { tags } from "../lib/data";
 import MarketCards from "../components/MarketCards";
 import TrendingBar from "../components/TrendingBar";
 import { Link } from "react-router-dom";
@@ -61,10 +61,10 @@ const Explore = () => {
       {/* Trending Market and Leaderboard Section */}
       <div className="flex flex-col lg:flex-row gap-4 md:gap-6 w-full mb-8">
         <div className="w-full lg:w-1/2">
-          <TrendingMarket data={trendingMarkets} />
+          <TrendingMarket />
         </div>
         <div className="w-full lg:w-1/2 mt-4 lg:mt-0">
-          <LeaderBoard data={leaderboardData} />
+          <LeaderBoard />
         </div>
       </div>
 

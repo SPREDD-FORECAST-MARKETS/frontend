@@ -1,14 +1,10 @@
 import { Lightbulb, TrendingUp } from "lucide-react";
-import type { LeaderBoardTableData } from "../lib/interface";
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { fetchLeaderboard, handleDashboardError, type LeaderboardEntry, type PointType } from "../apis/leaderboard";
 
-interface LeaderBoardProps {
-  data: LeaderBoardTableData[];
-}
 
-const LeaderBoard = ({ data }: LeaderBoardProps) => {
+const LeaderBoard = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [leaderboardPointType, setLeaderboardPointType] = useState<PointType>("CREATOR");
