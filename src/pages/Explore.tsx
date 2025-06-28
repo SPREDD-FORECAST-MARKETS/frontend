@@ -27,23 +27,31 @@ const Loader = () => {
 
 const Explore = () => {
   const [markets, setMarkets] = useState<Market[]>([]);
-  const [marketFilterTag, setMarketFilterTag] = useState<string | undefined>(undefined);
+  const [marketFilterTag, setMarketFilterTag] = useState<string | undefined>(
+    undefined
+  );
   const [isLoading, setIsLoading] = useState(false);
+
+  // Helper function to check if market is closed
+  const isMarketClosed = (market: Market) => {
+    return new Date(market.expiry_date).getTime() <= new Date().getTime();
+  };
+
+  // Separate live and closed markets
+  const liveMarkets = markets.filter((market) => !isMarketClosed(market));
+  const closedMarkets = markets.filter((market) => isMarketClosed(market));
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         setIsLoading(true);
         let filterdTags = undefined;
-
         if (marketFilterTag !== undefined) {
           filterdTags = [marketFilterTag];
         }
-
         if (marketFilterTag === "Top") {
           filterdTags = undefined;
         }
-
         const response = await fetchMarkets({ tags: filterdTags });
         setMarkets(response.data);
       } catch (error) {
@@ -52,7 +60,6 @@ const Explore = () => {
         setIsLoading(false);
       }
     };
-
     fetchData();
   }, [marketFilterTag]);
 
@@ -70,7 +77,9 @@ const Explore = () => {
 
       {/* Markets Header Section */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 px-2 sm:px-4">
-        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold font-serif text-white underline">Markets</h2>
+        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold font-serif text-white underline">
+          Markets
+        </h2>
         <Link
           to="/create-prediction"
           className="bg-orange-500 hover:bg-orange-600 text-black font-semibold px-4 py-2.5 sm:px-5 sm:py-3 lg:px-6 lg:py-3 rounded-full transition-colors duration-200 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-opacity-50 flex items-center text-sm sm:text-base lg:text-lg whitespace-nowrap"
@@ -85,19 +94,27 @@ const Explore = () => {
         <TrendingBar data={tags} onChangeTag={setMarketFilterTag} />
       </div>
 
-      {/* Market Cards Grid */}
-      <div className="px-2 sm:px-4">
-        {isLoading ? (
-          <Loader />
-        ) : markets.length > 0 ? (
-          <MarketCards data={markets} />
-        ) : (
-          <div className="text-center py-16">
-            <p className="text-gray-400 text-lg sm:text-xl lg:text-2xl">No markets found for this category.</p>
-            <p className="text-orange-500 mt-2 text-base sm:text-lg lg:text-xl">Try a different filter or create your own prediction!</p>
-          </div>
-        )}
-      </div>
+      {/* Loading State */}
+      {isLoading && <Loader />}
+
+      {/* No Markets Found */}
+      {!isLoading && markets.length === 0 && (
+        <div className="text-center py-16">
+          <p className="text-gray-400 text-lg sm:text-xl lg:text-2xl">
+            No markets found for this category.
+          </p>
+          <p className="text-orange-500 mt-2 text-base sm:text-lg lg:text-xl">
+            Try a different filter or create your own prediction!
+          </p>
+        </div>
+      )}
+
+      {/* Markets Content - Show Live Markets First, Then Closed */}
+      {!isLoading && markets.length > 0 && (
+        <div className="px-2 sm:px-4">
+          <MarketCards data={[...liveMarkets, ...closedMarkets]} />
+        </div>
+      )}
     </div>
   );
 };

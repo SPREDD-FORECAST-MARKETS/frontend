@@ -1,6 +1,5 @@
 import { ArrowLeft, Filter } from "lucide-react";
 import LeaderboardTable from "../components/LeaderBoardTable";
-import { leaderboardData } from "../lib/data";
 import { Link } from "react-router-dom";
 
 const LeaderBoard = () => {
@@ -12,7 +11,7 @@ const LeaderBoard = () => {
             <ArrowLeft
               size={18}
               className="group-hover:-translate-x-1 transition-transform duration-200"
-            /> 
+            />
             <span>Back</span>
           </Link>
         </button>
@@ -23,7 +22,7 @@ const LeaderBoard = () => {
       </div>
 
       <div className="w-full max-w-4xl rounded-xl overflow-hidden shadow-2xl border border-zinc-800 bg-zinc-900/50 mb-6">
-        <LeaderboardTable leaderboardData={leaderboardData} />
+        <LeaderboardTable />
       </div>
 
       {/* Floating action button - visible on mobile only */}

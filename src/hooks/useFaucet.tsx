@@ -10,7 +10,7 @@ import { useState, useEffect } from "react";
 import { useAccount } from "wagmi";
 
 // Add this to your CONTRACT_ADDRESSES in wagmiConfig
-const FAUCET_ADDRESS = "0x70b9B2211188094CBf53E5D70a265133d0a9FBA8" as Address; // Replace with your deployed faucet address
+const FAUCET_ADDRESS = "0x1A579f3BD50971F2e1aCd8cd0C5162AaE52003F7" as Address; // Replace with your deployed faucet address
 
 export function useClaimTokens() {
   const { writeContract, data: hash, isPending } = useWriteContract();
