@@ -6,12 +6,8 @@ import {
   Copy,
   CheckCircle,
   Activity,
-  Award,
   Calendar,
   Clock,
-  Trophy,
-  Gift,
-  Star,
   Zap,
 } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -59,7 +55,7 @@ const UserProfile = () => {
 
   const { getAccessToken } = usePrivy();
 
-  const { data: userFPData, isError, error } = useReadContract({
+  const { data: userFPData } = useReadContract({
     address: CONTRACT_ADDRESSES.fpManager,
     abi: FP_MANAGER_ABI,
     functionName: "getCurrentWeekUserFP",
