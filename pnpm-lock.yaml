@@ -4983,7 +4983,7 @@ snapshots:
 
   '@types/connect@3.4.38':
     dependencies:
-      '@types/node': 12.20.55
+      '@types/node': 22.15.30
 
   '@types/debug@4.1.12':
     dependencies:
@@ -5019,7 +5019,7 @@ snapshots:
 
   '@types/ws@7.4.7':
     dependencies:
-      '@types/node': 12.20.55
+      '@types/node': 22.15.30
 
   '@types/ws@8.18.1':
     dependencies:

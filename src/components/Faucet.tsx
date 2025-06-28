@@ -10,6 +10,9 @@ import {
 import { useState } from "react";
 import { useFaucet } from "../hooks/useFaucet";
 
+const ethereum = window.ethereum as any;
+
+
 const USDTFaucet = () => {
   const {
     claimTokens,
@@ -50,7 +53,7 @@ const USDTFaucet = () => {
   const addToMetaMask = async () => {
     if (typeof window.ethereum !== "undefined") {
       try {
-        await window.ethereum.request({
+        await ethereum.request({
           method: "wallet_watchAsset",
           params: {
             type: "ERC20",
