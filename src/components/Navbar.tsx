@@ -28,7 +28,6 @@ const Navbar = () => {
 
   const { switchChain } = useSwitchChain();
 
-
   const { login, authenticated, logout, getAccessToken, user, ready } =
     usePrivy();
 
@@ -177,6 +176,7 @@ const Navbar = () => {
           <a
             href="https://app.virtuals.io/geneses/1057"
             target="_blank"
+            rel="noopener noreferrer"
             className="flex items-center hover:text-orange-500 transition-colors duration-200 py-2"
           >
             Buy $SPRDD
@@ -240,13 +240,15 @@ const Navbar = () => {
             >
               Stake
             </Link>
-            <Link
-              to="/buy-sprdd"
+            <a
+              href="https://app.virtuals.io/geneses/1057"
+              target="_blank"
+              rel="noopener noreferrer"
               className="flex items-center hover:text-orange-500 transition-colors duration-200 py-2"
             >
               Buy $SPRDD
               <FaExternalLinkAlt className="h-3 w-3 lg:h-4 lg:w-4 ml-1 text-current group-hover:text-orange-500 transition-colors duration-200" />
-            </Link>
+            </a>
           </div>
 
           {/* Wallet Section */}
@@ -293,10 +295,11 @@ const Navbar = () => {
             <button
               ref={profileButtonRef}
               onClick={() => setShowProfileDropdown(!showProfileDropdown)}
-              className={`text-gray-300 p-2 rounded-full transition-all duration-300 transform ${showProfileDropdown
-                ? "bg-orange-500 text-black rotate-[360deg]"
-                : "hover:bg-gray-800 hover:text-white"
-                }`}
+              className={`text-gray-300 p-2 rounded-full transition-all duration-300 transform ${
+                showProfileDropdown
+                  ? "bg-orange-500 text-black rotate-[360deg]"
+                  : "hover:bg-gray-800 hover:text-white"
+              }`}
             >
               <UserRound className="h-6 w-6" />
             </button>
