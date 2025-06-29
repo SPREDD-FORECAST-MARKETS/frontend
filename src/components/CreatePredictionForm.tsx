@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { FiInfo, FiCalendar, FiClock } from "react-icons/fi";
+import { FiInfo } from "react-icons/fi";
 import { Link } from "react-router-dom";
 import { useToast } from "../hooks/useToast";
 import { uploadFile } from "../apis/files";
