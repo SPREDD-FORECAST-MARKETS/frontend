@@ -174,13 +174,14 @@ const Navbar = () => {
           >
             Stake
           </Link>
-          <Link
-            to="/buy-sprdd"
+          <a
+            href="https://app.virtuals.io/geneses/1057"
+            target="_blank"
             className="flex items-center hover:text-orange-500 transition-colors duration-200 py-2"
           >
             Buy $SPRDD
             <FaExternalLinkAlt className="h-3 w-3 lg:h-4 lg:w-4 ml-1 text-current group-hover:text-orange-500 transition-colors duration-200" />
-          </Link>
+          </a>
         </div>
 
         <div className="md:hidden">

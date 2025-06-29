@@ -35,61 +35,38 @@ const Footer = () => {
 
           {/* Navigation Links Section */}
           <div className="col-span-1 mt-6 md:mt-0">
-            <div className="grid grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+            <div className="w-full flex justify-between">
               {/* Platform Links */}
-              <div className="flex flex-col space-y-3">
-                <div className="font-semibold text-white text-base md:text-lg mb-2 md:mb-3">
-                  Platform
-                </div>
-                <Link
-                  to="/predict"
-                  className="text-gray-400 hover:text-orange-500 transition-colors duration-300 ease-in-out text-sm md:text-base"
-                >
-                  Predict
-                </Link>
-                <Link
-                  to="/leaderboard"
-                  className="text-gray-400 hover:text-orange-500 transition-colors duration-300 ease-in-out text-sm md:text-base"
-                >
-                  LeaderBoard
-                </Link>
-                <Link
-                  to="/stake"
-                  className="text-gray-400 hover:text-orange-500 transition-colors duration-300 ease-in-out text-sm md:text-base"
-                >
-                  Stake
-                </Link>
-                <Link
-                  to="/how-it-works"
-                  className="text-gray-400 hover:text-orange-500 transition-colors duration-300 ease-in-out text-sm md:text-base"
-                >
-                  How it Works
-                </Link>
-              </div>
 
-              {/* Company Links */}
-              <div className="flex flex-col space-y-3">
-                <div className="font-semibold text-white text-base md:text-lg mb-2 md:mb-3">
-                  Company
+              <div className="flex flex-col space-y-4">
+                <div className="font-semibold text-white text-base md:text-lg mb-2">
+                  Quick Links
                 </div>
-                <Link
-                  to="/about"
-                  className="text-gray-400 hover:text-orange-500 transition-colors duration-300 ease-in-out text-sm md:text-base"
-                >
-                  About Us
-                </Link>
-                <Link
-                  to="/contact"
-                  className="text-gray-400 hover:text-orange-500 transition-colors duration-300 ease-in-out text-sm md:text-base"
-                >
-                  Contact
-                </Link>
-                <Link
-                  to="/whitepaper"
-                  className="text-gray-400 hover:text-orange-500 transition-colors duration-300 ease-in-out text-sm md:text-base"
-                >
-                  Whitepaper
-                </Link>
+                <div className="flex flex-col space-y-3">
+                  <Link
+                    to="/leaderboard"
+                    className="text-gray-400 hover:text-orange-500 transition-colors duration-300 ease-in-out text-sm md:text-base flex items-center group"
+                  >
+                    <span className="mr-2 text-orange-500 group-hover:translate-x-1 transition-transform duration-300">→</span>
+                    Leaderboard
+                  </Link>
+                  <a
+                    href="https://typhoon-pond-4cf.notion.site/Spredd-Markets-Decentralized-Forecasting-Platform-21e6074dcacb800eb3c6ea8007309325?source=copy_link"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-gray-400 hover:text-orange-500 transition-colors duration-300 ease-in-out text-sm md:text-base flex items-center group"
+                  >
+                    <span className="mr-2 text-orange-500 group-hover:translate-x-1 transition-transform duration-300">→</span>
+                    Whitepaper
+                  </a>
+                  <Link
+                    to="/contact"
+                    className="text-gray-400 hover:text-orange-500 transition-colors duration-300 ease-in-out text-sm md:text-base flex items-center group"
+                  >
+                    <span className="mr-2 text-orange-500 group-hover:translate-x-1 transition-transform duration-300">→</span>
+                    Contact
+                  </Link>
+                </div>
               </div>
 
               {/* Connect Section */}
