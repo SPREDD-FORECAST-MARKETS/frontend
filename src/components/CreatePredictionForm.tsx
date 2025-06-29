@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { FiInfo, FiCalendar } from "react-icons/fi";
+import { FiInfo, FiCalendar, FiClock } from "react-icons/fi";
 import { Link } from "react-router-dom";
 import { useToast } from "../hooks/useToast";
 import { uploadFile } from "../apis/files";
@@ -384,6 +384,7 @@ const CreatePredictionForm = () => {
                 </button>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {/* Date Input */}
                 <div className="relative">
                   <input
                     type="date"
@@ -391,27 +392,33 @@ const CreatePredictionForm = () => {
                     name="endDate"
                     value={formData.endDate}
                     onChange={handleInputChange}
-                    className="w-full bg-gray-800 border border-gray-700 rounded-md px-4 py-2.5 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-colors duration-200 appearance-none"
+                    className="w-full bg-gray-800 border border-gray-700 rounded-md px-4 py-2.5 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-colors duration-200"
+                    style={{ 
+                      colorScheme: 'dark',
+                      WebkitAppearance: 'none',
+                      MozAppearance: 'textfield'
+                    }}
                     required
                   />
-                  <label
-                    htmlFor="endDate"
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer"
-                  >
-                    <FiCalendar
-                      className="text-gray-500 hover:text-orange-500 transition-colors duration-200"
-                      size={18}
-                    />
-                  </label>
                 </div>
-                <input
-                  type="time"
-                  name="endTime"
-                  value={formData.endTime}
-                  onChange={handleInputChange}
-                  className="w-full bg-gray-800 border border-gray-700 rounded-md px-4 py-2.5 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-colors duration-200 appearance-none"
-                  required
-                />
+                
+                {/* Time Input */}
+                <div className="relative">
+                  <input
+                    type="time"
+                    id="endTime"
+                    name="endTime"
+                    value={formData.endTime}
+                    onChange={handleInputChange}
+                    className="w-full bg-gray-800 border border-gray-700 rounded-md px-4 py-2.5 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-colors duration-200"
+                    style={{ 
+                      colorScheme: 'dark',
+                      WebkitAppearance: 'none',
+                      MozAppearance: 'textfield'
+                    }}
+                    required
+                  />
+                </div>
               </div>
             </div>
 
