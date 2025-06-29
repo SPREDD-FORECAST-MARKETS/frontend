@@ -83,9 +83,9 @@ const LogOut = () => {
 
             {/* Main Heading */}
             <h1 className="text-5xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-white via-orange-200 to-orange-400 bg-clip-text text-transparent leading-tight">
-              SpreddAI
+              Spredd Markets
               <span className="block text-3xl md:text-4xl mt-2 text-gray-300">
-                Prediction Markets
+                Prediction Platform
               </span>
             </h1>
 
