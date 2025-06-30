@@ -23,7 +23,6 @@ import { FP_MANAGER_ABI } from "../abi/FPManager";
 import { fetchUserDashboardInfo, type UserDashboardInfo } from "../apis/user";
 import { fetchUserMarkets, type UserMarket } from "../apis/market"; // Import user markets API
 
-
 const UserProfile = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [userData] = useAtom(userAtom);
@@ -46,8 +45,9 @@ const UserProfile = () => {
   const [marketsError, setMarketsError] = useState<string | null>(null);
   const [marketsPage, setMarketsPage] = useState(1);
   const [hasMoreMarkets, setHasMoreMarkets] = useState(false);
-
-  const [userPridictionData, setUserPredictionData] = useState<UserDashboardInfo | null>(null);
+  const [connectedWallet, setConnectedWallet] = useState<string | null>(null);
+  const [userPridictionData, setUserPredictionData] =
+    useState<UserDashboardInfo | null>(null);
 
   // Refs for infinite scroll
   const transactionScrollRef = useRef<HTMLDivElement>(null);
@@ -55,15 +55,30 @@ const UserProfile = () => {
 
   const { getAccessToken } = usePrivy();
 
+  useEffect(() => {
+    const getWalletAddress = async () => {
+      const walletAddress = wallets[0]?.address;
+      setConnectedWallet(walletAddress);
+      return walletAddress;
+    };
+
+    return () => {
+      getWalletAddress();
+    };
+  }, [wallets]);
+
   const { data: userFPData } = useReadContract({
     address: CONTRACT_ADDRESSES.fpManager,
     abi: FP_MANAGER_ABI,
     functionName: "getCurrentWeekUserFP",
-    args: [wallets[0].address]
+    args: [connectedWallet],
   }) as any;
 
   // Fetch user transactions
-  const fetchUserTransactions = async (page: number = 1, reset: boolean = false) => {
+  const fetchUserTransactions = async (
+    page: number = 1,
+    reset: boolean = false
+  ) => {
     if (!wallets[0]?.address) return;
 
     setTransactionLoading(true);
@@ -73,32 +88,35 @@ const UserProfile = () => {
       const [data, status] = await fetchTradesByUser(wallets[0].address, {
         page,
         limit: 20,
-        sortBy: 'createdAt',
-        sortOrder: 'desc'
+        sortBy: "createdAt",
+        sortOrder: "desc",
       });
 
       if (status === 200 && data) {
         if (reset) {
           setTransactions(data.data);
         } else {
-          setTransactions(prev => [...prev, ...data.data]);
+          setTransactions((prev) => [...prev, ...data.data]);
         }
         setHasMoreTransactions(data.pagination.hasNext);
         setTransactionPage(page);
       } else {
-        throw new Error('Failed to fetch transactions');
+        throw new Error("Failed to fetch transactions");
       }
     } catch (error: any) {
-      const errorMessage = handleTradeError(error, 'fetchUserTransactions');
+      const errorMessage = handleTradeError(error, "fetchUserTransactions");
       setTransactionError(errorMessage);
-      console.error('Error fetching user transactions:', error);
+      console.error("Error fetching user transactions:", error);
     } finally {
       setTransactionLoading(false);
     }
   };
 
   // Fetch user markets
-  const fetchUserCreatedMarkets = async (page: number = 1, reset: boolean = false) => {
+  const fetchUserCreatedMarkets = async (
+    page: number = 1,
+    reset: boolean = false
+  ) => {
     if (!wallets[0]?.address) return;
 
     setMarketsLoading(true);
@@ -107,24 +125,24 @@ const UserProfile = () => {
     try {
       const [data, status] = await fetchUserMarkets(wallets[0].address, {
         page,
-        limit: 10
+        limit: 10,
       });
 
       if (status === 200 && data) {
         if (reset) {
           setUserMarkets(data);
         } else {
-          setUserMarkets(prev => [...prev, ...data]);
+          setUserMarkets((prev) => [...prev, ...data]);
         }
         // Estimate if there are more markets (since backend doesn't provide total count)
         setHasMoreMarkets(data.length === 10);
         setMarketsPage(page);
       } else {
-        throw new Error('Failed to fetch markets');
+        throw new Error("Failed to fetch markets");
       }
     } catch (error: any) {
-      setMarketsError('Failed to fetch markets');
-      console.error('Error fetching user markets:', error);
+      setMarketsError("Failed to fetch markets");
+      console.error("Error fetching user markets:", error);
     } finally {
       setMarketsLoading(false);
     }
@@ -145,46 +163,60 @@ const UserProfile = () => {
   }, [marketsLoading, hasMoreMarkets, marketsPage]);
 
   // Infinite scroll handler
-  const handleScroll = useCallback((
-    scrollRef: React.RefObject<HTMLDivElement | null>,
-    loadMore: () => void
-  ) => {
-    const element = scrollRef.current;
-    if (!element) return;
+  const handleScroll = useCallback(
+    (
+      scrollRef: React.RefObject<HTMLDivElement | null>,
+      loadMore: () => void
+    ) => {
+      const element = scrollRef.current;
+      if (!element) return;
 
-    const { scrollTop, scrollHeight, clientHeight } = element;
-    const threshold = 100; // Load more when 100px from bottom
+      const { scrollTop, scrollHeight, clientHeight } = element;
+      const threshold = 100; // Load more when 100px from bottom
 
-    if (scrollHeight - (scrollTop + clientHeight) < threshold) {
-      loadMore();
-    }
-  }, []);
+      if (scrollHeight - (scrollTop + clientHeight) < threshold) {
+        loadMore();
+      }
+    },
+    []
+  );
 
   // Set up scroll listeners
   useEffect(() => {
     const transactionElement = transactionScrollRef.current;
     const marketsElement = marketsScrollRef.current;
 
-    const handleTransactionScroll = () => handleScroll(transactionScrollRef, loadMoreTransactions);
-    const handleMarketsScroll = () => handleScroll(marketsScrollRef, loadMoreMarkets);
+    const handleTransactionScroll = () =>
+      handleScroll(transactionScrollRef, loadMoreTransactions);
+    const handleMarketsScroll = () =>
+      handleScroll(marketsScrollRef, loadMoreMarkets);
 
     if (showAllTransactions && transactionElement) {
-      transactionElement.addEventListener('scroll', handleTransactionScroll);
+      transactionElement.addEventListener("scroll", handleTransactionScroll);
     }
 
     if (showAllCreated && marketsElement) {
-      marketsElement.addEventListener('scroll', handleMarketsScroll);
+      marketsElement.addEventListener("scroll", handleMarketsScroll);
     }
 
     return () => {
       if (transactionElement) {
-        transactionElement.removeEventListener('scroll', handleTransactionScroll);
+        transactionElement.removeEventListener(
+          "scroll",
+          handleTransactionScroll
+        );
       }
       if (marketsElement) {
-        marketsElement.removeEventListener('scroll', handleMarketsScroll);
+        marketsElement.removeEventListener("scroll", handleMarketsScroll);
       }
     };
-  }, [showAllTransactions, showAllCreated, handleScroll, loadMoreTransactions, loadMoreMarkets]);
+  }, [
+    showAllTransactions,
+    showAllCreated,
+    handleScroll,
+    loadMoreTransactions,
+    loadMoreMarkets,
+  ]);
 
   // Initial load of transactions
   useEffect(() => {
@@ -212,30 +244,30 @@ const UserProfile = () => {
 
   // Format transaction amount with order type
   const formatTransactionAmount = (amount: string, orderType: string) => {
-    const prefix = orderType === 'BUY' ? '-' : '+';
+    const prefix = orderType === "BUY" ? "-" : "+";
     return `${prefix}$${parseFloat(amount).toFixed(2)}`;
   };
 
   // Format market status
   const formatMarketStatus = (status: string, expiry_date: string) => {
     const isExpired = new Date(expiry_date) < new Date();
-    
-    if (status === 'CLOSED') return 'Closed';
-    if (status === 'EXPIRED' || isExpired) return 'Expired';
-    if (status === 'ACTIVE') return 'Active';
-    
+
+    if (status === "CLOSED") return "Closed";
+    if (status === "EXPIRED" || isExpired) return "Expired";
+    if (status === "ACTIVE") return "Active";
+
     return status;
   };
 
   // Get status color
   const getStatusColor = (status: string, expiry_date: string) => {
     const isExpired = new Date(expiry_date) < new Date();
-    
-    if (status === 'CLOSED') return 'text-blue-400';
-    if (status === 'EXPIRED' || isExpired) return 'text-red-400';
-    if (status === 'ACTIVE') return 'text-green-400';
-    
-    return 'text-gray-400';
+
+    if (status === "CLOSED") return "text-blue-400";
+    if (status === "EXPIRED" || isExpired) return "text-red-400";
+    if (status === "ACTIVE") return "text-green-400";
+
+    return "text-gray-400";
   };
 
   const copyToClipboard = (text: string) => {
@@ -256,8 +288,8 @@ const UserProfile = () => {
     if (!accessToken) return;
 
     const data = await fetchUserDashboardInfo(accessToken!);
-    setUserPredictionData(data[0])
-  }
+    setUserPredictionData(data[0]);
+  };
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -451,9 +483,11 @@ const UserProfile = () => {
               )}
 
               {/* Transactions list with scroll */}
-              <div 
+              <div
                 ref={transactionScrollRef}
-                className={`${showAllTransactions ? 'max-h-96 overflow-y-auto' : ''} space-y-2`}
+                className={`${
+                  showAllTransactions ? "max-h-96 overflow-y-auto" : ""
+                } space-y-2`}
               >
                 {transactions.map((tx) => (
                   <div
@@ -465,7 +499,8 @@ const UserProfile = () => {
                         {tx.market?.question || `Transaction #${tx.id}`}
                       </div>
                       <div className="text-xs text-gray-400 capitalize">
-                        {formatTransactionType(tx.order_type)} • {formatTransactionStatus()}
+                        {formatTransactionType(tx.order_type)} •{" "}
+                        {formatTransactionStatus()}
                         <span className="ml-2 inline-block w-2 h-2 bg-green-500 rounded-full"></span>
                       </div>
                       <div className="text-xs text-gray-400 sm:hidden mt-1">
@@ -490,12 +525,17 @@ const UserProfile = () => {
               </div>
 
               {/* No transactions */}
-              {!transactionLoading && !transactionError && transactions.length === 0 && (
-                <div className="text-center py-8 text-gray-400">
-                  <Activity size={40} className="mx-auto mb-4 text-orange-500 opacity-30" />
-                  <p>No transactions found</p>
-                </div>
-              )}
+              {!transactionLoading &&
+                !transactionError &&
+                transactions.length === 0 && (
+                  <div className="text-center py-8 text-gray-400">
+                    <Activity
+                      size={40}
+                      className="mx-auto mb-4 text-orange-500 opacity-30"
+                    />
+                    <p>No transactions found</p>
+                  </div>
+                )}
 
               {/* View All button */}
               {!showAllTransactions && transactions.length > 0 && (
@@ -546,9 +586,11 @@ const UserProfile = () => {
                   </div>
 
                   {/* Markets list with scroll */}
-                  <div 
+                  <div
                     ref={marketsScrollRef}
-                    className={`${showAllCreated ? 'max-h-96 overflow-y-auto' : ''} grid grid-cols-1 gap-4 sm:gap-6`}
+                    className={`${
+                      showAllCreated ? "max-h-96 overflow-y-auto" : ""
+                    } grid grid-cols-1 gap-4 sm:gap-6`}
                   >
                     {userMarkets.map((market) => (
                       <div
@@ -576,21 +618,38 @@ const UserProfile = () => {
                               <div className="flex items-center gap-1.5 text-gray-400">
                                 <Clock size={12} className="text-orange-500" />
                                 <span>
-                                  Created: {new Date(market.createdAt).toLocaleDateString()}
+                                  Created:{" "}
+                                  {new Date(
+                                    market.createdAt
+                                  ).toLocaleDateString()}
                                 </span>
                               </div>
                               <div className="flex items-center gap-1.5 text-gray-400">
-                                <Calendar size={12} className="text-orange-500" />
+                                <Calendar
+                                  size={12}
+                                  className="text-orange-500"
+                                />
                                 <span>
-                                  Expires: {new Date(market.expiry_date).toLocaleDateString()}
+                                  Expires:{" "}
+                                  {new Date(
+                                    market.expiry_date
+                                  ).toLocaleDateString()}
                                 </span>
                               </div>
                             </div>
                           </div>
 
                           <div className="flex sm:flex-col gap-3 sm:gap-3 items-center sm:items-end w-full sm:w-auto mt-3 sm:mt-0 justify-between">
-                            <span className={`text-xs px-3 py-1 rounded-full border ${getStatusColor(market.status, market.expiry_date)}`}>
-                              {formatMarketStatus(market.status, market.expiry_date)}
+                            <span
+                              className={`text-xs px-3 py-1 rounded-full border ${getStatusColor(
+                                market.status,
+                                market.expiry_date
+                              )}`}
+                            >
+                              {formatMarketStatus(
+                                market.status,
+                                market.expiry_date
+                              )}
                             </span>
                             <button className="text-xs bg-zinc-900 px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg text-white border border-zinc-800 hover:border-orange-500/30 hover:bg-zinc-800 transition-all duration-300">
                               View Details
@@ -621,7 +680,8 @@ const UserProfile = () => {
                   )}
                 </div>
               ) : (
-                !marketsLoading && !marketsError && (
+                !marketsLoading &&
+                !marketsError && (
                   <div className="text-center py-8 sm:py-10 text-gray-400">
                     <div className="mb-4">
                       <Clock
