@@ -4,19 +4,25 @@ import { useEffect, useState } from "react";
 import {
   fetchMostTradedMarkets,
   handleDashboardError,
-  type MostTradedMarket
+  type MostTradedMarket,
 } from "../apis/leaderboard";
 
-type TrendingType = 'MOST_TRADED' | 'RECENT' | 'POPULAR';
+type TrendingType = "MOST_TRADED" | "RECENT" | "POPULAR";
 
 const TrendingMarket = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [trendingType, setTrendingType] = useState<TrendingType>('MOST_TRADED');
-  const [trendingMarkets, setTrendingMarkets] = useState<MostTradedMarket[]>([]);
+  const [trendingType, setTrendingType] = useState<TrendingType>("MOST_TRADED");
+  const [trendingMarkets, setTrendingMarkets] = useState<MostTradedMarket[]>(
+    []
+  );
   const [isInitialLoad, setIsInitialLoad] = useState(true);
 
-  const getTrendingMarkets = async (type: TrendingType, limit: number = 10, isRefresh = false) => {
+  const getTrendingMarkets = async (
+    type: TrendingType,
+    limit: number = 10,
+    isRefresh = false
+  ) => {
     // Only show loading state on initial load or trending type change, not on refresh
     if (!isRefresh) {
       setLoading(true);
@@ -26,7 +32,7 @@ const TrendingMarket = () => {
     try {
       // For now, we only have most traded API
       // You can extend this when other APIs are available
-      if (type === 'MOST_TRADED') {
+      if (type === "MOST_TRADED") {
         const [data, status] = await fetchMostTradedMarkets(limit);
         if (status === 200 && data) {
           setTrendingMarkets(data);
@@ -35,7 +41,7 @@ const TrendingMarket = () => {
           }
           return;
         } else {
-          throw new Error('Failed to fetch trending markets');
+          throw new Error("Failed to fetch trending markets");
         }
       } else {
         // Placeholder for other types - you can implement these APIs later
@@ -45,7 +51,7 @@ const TrendingMarket = () => {
         }
       }
     } catch (err: any) {
-      const errorMsg = handleDashboardError(err, 'fetchMostTradedMarkets');
+      const errorMsg = handleDashboardError(err, "fetchMostTradedMarkets");
       setError(errorMsg);
     } finally {
       if (!isRefresh) {
@@ -69,14 +75,14 @@ const TrendingMarket = () => {
 
   const getTrendingLabel = (type: TrendingType) => {
     switch (type) {
-      case 'MOST_TRADED':
-        return 'Most Traded';
-      case 'RECENT':
-        return 'Recent';
-      case 'POPULAR':
-        return 'Popular';
+      case "MOST_TRADED":
+        return "Most Traded";
+      case "RECENT":
+        return "Recent";
+      case "POPULAR":
+        return "Popular";
       default:
-        return 'Trending';
+        return "Trending";
     }
   };
 
@@ -91,14 +97,21 @@ const TrendingMarket = () => {
           </Link>
           <div className="flex space-x-2">
             <button
-              onClick={() => handleTrendingTypeChange('MOST_TRADED')}
-              className={`${trendingType === 'MOST_TRADED'
-                  ? 'bg-gradient-to-br from-orange-600 to-orange-700 shadow-orange-500/20'
-                  : 'bg-gradient-to-br from-zinc-700 to-zinc-800'
-                } p-1.5 sm:p-2 rounded-full transition-all duration-300 hover:shadow-orange-500/40 hover:scale-110 hover:from-orange-500 hover:to-orange-600`}
+              onClick={() => handleTrendingTypeChange("MOST_TRADED")}
+              className={`${
+                trendingType === "MOST_TRADED"
+                  ? "bg-gradient-to-br from-orange-600 to-orange-700 shadow-orange-500/20"
+                  : "bg-gradient-to-br from-zinc-700 to-zinc-800"
+              } p-1.5 sm:p-2 rounded-full transition-all duration-300 hover:shadow-orange-500/40 hover:scale-110 hover:from-orange-500 hover:to-orange-600`}
               title="Most Traded (24h)"
             >
-              <Flame className={`${trendingType === 'MOST_TRADED' ? 'text-orange-100' : 'text-white'} w-4 h-4 sm:w-5 sm:h-5`} />
+              <Flame
+                className={`${
+                  trendingType === "MOST_TRADED"
+                    ? "text-orange-100"
+                    : "text-white"
+                } w-4 h-4 sm:w-5 sm:h-5`}
+              />
             </button>
           </div>
         </div>
@@ -107,8 +120,8 @@ const TrendingMarket = () => {
         <div
           className="overflow-y-auto scrollbar-thin scrollbar-track-zinc-800 scrollbar-thumb-zinc-600 hover:scrollbar-thumb-zinc-500"
           style={{
-            minHeight: '280px', // Equivalent to 5 entries (56px each)
-            maxHeight: '280px'
+            minHeight: "280px", // Equivalent to 5 entries (56px each)
+            maxHeight: "280px",
           }}
         >
           {/* Only show loading state on initial load */}
@@ -126,20 +139,24 @@ const TrendingMarket = () => {
           )}
 
           {/* Show empty state only when not loading and no error */}
-          {!loading && !error && trendingMarkets.length === 0 && !isInitialLoad && (
-            <div className="flex items-center justify-center h-full">
-              <p className="text-center text-gray-500 font-serif">
-                No {getTrendingLabel(trendingType).toLowerCase()} markets found.
-              </p>
-            </div>
-          )}
+          {!loading &&
+            !error &&
+            trendingMarkets.length === 0 &&
+            !isInitialLoad && (
+              <div className="flex items-center justify-center h-full">
+                <p className="text-center text-gray-500 font-serif">
+                  No {getTrendingLabel(trendingType).toLowerCase()} markets
+                  found.
+                </p>
+              </div>
+            )}
 
           {/* Show trending markets data */}
           {!loading && !error && trendingMarkets.length > 0 && (
             <div className="space-y-2 pr-2">
               {trendingMarkets.map((market, index) => (
                 <Link
-                  to={`/market/${market.id}`}
+                  to={`/trade/${market.id}`}
                   key={market.id}
                   className="block"
                 >
@@ -175,7 +192,7 @@ const TrendingMarket = () => {
                         {market.tradeCount.toLocaleString()}
                       </div>
                       <div className="text-xs text-gray-500 group-hover:text-gray-400 transition-colors duration-300">
-                        {market.tradeCount === 1 ? 'Trade' : 'Trades'}
+                        {market.tradeCount === 1 ? "Trade" : "Trades"}
                       </div>
                     </div>
                   </div>
@@ -184,10 +201,7 @@ const TrendingMarket = () => {
 
               {/* Show "View More" link if there are exactly 10 items */}
               {trendingMarkets.length === 10 && (
-                <Link
-                  to="/markets"
-                  className="block mt-4"
-                >
+                <Link to="/markets" className="block mt-4">
                   <div className="text-center p-3 text-orange-500 hover:text-orange-400 transition-colors duration-300 font-serif text-sm border-t border-zinc-800">
                     View All Markets →
                   </div>
@@ -197,11 +211,11 @@ const TrendingMarket = () => {
           )}
 
           {/* Show data when available, even during background refreshes */}
-          {trendingMarkets.length > 0 && (loading && !isInitialLoad) && (
+          {trendingMarkets.length > 0 && loading && !isInitialLoad && (
             <div className="space-y-2 pr-2">
               {trendingMarkets.map((market, index) => (
                 <Link
-                  to={`/market/${market.id}`}
+                  to={`/trade/${market.id}`}
                   key={market.id}
                   className="block"
                 >
@@ -237,7 +251,7 @@ const TrendingMarket = () => {
                         {market.tradeCount.toLocaleString()}
                       </div>
                       <div className="text-xs text-gray-500 group-hover:text-gray-400 transition-colors duration-300">
-                        {market.tradeCount === 1 ? 'Trade' : 'Trades'}
+                        {market.tradeCount === 1 ? "Trade" : "Trades"}
                       </div>
                     </div>
                   </div>
@@ -246,10 +260,7 @@ const TrendingMarket = () => {
 
               {/* Show "View More" link if there are exactly 10 items */}
               {trendingMarkets.length === 10 && (
-                <Link
-                  to="/markets"
-                  className="block mt-4"
-                >
+                <Link to="/markets" className="block mt-4">
                   <div className="text-center p-3 text-orange-500 hover:text-orange-400 transition-colors duration-300 font-serif text-sm border-t border-zinc-800">
                     View All Markets →
                   </div>
@@ -259,22 +270,26 @@ const TrendingMarket = () => {
           )}
 
           {/* Show placeholder for non-implemented features */}
-          {!loading && !error && trendingType !== 'MOST_TRADED' && trendingMarkets.length === 0 && !isInitialLoad && (
-            <div className="flex flex-col items-center justify-center h-full text-center">
-              <div className="text-gray-500 mb-2">
-                <Clock className="w-8 h-8 mx-auto mb-2" />
+          {!loading &&
+            !error &&
+            trendingType !== "MOST_TRADED" &&
+            trendingMarkets.length === 0 &&
+            !isInitialLoad && (
+              <div className="flex flex-col items-center justify-center h-full text-center">
+                <div className="text-gray-500 mb-2">
+                  <Clock className="w-8 h-8 mx-auto mb-2" />
+                </div>
+                <p className="text-gray-500 font-serif text-sm">
+                  {getTrendingLabel(trendingType)} markets coming soon!
+                </p>
+                <button
+                  onClick={() => handleTrendingTypeChange("MOST_TRADED")}
+                  className="mt-2 text-orange-500 hover:text-orange-400 transition-colors duration-300 text-sm underline"
+                >
+                  View Most Traded Instead
+                </button>
               </div>
-              <p className="text-gray-500 font-serif text-sm">
-                {getTrendingLabel(trendingType)} markets coming soon!
-              </p>
-              <button
-                onClick={() => handleTrendingTypeChange('MOST_TRADED')}
-                className="mt-2 text-orange-500 hover:text-orange-400 transition-colors duration-300 text-sm underline"
-              >
-                View Most Traded Instead
-              </button>
-            </div>
-          )}
+            )}
         </div>
       </div>
     </div>
