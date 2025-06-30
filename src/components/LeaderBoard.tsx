@@ -145,55 +145,49 @@ const LeaderBoard = () => {
           {leaderboardUsers.length > 0 && (
             <div className="space-y-2 pr-2">
               {leaderboardUsers.map((item, index) => (
-                <Link
-                  to={`/profile/${item.user.wallet_address}`}
-                  key={item.id}
-                  className="block"
-                >
-                  <div className="flex items-center group hover:bg-teal-500/5 rounded-lg transition-all duration-300 cursor-pointer p-2 min-h-[52px]">
-                    {/* Rank Number */}
-                    <div className="text-gray-500 font-serif mr-2 sm:mr-3 md:mr-5 w-6 text-center text-sm sm:text-base font-bold">
-                      #{index + 1}
-                    </div>
+                <div className="flex items-center group hover:bg-teal-500/5 rounded-lg transition-all duration-300 cursor-pointer p-2 min-h-[52px]">
+                  {/* Rank Number */}
+                  <div className="text-gray-500 font-serif mr-2 sm:mr-3 md:mr-5 w-6 text-center text-sm sm:text-base font-bold">
+                    #{index + 1}
+                  </div>
 
-                    {/* Profile Picture */}
-                    <div className="h-8 w-8 min-w-8 sm:h-10 sm:w-10 sm:min-w-10 rounded-full overflow-hidden mr-2 sm:mr-3 md:mr-5 bg-gradient-to-br from-gray-800 to-black p-0.5 group-hover:from-teal-900 group-hover:to-black transition-all duration-300">
-                      <img
-                        src={
-                          item.user.profile_pic ||
-                          "https://www.shutterstock.com/image-vector/default-avatar-profile-icon-social-600nw-1906669723.jpg"
-                        }
-                        alt={`${item.user.username}'s avatar`}
-                        className="w-full h-full object-cover rounded-full"
-                        loading="lazy"
-                      />
-                    </div>
+                  {/* Profile Picture */}
+                  <div className="h-8 w-8 min-w-8 sm:h-10 sm:w-10 sm:min-w-10 rounded-full overflow-hidden mr-2 sm:mr-3 md:mr-5 bg-gradient-to-br from-gray-800 to-black p-0.5 group-hover:from-teal-900 group-hover:to-black transition-all duration-300">
+                    <img
+                      src={
+                        item.user.profile_pic ||
+                        "https://www.shutterstock.com/image-vector/default-avatar-profile-icon-social-600nw-1906669723.jpg"
+                      }
+                      alt={`${item.user.username}'s avatar`}
+                      className="w-full h-full object-cover rounded-full"
+                      loading="lazy"
+                    />
+                  </div>
 
-                    {/* Username */}
-                    <div className="flex-1 mr-2 sm:mr-4 min-w-0">
-                      <p className="text-white font-serif text-sm sm:text-base group-hover:text-teal-100 transition-colors duration-300 truncate">
-                        {item.user.username}
-                      </p>
-                      <p className="text-gray-500 text-xs group-hover:text-gray-400 transition-colors duration-300 truncate">
-                        {item.user.wallet_address.slice(0, 6)}...
-                        {item.user.wallet_address.slice(-4)}
-                      </p>
-                    </div>
+                  {/* Username */}
+                  <div className="flex-1 mr-2 sm:mr-4 min-w-0">
+                    <p className="text-white font-serif text-sm sm:text-base group-hover:text-teal-100 transition-colors duration-300 truncate">
+                      {item.user.username}
+                    </p>
+                    <p className="text-gray-500 text-xs group-hover:text-gray-400 transition-colors duration-300 truncate">
+                      {item.user.wallet_address.slice(0, 6)}...
+                      {item.user.wallet_address.slice(-4)}
+                    </p>
+                  </div>
 
-                    {/* Points */}
-                    <div className="text-right">
-                      <div className="text-orange-500 font-serif text-sm sm:text-base font-bold whitespace-nowrap group-hover:text-orange-400 group-hover:scale-105 transition-all duration-300">
-                        {item.points.toLocaleString()}
-                      </div>
-                      <div className="text-xs text-gray-500 group-hover:text-gray-400 transition-colors duration-300">
-                        {leaderboardPointType === "CREATOR"
-                          ? "Creator"
-                          : "Trader"}{" "}
-                        FP
-                      </div>
+                  {/* Points */}
+                  <div className="text-right">
+                    <div className="text-orange-500 font-serif text-sm sm:text-base font-bold whitespace-nowrap group-hover:text-orange-400 group-hover:scale-105 transition-all duration-300">
+                      {item.points.toLocaleString()}
+                    </div>
+                    <div className="text-xs text-gray-500 group-hover:text-gray-400 transition-colors duration-300">
+                      {leaderboardPointType === "CREATOR"
+                        ? "Creator"
+                        : "Trader"}{" "}
+                      FP
                     </div>
                   </div>
-                </Link>
+                </div>
               ))}
 
               {/* Show "View More" link if there are exactly 10 items */}
