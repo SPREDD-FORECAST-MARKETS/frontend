@@ -2,13 +2,13 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Lock } from "lucide-react";
 import type { Market } from "../types/apis";
+import { TimeUtils } from "../utils/helpers";
 
 interface MarketCardsProps {
   data: Market[];
 }
 
 const MarketCards = ({ data }: MarketCardsProps) => {
-  // const hasBuyOptions = data.some((card) => card.buyOptions !== undefined);
   const hasBuyOptions = true;
 
   return (
@@ -20,7 +20,6 @@ const MarketCards = ({ data }: MarketCardsProps) => {
   );
 };
 
-// Separate component for each card to enable individual state management
 const EnhancedCard = ({
   data,
   hasBuyOptions,
@@ -30,51 +29,17 @@ const EnhancedCard = ({
 }) => {
   const [, setIsHovered] = useState(false);
   const navigate = useNavigate();
-  // const optionsCount = data.options?.length || 0;
   const optionsCount = 2;
   const minContentHeight = Math.max(40 * optionsCount, 120);
 
-  // Check if market is closed
-  const isMarketClosed =
-    new Date(data.expiry_date).getTime() <= new Date().getTime();
-
-  // Format dates nicely
-  const formatDate = (date: string | Date) => {
-    const dateObj = typeof date === "string" ? new Date(date) : date;
-    return dateObj.toLocaleString("en-US", {
-      dateStyle: "medium",
-      timeStyle: "short",
-    });
-  };
-
-  // Calculate time until closing
-  const getTimeUntilClosing = (closingDate: string) => {
-    const now = new Date();
-    const closing = new Date(closingDate);
-    const diffTime = closing.getTime() - now.getTime();
-
-    if (diffTime <= 0) return "Closed";
-
-    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-    const diffHours = Math.floor(
-      (diffTime % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
-    );
-
-    if (diffDays > 0) {
-      return `${diffDays}d ${diffHours}h left`;
-    } else {
-      const diffMinutes = Math.floor(
-        (diffTime % (1000 * 60 * 60)) / (1000 * 60)
-      );
-      return `${diffHours}h ${diffMinutes}m left`;
-    }
-  };
+  // Use timezone utilities
+  const isMarketClosed = TimeUtils.isMarketClosed(data.expiry_date);
+  const userTimezone = TimeUtils.getUserTimezone();
 
   // Handle navigation with state
   const handleCardClick = (e: React.MouseEvent) => {
     e.preventDefault();
 
-    // Transform MarketCard data into the expected MarketData format
     const marketData = {
       id: data.id,
       name: data.question,
@@ -83,13 +48,13 @@ const EnhancedCard = ({
         no: `No`,
       },
       tags: data.tags,
-      endDate: formatDate(data.expiry_date),
+      endDate: TimeUtils.formatLocalDate(data.expiry_date),
       creator: data.creator.username,
       description: data.description,
       iconUrl: data.image,
+      userTimezone: userTimezone,
     };
 
-    // Navigate programmatically with state
     navigate(`/trade/${data.id}`, { state: { marketData } });
   };
 
@@ -110,8 +75,8 @@ const EnhancedCard = ({
 
       {/* Market Closed Overlay */}
       {isMarketClosed && (
-        <div className="absolute inset-0  backdrop-blur-sm z-10 flex flex-col items-center justify-center">
-          <div className="rounded-xl  p-6 text-center">
+        <div className="absolute inset-0 backdrop-blur-sm z-10 flex flex-col items-center justify-center">
+          <div className="rounded-xl p-6 text-center">
             <Lock size={32} className="text-zinc-500 mx-auto mb-3" />
             <h3 className="text-zinc-400 text-lg font-medium">Market Closed</h3>
             <p className="text-zinc-500 text-sm mt-1">
@@ -149,31 +114,42 @@ const EnhancedCard = ({
             {data.description}
           </p>
 
+          {/* Enhanced time display with timezone awareness */}
           <div
-            className={`flex items-center mt-1 bg-zinc-800/30 rounded-full pl-2 pr-3 py-1 transition-colors duration-300 ${
+            className={`flex flex-col gap-1 mt-1 bg-zinc-800/30 rounded-lg p-2 transition-colors duration-300 ${
               !isMarketClosed ? "group-hover:bg-zinc-800/50" : ""
             }`}
           >
-            <div
-              className={`w-2 h-2 rounded-full mr-2 ${
-                isMarketClosed
-                  ? "bg-red-500"
-                  : new Date(data.expiry_date).getTime() -
-                      new Date().getTime() <
-                    86400000
-                  ? "bg-red-500 animate-pulse"
-                  : "bg-green-500"
-              }`}
-            ></div>
-            <span className="text-zinc-300 text-xs sm:text-sm">
-              {isMarketClosed ? "Closed" : "Closes"}:{" "}
-              {formatDate(data.expiry_date)}
+            <div className="flex items-center">
+              <div
+                className={`w-2 h-2 rounded-full mr-2 ${
+                  isMarketClosed
+                    ? "bg-red-500"
+                    : new Date(data.expiry_date).getTime() -
+                        new Date().getTime() <
+                      86400000
+                    ? "bg-red-500 animate-pulse"
+                    : "bg-green-500"
+                }`}
+              ></div>
+              <span className="text-zinc-300 text-xs sm:text-sm">
+                {isMarketClosed ? "Closed" : "Closes"}:{" "}
+                {TimeUtils.formatLocalDate(data.expiry_date)}
+              </span>
+            </div>
+
+            <div className="flex">
               {!isMarketClosed && (
-                <span className="ml-2 text-xs text-orange-400 font-medium hidden sm:inline">
-                  ({getTimeUntilClosing(data.expiry_date.toString())})
-                </span>
+                <div className="text-xs text-orange-400 font-medium ml-4">
+                  {TimeUtils.getTimeUntilClosing(data.expiry_date)}
+                </div>
               )}
-            </span>
+
+              {/* Show timezone for clarity */}
+              <div className="text-xs text-zinc-500 ml-4">
+                Your timezone: {userTimezone}
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -198,9 +174,17 @@ const EnhancedCard = ({
           </span>
         </div>
 
-        <span className="text-zinc-500 font-serif text-xs sm:text-sm truncate max-w-[110px] sm:max-w-none">
-          Created {formatDate(data.createdAt)}
-        </span>
+        <div className="flex flex-col items-end">
+          <span className="text-zinc-500 font-serif text-xs sm:text-sm truncate">
+            {TimeUtils.getRelativeTime(data.createdAt)}
+          </span>
+          <span className="text-zinc-600 text-xs hidden sm:block">
+            {TimeUtils.formatLocalDate(data.createdAt, {
+              dateStyle: "short",
+              timeStyle: "short",
+            })}
+          </span>
+        </div>
       </div>
 
       {hasBuyOptions && !isMarketClosed && (
@@ -215,15 +199,13 @@ const EnhancedCard = ({
                     marketData: {
                       id: data.id,
                       name: data.question,
-                      outcomes: {
-                        yes: `Yes`,
-                        no: `No`,
-                      },
+                      outcomes: { yes: `Yes`, no: `No` },
                       tags: data.tags,
-                      endDate: formatDate(data.expiry_date),
+                      endDate: TimeUtils.formatLocalDate(data.expiry_date),
                       creator: data.creator.username,
                       description: data.description,
                       iconUrl: data.image,
+                      userTimezone: userTimezone,
                     },
                     initialBuy: true,
                   },
@@ -255,15 +237,13 @@ const EnhancedCard = ({
                     marketData: {
                       id: data.id,
                       name: data.question,
-                      outcomes: {
-                        yes: `Yes`,
-                        no: `No`,
-                      },
+                      outcomes: { yes: `Yes`, no: `No` },
                       tags: data.tags,
-                      endDate: formatDate(data.expiry_date),
+                      endDate: TimeUtils.formatLocalDate(data.expiry_date),
                       creator: data.creator.username,
                       description: data.description,
                       iconUrl: data.image,
+                      userTimezone: userTimezone,
                     },
                     initialBuy: false,
                   },
@@ -297,6 +277,9 @@ const EnhancedCard = ({
             <span className="text-zinc-500 text-sm font-medium">
               Trading Ended
             </span>
+            <div className="text-xs text-zinc-600 mt-1">
+              Closed {TimeUtils.getRelativeTime(data.expiry_date)}
+            </div>
           </div>
         </div>
       )}
