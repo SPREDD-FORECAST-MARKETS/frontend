@@ -118,7 +118,7 @@ const TrendingMarket = () => {
 
         {/* Fixed height container with scroll - equivalent to 5 entries */}
         <div
-          className="overflow-y-auto scrollbar-thin scrollbar-track-zinc-800 scrollbar-thumb-zinc-600 hover:scrollbar-thumb-zinc-500"
+          className="overflow-auto overflow-x-hidden scrollbar-hide"
           style={{
             minHeight: "280px", // Equivalent to 5 entries (56px each)
             maxHeight: "280px",
