@@ -1,16 +1,16 @@
-import { useReadContract, useWriteContract } from 'wagmi';
-import type { Market } from '../lib/interface';
-import { calculateReturn } from '../utils/calculations';
-import { MARKET_ABI } from '../abi/MarketABI';
-import { formatUnits, parseUnits } from 'viem';
-import { useEffect, useState } from 'react';
-import { useAtom } from 'jotai';
-import { balanceAtom } from '../atoms/user';
-import { usePrivy } from '@privy-io/react-auth';
-import { useUsdtToken } from '../hooks/useToken';
-import { CONTRACT_ADDRESSES } from '../utils/wagmiConfig';
-import { useToast } from '../hooks/useToast';
-import { createOrUpdateTokenAllocation, createTrade } from '../apis/trade';
+import { useReadContract, useWriteContract } from "wagmi";
+import type { Market } from "../lib/interface";
+import { calculateReturn } from "../utils/calculations";
+import { MARKET_ABI } from "../abi/MarketABI";
+import { formatUnits, parseUnits } from "viem";
+import { useEffect, useState } from "react";
+import { useAtom } from "jotai";
+import { balanceAtom } from "../atoms/user";
+import { usePrivy } from "@privy-io/react-auth";
+import { useUsdtToken } from "../hooks/useToken";
+import { CONTRACT_ADDRESSES } from "../utils/wagmiConfig";
+import { useToast } from "../hooks/useToast";
+import { createOrUpdateTokenAllocation, createTrade } from "../apis/trade";
 
 interface TradingPanelProps {
   marketData: Market;
@@ -31,9 +31,8 @@ const TradingPanel = ({
   onBuySellToggle,
   onYesNoToggle,
   onQuantityChange,
-  onSubmit
+  onSubmit,
 }: TradingPanelProps) => {
-
   const [priceYes, setPriceYes] = useState(0.0);
   const [priceNo, setPriceNo] = useState(0.0);
   const [userSharesYes, setUserShareYes] = useState(0);
@@ -42,9 +41,11 @@ const TradingPanel = ({
   const [balanceLow, setBalanceLow] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [transactionHash, setTransactionHash] = useState<string | null>(null);
-  const [transactionType, setTransactionType] = useState<'buy' | 'sell' | null>(null);
+  const [transactionType, setTransactionType] = useState<"buy" | "sell" | null>(
+    null
+  );
 
-  const [userBalance,] = useAtom(balanceAtom);
+  const [userBalance] = useAtom(balanceAtom);
   const { user, getAccessToken } = usePrivy();
   const { writeContractAsync, isSuccess, isError } = useWriteContract();
   const { approve } = useUsdtToken();
@@ -55,19 +56,19 @@ const TradingPanel = ({
     abi: MARKET_ABI,
     functionName: "getCurrentPrices",
     args: [],
-  }) as { data: [bigint, bigint], refetch: () => void }
+  }) as { data: [bigint, bigint]; refetch: () => void };
 
   const { data: sharesData, refetch: refetchShares } = useReadContract({
     address: marketData.contract_address as `0x${string}`,
     abi: MARKET_ABI,
     functionName: "getUserBalances",
     args: [user?.wallet?.address],
-  }) as { data: [bigint, bigint, bigint], refetch: () => void }
+  }) as { data: [bigint, bigint, bigint]; refetch: () => void };
 
   // Handle transaction success/failure with useEffect
   useEffect(() => {
     if (transactionHash && isSuccess && transactionType) {
-      if (transactionType === 'buy') {
+      if (transactionType === "buy") {
         toast.success("Buy order successful!");
       } else {
         toast.success("Sell order successful!");
@@ -84,11 +85,18 @@ const TradingPanel = ({
       setTransactionType(null);
       setIsSubmitting(false);
     }
-  }, [isSuccess, transactionHash, transactionType, toast, onSubmit, onQuantityChange]);
+  }, [
+    isSuccess,
+    transactionHash,
+    transactionType,
+    toast,
+    onSubmit,
+    onQuantityChange,
+  ]);
 
   useEffect(() => {
     if (transactionHash && isError && transactionType) {
-      if (transactionType === 'buy') {
+      if (transactionType === "buy") {
         toast.error("Failed to buy shares.");
       } else {
         toast.error("Failed to sell shares.");
@@ -109,7 +117,9 @@ const TradingPanel = ({
   const handleMaxClick = () => {
     if (isBuy) {
       // When buying, use user's balance
-      onQuantityChange(parseFloat(formatUnits(userBalance?.value!, userBalance?.decimals!)));
+      onQuantityChange(
+        parseFloat(formatUnits(userBalance?.value!, userBalance?.decimals!))
+      );
     } else {
       // When selling, use user's shares for the selected outcome
       const maxShares = isYes ? userSharesYes : userSharesNo;
@@ -141,14 +151,13 @@ const TradingPanel = ({
         transactionHash = await writeContractAsync({
           address: marketData.contract_address as `0x${string}`,
           abi: MARKET_ABI,
-          functionName: 'buyTokens',
+          functionName: "buyTokens",
           args: [
             isYes, // _buyOptionA (true for YES, false for NO)
             amountIn, // _amount
-            minTokensOut // _minTokensOut
-          ]
+            minTokensOut, // _minTokensOut
+          ],
         });
-
       } else {
         // Sell tokens
         const tokensIn = BigInt(quantity); // quantity is already in shares
@@ -156,122 +165,129 @@ const TradingPanel = ({
         transactionHash = await writeContractAsync({
           address: marketData.contract_address as `0x${string}`,
           abi: MARKET_ABI,
-          functionName: 'sellTokens',
+          functionName: "sellTokens",
           args: [
             isYes, // _sellOptionA (true for YES, false for NO)
             tokensIn, // _tokensIn
-            1 // _minAmountOut
-          ]
+            1, // _minAmountOut
+          ],
         });
       }
 
       // The transaction was submitted successfully, but we need to wait for confirmation
       if (transactionHash) {
-        console.log('Transaction submitted:', transactionHash);
-        
+        console.log("Transaction submitted:", transactionHash);
+
         // Wait longer for the transaction to be confirmed
-        await new Promise(resolve => setTimeout(resolve, 8000));
-        
+        await new Promise((resolve) => setTimeout(resolve, 8000));
+
         // Try to refetch data to see if the transaction was successful
         await Promise.all([refetchPrices(), refetchShares()]);
-        
+
         // Wait a bit more for the refetch to complete
-        await new Promise(resolve => setTimeout(resolve, 3000));
+        await new Promise((resolve) => setTimeout(resolve, 3000));
 
         // Check if we have valid updated data (this indicates transaction success)
         if (!data || !sharesData) {
-          throw new Error('Transaction may have failed - no updated data received');
+          throw new Error(
+            "Transaction may have failed - no updated data received"
+          );
         }
 
         // If we reach here, transaction likely succeeded - proceed with API calls
         const authToken = await getAccessToken();
-        
+
         // Use the updated data from state
-        const afterPrice = isYes ? 
-          parseFloat(formatUnits(BigInt(data[0]), 6)) : 
-          parseFloat(formatUnits(BigInt(data[1]), 6));
-        
-        const afterActionTotalShares = isYes ? 
-          parseInt(sharesData[0].toString()) : 
-          parseInt(sharesData[1].toString());
+        const afterPrice = isYes
+          ? parseFloat(formatUnits(BigInt(data[0]), 6))
+          : parseFloat(formatUnits(BigInt(data[1]), 6));
+
+        const afterActionTotalShares = isYes
+          ? parseInt(sharesData[0].toString())
+          : parseInt(sharesData[1].toString());
 
         if (isBuy) {
           // Call APIs for successful buy transaction
-          await createTrade(
-            authToken!,
-            {
-              order_type: "BUY",
-              order_size: totalShares,
-              amount: quantity,
-              afterPrice: afterPrice,
-              marketID: marketData.id,
-              outcomeId: isYes ? marketData.outcome[0].id : marketData.outcome[1].id
-            }
-          );
+          await createTrade(authToken!, {
+            order_type: "BUY",
+            order_size: totalShares,
+            amount: quantity,
+            afterPrice: afterPrice,
+            marketID: marketData.id,
+            outcomeId: isYes
+              ? marketData.outcome[0].id
+              : marketData.outcome[1].id,
+          });
 
-          await createOrUpdateTokenAllocation(
-            authToken!,
-            {
-              amount: afterActionTotalShares,
-              outcomeId: isYes ? marketData.outcome[0].id : marketData.outcome[1].id,
-            }
-          );
+          await createOrUpdateTokenAllocation(authToken!, {
+            amount: afterActionTotalShares,
+            outcomeId: isYes
+              ? marketData.outcome[0].id
+              : marketData.outcome[1].id,
+          });
 
           setTransactionHash(transactionHash);
-          setTransactionType('buy');
-
+          setTransactionType("buy");
         } else {
           // Call APIs for successful sell transaction
           const sellAmount = quantity * (isYes ? priceYes : priceNo);
 
-          await createTrade(
-            authToken!,
-            {
-              order_type: "SELL",
-              order_size: quantity,
-              amount: sellAmount,
-              afterPrice: afterPrice,
-              marketID: marketData.id,
-              outcomeId: isYes ? marketData.outcome[0].id : marketData.outcome[1].id
-            }
-          );
+          await createTrade(authToken!, {
+            order_type: "SELL",
+            order_size: quantity,
+            amount: sellAmount,
+            afterPrice: afterPrice,
+            marketID: marketData.id,
+            outcomeId: isYes
+              ? marketData.outcome[0].id
+              : marketData.outcome[1].id,
+          });
 
-          await createOrUpdateTokenAllocation(
-            authToken!,
-            {
-              amount: afterActionTotalShares,
-              outcomeId: isYes ? marketData.outcome[0].id : marketData.outcome[1].id,
-            }
-          );
+          await createOrUpdateTokenAllocation(authToken!, {
+            amount: afterActionTotalShares,
+            outcomeId: isYes
+              ? marketData.outcome[0].id
+              : marketData.outcome[1].id,
+          });
 
           setTransactionHash(transactionHash);
-          setTransactionType('sell');
+          setTransactionType("sell");
         }
       }
-
     } catch (error) {
-      console.error('Transaction failed:', error);
-      
+      console.error("Transaction failed:", error);
+
       // Reset submission state immediately on error
       setIsSubmitting(false);
-      
+
       // Check for specific error types and show appropriate messages
-      const errorMessage = error instanceof Error ? error.message.toLowerCase() : 'unknown error';
-      
-      if (errorMessage.includes('price impact') || 
-          errorMessage.includes('slippage') || 
-          errorMessage.includes('too high') ||
-          errorMessage.includes('exceeds') ||
-          errorMessage.includes('revert')) {
-        toast.error('Price impact too high. Trade a smaller amount and try again.');
-      } else if (errorMessage.includes('insufficient') || errorMessage.includes('balance')) {
-        toast.error('Insufficient balance. Please check your funds.');
-      } else if (errorMessage.includes('user rejected') || errorMessage.includes('denied')) {
-        toast.error('Transaction was cancelled.');
+      const errorMessage =
+        error instanceof Error ? error.message.toLowerCase() : "unknown error";
+
+      if (
+        errorMessage.includes("price impact") ||
+        errorMessage.includes("slippage") ||
+        errorMessage.includes("too high") ||
+        errorMessage.includes("exceeds") ||
+        errorMessage.includes("revert")
+      ) {
+        toast.error(
+          "Price impact too high. Trade a smaller amount and try again."
+        );
+      } else if (
+        errorMessage.includes("insufficient") ||
+        errorMessage.includes("balance")
+      ) {
+        toast.error("Insufficient balance. Please check your funds.");
+      } else if (
+        errorMessage.includes("user rejected") ||
+        errorMessage.includes("denied")
+      ) {
+        toast.error("Transaction was cancelled.");
       } else {
-        toast.error('Transaction failed. Please try again.');
+        toast.error("Transaction failed. Please try again.");
       }
-      
+
       // Don't call any APIs when there's an error
       return;
     }
@@ -281,13 +297,13 @@ const TradingPanel = ({
     if (data === undefined) return;
     setPriceYes(parseFloat(formatUnits(BigInt(data[0]), 6)));
     setPriceNo(parseFloat(formatUnits(BigInt(data[1]), 6)));
-  }, [data])
+  }, [data]);
 
   useEffect(() => {
     if (sharesData === undefined) return;
     setUserShareYes(parseInt(sharesData[0].toString()));
     setUserShareNo(parseInt(sharesData[1].toString()));
-  }, [sharesData])
+  }, [sharesData]);
 
   useEffect(() => {
     if (isBuy) {
@@ -297,12 +313,15 @@ const TradingPanel = ({
       // When selling, quantity represents shares directly
       setTotalShares(quantity);
     }
-  }, [priceNo, priceYes, quantity, isBuy, isYes])
+  }, [priceNo, priceYes, quantity, isBuy, isYes]);
 
   useEffect(() => {
     if (isBuy) {
       // When buying, check if user has enough balance
-      if (parseFloat(formatUnits(userBalance?.value!, userBalance?.decimals!)) < Number(quantity)) {
+      if (
+        parseFloat(formatUnits(userBalance?.value!, userBalance?.decimals!)) <
+        Number(quantity)
+      ) {
         setBalanceLow(true);
       } else {
         setBalanceLow(false);
@@ -316,22 +335,28 @@ const TradingPanel = ({
         setBalanceLow(false);
       }
     }
-  }, [quantity, isBuy, isYes, userSharesYes, userSharesNo, userBalance])
+  }, [quantity, isBuy, isYes, userSharesYes, userSharesNo, userBalance]);
 
   return (
     <div className="bg-[#0d1117] rounded-lg border border-[#222] overflow-hidden h-full shadow-lg">
       {/* Buy/Sell tabs */}
       <div className="grid grid-cols-2">
         <button
-          className={`py-4 text-center font-medium text-lg transition-all ${isBuy ? 'bg-green-600 text-white' : 'bg-[#0d1117] text-white hover:bg-[#171c21]'
-            }`}
+          className={`py-4 text-center font-medium text-lg transition-all ${
+            isBuy
+              ? "bg-green-600 text-white"
+              : "bg-[#0d1117] text-white hover:bg-[#171c21]"
+          }`}
           onClick={() => onBuySellToggle(true)}
         >
           BUY
         </button>
         <button
-          className={`py-4 text-center font-medium text-lg transition-all ${!isBuy ? 'bg-red-600 text-white' : 'bg-[#0d1117] text-white hover:bg-[#171c21]'
-            }`}
+          className={`py-4 text-center font-medium text-lg transition-all ${
+            !isBuy
+              ? "bg-red-600 text-white"
+              : "bg-[#0d1117] text-white hover:bg-[#171c21]"
+          }`}
           onClick={() => onBuySellToggle(false)}
         >
           SELL
@@ -343,13 +368,18 @@ const TradingPanel = ({
         <h3 className="text-lg font-medium mb-4 text-white">Outcome</h3>
         <div className="grid grid-cols-2 gap-4">
           <div
-            className={`p-4 rounded transition-all cursor-pointer ${isYes ? 'bg-[#132416] border border-green-900' : 'bg-[#171c21] hover:bg-[#1f2429]'
-              }`}
+            className={`p-4 rounded transition-all cursor-pointer ${
+              isYes
+                ? "bg-[#132416] border border-green-900"
+                : "bg-[#171c21] hover:bg-[#1f2429]"
+            }`}
             onClick={() => onYesNoToggle(true)}
           >
             <div className="flex flex-col items-center text-center">
               <div className="flex items-center mb-2">
-                <span className="h-6 w-6 rounded-full bg-green-600 text-white flex items-center justify-center text-xs mr-2">Y</span>
+                <span className="h-6 w-6 rounded-full bg-green-600 text-white flex items-center justify-center text-xs mr-2">
+                  Y
+                </span>
                 <span className="text-green-500 font-bold">YES</span>
               </div>
               <span className="text-[#ccc] font-medium text-sm">
@@ -358,22 +388,29 @@ const TradingPanel = ({
                 ) : (
                   <span className="flex items-center">
                     <span className="text-xs mr-1">S</span>
-                    {userSharesYes > 999999 ? `${(userSharesYes / 1000000).toFixed(1)}M` :
-                      userSharesYes > 9999 ? `${(userSharesYes / 1000).toFixed(1)}K` :
-                        userSharesYes.toString()}
+                    {userSharesYes > 999999
+                      ? `${(userSharesYes / 1000000).toFixed(1)}M`
+                      : userSharesYes > 9999
+                      ? `${(userSharesYes / 1000).toFixed(1)}K`
+                      : userSharesYes.toString()}
                   </span>
                 )}
               </span>
             </div>
           </div>
           <div
-            className={`p-4 rounded transition-all cursor-pointer ${!isYes ? 'bg-[#241313] border border-red-900' : 'bg-[#171c21] hover:bg-[#1f2429]'
-              }`}
+            className={`p-4 rounded transition-all cursor-pointer ${
+              !isYes
+                ? "bg-[#241313] border border-red-900"
+                : "bg-[#171c21] hover:bg-[#1f2429]"
+            }`}
             onClick={() => onYesNoToggle(false)}
           >
             <div className="flex flex-col items-center text-center">
               <div className="flex items-center mb-2">
-                <span className="h-6 w-6 rounded-full bg-red-600 text-white flex items-center justify-center text-xs mr-2">N</span>
+                <span className="h-6 w-6 rounded-full bg-red-600 text-white flex items-center justify-center text-xs mr-2">
+                  N
+                </span>
                 <span className="text-red-500 font-bold">NO</span>
               </div>
               <span className="text-[#ccc] font-medium text-sm">
@@ -382,9 +419,11 @@ const TradingPanel = ({
                 ) : (
                   <span className="flex items-center">
                     <span className="text-xs mr-1">S</span>
-                    {userSharesNo > 999999 ? `${(userSharesNo / 1000000).toFixed(1)}M` :
-                      userSharesNo > 9999 ? `${(userSharesNo / 1000).toFixed(1)}K` :
-                        userSharesNo.toString()}
+                    {userSharesNo > 999999
+                      ? `${(userSharesNo / 1000000).toFixed(1)}M`
+                      : userSharesNo > 9999
+                      ? `${(userSharesNo / 1000).toFixed(1)}K`
+                      : userSharesNo.toString()}
                   </span>
                 )}
               </span>
@@ -397,7 +436,7 @@ const TradingPanel = ({
       <div className="p-5 border-b border-[#222]">
         <div className="flex justify-between items-center mb-3">
           <h3 className="text-lg font-medium text-white">
-            {isBuy ? 'Forecast Amount (USDT)' : 'Shares to Sell'}
+            {isBuy ? "Forecast Amount (USDT)" : "Shares to Sell"}
           </h3>
         </div>
         <div className="relative">
@@ -428,13 +467,13 @@ const TradingPanel = ({
             onClick={() => onQuantityChange(isBuy ? 10 : 10)}
             className="bg-[#171c21] text-[#ccc] py-2 rounded text-sm hover:bg-[#1f2429] transition-colors"
           >
-            {isBuy ? '$10' : '10 Shares'}
+            {isBuy ? "$10" : "10 Shares"}
           </button>
           <button
             onClick={() => onQuantityChange(isBuy ? 50 : 50)}
             className="bg-[#171c21] text-[#ccc] py-2 rounded text-sm hover:bg-[#1f2429] transition-colors"
           >
-            {isBuy ? '$50' : '50 Shares'}
+            {isBuy ? "$50" : "50 Shares"}
           </button>
         </div>
       </div>
@@ -443,15 +482,17 @@ const TradingPanel = ({
       <div className="p-5 border-b border-[#222]">
         <div className="flex justify-between items-center">
           <span className="text-[#888]">
-            {isBuy ? 'Potential forecast points:' : 'Potential returns:'}
+            {isBuy ? "Potential forecast points:" : "Potential returns:"}
           </span>
           <span className="text-white font-medium">
-            {isBuy ? `${calculateReturn(quantity, isBuy)} FP` : `$${(quantity * (isYes ? priceYes : priceNo)).toFixed(2)}`}
+            {isBuy
+              ? `${calculateReturn(quantity, isBuy)} FP`
+              : `$${(quantity * (isYes ? priceYes : priceNo)).toFixed(2)}`}
           </span>
         </div>
         <div className="flex justify-between items-center mt-2">
           <span className="text-[#888]">
-            {isBuy ? 'Total Shares' : 'Shares to Sell'}
+            {isBuy ? "Total Shares" : "Shares to Sell"}
           </span>
           <span className="text-white font-medium">
             {totalShares.toFixed(0)} {isYes ? "YES" : "NO"}
@@ -462,9 +503,15 @@ const TradingPanel = ({
       {/* Submit button */}
       <div className="p-5">
         <button
-          className={`w-full ${isBuy ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700'
-            } text-white font-bold py-3 px-4 rounded text-lg transition-all ${quantity <= 0 || balanceLow || isSubmitting ? 'opacity-50 cursor-not-allowed' : ''
-            }`}
+          className={`w-full ${
+            isBuy
+              ? "bg-green-600 hover:bg-green-700"
+              : "bg-red-600 hover:bg-red-700"
+          } text-white font-bold py-3 px-4 rounded text-lg transition-all ${
+            quantity <= 0 || balanceLow || isSubmitting
+              ? "opacity-50 cursor-not-allowed"
+              : ""
+          }`}
           onClick={handleSubmit}
           disabled={quantity <= 0 || balanceLow || isSubmitting}
         >
@@ -474,14 +521,16 @@ const TradingPanel = ({
               Processing...
             </div>
           ) : (
-            'Place Forecast'
+            "Place Forecast"
           )}
         </button>
       </div>
 
       {balanceLow && (
-        <p className='text-center text-red-500 mt-5'>
-          {isBuy ? 'Low Balance, please add funds.' : 'Insufficient shares to sell.'}
+        <p className="text-center text-red-500 mt-5">
+          {isBuy
+            ? "Low Balance, please add funds."
+            : "Insufficient shares to sell."}
         </p>
       )}
     </div>
