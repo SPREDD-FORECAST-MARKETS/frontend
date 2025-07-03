@@ -20,7 +20,7 @@ export interface UserMarketsQueryParams {
 }
 
 
-export const createMarket = async (authToken: string, question: string, resolution_criteria: string, description: string, expiry_date: string | number, image: string, contract_address: string) => {
+export const createMarket = async (authToken: string, question: string, resolution_criteria: string, description: string, expiry_date: string | number, image: string, contract_address: string,tags?: string[] | null | undefined) => {
   try {
     const response = await axios.post(
       `${import.meta.env.VITE_BACKEND_URL}/market/create-market`,
@@ -30,7 +30,8 @@ export const createMarket = async (authToken: string, question: string, resoluti
         description,
         expiry_date,
         contract_address,
-        image
+        tags,
+        image,
       },
       {
         headers: {

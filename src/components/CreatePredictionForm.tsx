@@ -18,7 +18,7 @@ interface FormData {
   title: string;
   options: string[];
   resolutionCriteria: string;
-  marketCategory: string[];
+  tags?: string[] | null;
   endDate: number | string;
   endTime: number | string;
   image?: File;
@@ -37,7 +37,7 @@ const CreatePredictionForm = () => {
     options: ["Yes", "No"],
     description: "Bitcoin price prediction market",
     resolutionCriteria: "Based on CoinGecko price data",
-    marketCategory: ["Crypto"],
+    tags: ["Crypto"],
     endDate: "2025-08-06",
     endTime: "14:00",
     initialLiquidity: "10",
@@ -72,10 +72,10 @@ const CreatePredictionForm = () => {
   ) => {
     const { name, value } = e.target;
 
-    if (name === "marketCategory") {
+    if (name === "tags") {
       setFormData((prev) => ({
         ...prev,
-        marketCategory: value.split(",").map((cat) => cat.trim()),
+        tags: value.split(",").map((cat) => cat.trim()),
       }));
     } else {
       setFormData((prev) => ({ ...prev, [name]: value }));
@@ -180,7 +180,8 @@ const CreatePredictionForm = () => {
           dateStr || 0,
           uploadedImageUrl ||
             "https://rrgzufevhpeypfviivan.supabase.co/storage/v1/object/public/spreadd/market/1750689653867_photo_5103127210662931859_y.jpg",
-          marketContractAddress
+          marketContractAddress,
+          formData.tags || null
         );
 
         if (status === -1) {
@@ -300,15 +301,15 @@ const CreatePredictionForm = () => {
 
             <div className="mb-5">
               <label
-                htmlFor="marketCategory"
+                htmlFor="tags"
                 className="block text-gray-400 font-medium mb-2 text-sm uppercase tracking-wider"
               >
                 Market Category
               </label>
               <textarea
-                id="marketCategory"
-                name="marketCategory"
-                value={formData.marketCategory.join(", ")}
+                id="tags"
+                name="tags"
+                value={(formData.tags ?? []).join(", ")}
                 onChange={handleInputChange}
                 rows={3}
                 placeholder="Enter categories separated by commas (e.g., Sports, Politics)"
@@ -393,15 +394,15 @@ const CreatePredictionForm = () => {
                     value={formData.endDate}
                     onChange={handleInputChange}
                     className="w-full bg-gray-800 border border-gray-700 rounded-md px-4 py-2.5 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-colors duration-200"
-                    style={{ 
-                      colorScheme: 'dark',
-                      WebkitAppearance: 'none',
-                      MozAppearance: 'textfield'
+                    style={{
+                      colorScheme: "dark",
+                      WebkitAppearance: "none",
+                      MozAppearance: "textfield",
                     }}
                     required
                   />
                 </div>
-                
+
                 {/* Time Input */}
                 <div className="relative">
                   <input
@@ -411,10 +412,10 @@ const CreatePredictionForm = () => {
                     value={formData.endTime}
                     onChange={handleInputChange}
                     className="w-full bg-gray-800 border border-gray-700 rounded-md px-4 py-2.5 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-colors duration-200"
-                    style={{ 
-                      colorScheme: 'dark',
-                      WebkitAppearance: 'none',
-                      MozAppearance: 'textfield'
+                    style={{
+                      colorScheme: "dark",
+                      WebkitAppearance: "none",
+                      MozAppearance: "textfield",
                     }}
                     required
                   />
