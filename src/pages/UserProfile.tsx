@@ -357,14 +357,14 @@ const UserProfile = () => {
                       <Copy size={16} />
                     )}
                   </button>
-                  <a
-                    href={`https://etherscan.io/address/${wallets[0]?.address}`}
+                  <Link
+                    to={`https://etherscan.io/address/${wallets[0]?.address}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-gray-400 hover:text-orange-500 transition-colors"
                   >
                     <ExternalLink size={16} />
-                  </a>
+                  </Link>
                 </div>
               </div>
 
