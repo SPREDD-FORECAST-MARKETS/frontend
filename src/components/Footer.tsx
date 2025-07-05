@@ -47,23 +47,29 @@ const Footer = () => {
                     to="/leaderboard"
                     className="text-gray-400 hover:text-orange-500 transition-colors duration-300 ease-in-out text-sm md:text-base flex items-center group"
                   >
-                    <span className="mr-2 text-orange-500 group-hover:translate-x-1 transition-transform duration-300">→</span>
+                    <span className="mr-2 text-orange-500 group-hover:translate-x-1 transition-transform duration-300">
+                      →
+                    </span>
                     Leaderboard
                   </Link>
-                  <a
-                    href="https://typhoon-pond-4cf.notion.site/Spredd-Markets-Decentralized-Forecasting-Platform-21e6074dcacb800eb3c6ea8007309325?source=copy_link"
+                  <Link
+                    to="https://typhoon-pond-4cf.notion.site/Spredd-Markets-Decentralized-Forecasting-Platform-21e6074dcacb800eb3c6ea8007309325?source=copy_link"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-gray-400 hover:text-orange-500 transition-colors duration-300 ease-in-out text-sm md:text-base flex items-center group"
                   >
-                    <span className="mr-2 text-orange-500 group-hover:translate-x-1 transition-transform duration-300">→</span>
+                    <span className="mr-2 text-orange-500 group-hover:translate-x-1 transition-transform duration-300">
+                      →
+                    </span>
                     Whitepaper
-                  </a>
+                  </Link>
                   <Link
                     to="/contact"
                     className="text-gray-400 hover:text-orange-500 transition-colors duration-300 ease-in-out text-sm md:text-base flex items-center group"
                   >
-                    <span className="mr-2 text-orange-500 group-hover:translate-x-1 transition-transform duration-300">→</span>
+                    <span className="mr-2 text-orange-500 group-hover:translate-x-1 transition-transform duration-300">
+                      →
+                    </span>
                     Contact
                   </Link>
                 </div>
@@ -75,42 +81,42 @@ const Footer = () => {
                   Connect
                 </div>
                 <div className="flex space-x-4">
-                  <a
-                    href="https://t.me/spreddguard"
+                  <Link
+                    to="https://t.me/spreddguard"
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label="telegram"
                     className="inline-flex items-center justify-center w-10 h-10 md:w-12 md:h-12 rounded-full border border-orange-500 text-orange-500 hover:bg-orange-500 hover:text-black transition-colors duration-300 ease-in-out"
                   >
                     <FaTelegram className="w-5 h-5 md:w-6 md:h-6" />
-                  </a>
-                  <a
-                    href="https://www.instagram.com/spredd.ai"
+                  </Link>
+                  <Link
+                    to="https://www.instagram.com/spredd.ai"
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label="Instagram"
                     className="inline-flex items-center justify-center w-10 h-10 md:w-12 md:h-12 rounded-full border border-orange-500 text-orange-500 hover:bg-orange-500 hover:text-black transition-colors duration-300 ease-in-out"
                   >
                     <FaInstagram className="w-5 h-5 md:w-6 md:h-6" />
-                  </a>
-                  <a
-                    href="https://x.com/spreddai"
+                  </Link>
+                  <Link
+                    to="https://x.com/spreddai"
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label="Twitter"
                     className="inline-flex items-center justify-center w-10 h-10 md:w-12 md:h-12 rounded-full border border-orange-500 text-orange-500 hover:bg-orange-500 hover:text-black transition-colors duration-300 ease-in-out"
                   >
                     <FaTwitter className="w-5 h-5 md:w-6 md:h-6" />
-                  </a>
-                  <a
-                    href="https://discord.com/invite/spredd"
+                  </Link>
+                  <Link
+                    to="https://discord.com/invite/spredd"
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label="Discord"
                     className="inline-flex items-center justify-center w-10 h-10 md:w-12 md:h-12 rounded-full border border-orange-500 text-orange-500 hover:bg-orange-500 hover:text-black transition-colors duration-300 ease-in-out"
                   >
                     <FaDiscord className="w-5 h-5 md:w-6 md:h-6" />
-                  </a>
+                  </Link>
                 </div>
               </div>
             </div>
