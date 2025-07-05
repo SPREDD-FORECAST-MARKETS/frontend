@@ -16,6 +16,9 @@ import { wagmiConfig } from "./utils/wagmiConfig";
 import Faucet from "./pages/Faucet";
 import LogOut from "./pages/Logout"; // Use LoginPage instead of LogOut
 import type { JSX } from "react";
+import PrivacyPage from "./pages/PrivacyPage";
+import TermsConditions from "./pages/TermsConditions";
+import ScrollToTop from "./utils/scrolltop";
 
 const queryClient = new QueryClient();
 
@@ -50,10 +53,11 @@ const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
 };
 
 function AppContent() {
-
   return (
     <div className="flex flex-col min-h-screen bg-black">
       <BrowserRouter>
+        <ScrollToTop />
+
         <main className="flex-grow">
           <Routes>
             {/* Public route - Explore page accessible to everyone */}
@@ -67,7 +71,27 @@ function AppContent() {
                 </>
               }
             />
-
+            {/* Public route - Explore page accessible to everyone */}
+            <Route
+              path="/privacy-policy"
+              element={
+                <>
+                  <Navbar />
+                  <PrivacyPage />
+                  <Footer />
+                </>
+              }
+            />
+            <Route
+              path="/terms-conditions"
+              element={
+                <>
+                  <Navbar />
+                  <TermsConditions />
+                  <Footer />
+                </>
+              }
+            />
             {/* Protected routes */}
             <Route
               path="/user/profile"
@@ -81,7 +105,6 @@ function AppContent() {
                 </ProtectedRoute>
               }
             />
-
             <Route
               path="/create-prediction"
               element={
@@ -94,7 +117,6 @@ function AppContent() {
                 </ProtectedRoute>
               }
             />
-
             <Route
               path="/leaderboard"
               element={
@@ -107,7 +129,6 @@ function AppContent() {
                 </ProtectedRoute>
               }
             />
-
             <Route
               path="/trade"
               element={
@@ -118,7 +139,6 @@ function AppContent() {
                 </>
               }
             />
-
             <Route
               path="/trade/:marketId"
               element={
@@ -131,7 +151,6 @@ function AppContent() {
                 </ProtectedRoute>
               }
             />
-
             <Route
               path="/faucet"
               element={
@@ -144,7 +163,6 @@ function AppContent() {
                 </ProtectedRoute>
               }
             />
-
             {/* Public routes */}
             <Route
               path="/about"
@@ -156,7 +174,6 @@ function AppContent() {
                 </>
               }
             />
-
             <Route
               path="/contact"
               element={
