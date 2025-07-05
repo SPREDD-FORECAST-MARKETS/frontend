@@ -173,15 +173,15 @@ const Navbar = () => {
           >
             Stake
           </Link>
-          <a
-            href="https://app.virtuals.io/geneses/1057"
+          <Link
+            to="https://app.virtuals.io/geneses/1057"
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center hover:text-orange-500 transition-colors duration-200 py-2"
           >
             Buy $SPRDD
             <FaExternalLinkAlt className="h-3 w-3 lg:h-4 lg:w-4 ml-1 text-current group-hover:text-orange-500 transition-colors duration-200" />
-          </a>
+          </Link>
         </div>
 
         <div className="md:hidden">
@@ -240,15 +240,15 @@ const Navbar = () => {
             >
               Stake
             </Link>
-            <a
-              href="https://app.virtuals.io/geneses/1057"
+            <Link
+              to="https://app.virtuals.io/geneses/1057"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center hover:text-orange-500 transition-colors duration-200 py-2"
             >
               Buy $SPRDD
               <FaExternalLinkAlt className="h-3 w-3 lg:h-4 lg:w-4 ml-1 text-current group-hover:text-orange-500 transition-colors duration-200" />
-            </a>
+            </Link>
           </div>
 
           {/* Wallet Section */}
@@ -354,14 +354,14 @@ const Navbar = () => {
                         )}
                       </button>
                     </p>
-                    <a
-                      href={`https://basescan.org/address/${user?.wallet?.address}`}
+                    <Link
+                      to={`https://basescan.org/address/${user?.wallet?.address}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-orange-500 hover:text-orange-400 text-xs flex items-center"
                     >
                       View <ExternalLink size={12} className="ml-1" />
-                    </a>
+                    </Link>
                   </div>
 
                   <div className="flex justify-between items-center">
