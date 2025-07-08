@@ -18,7 +18,6 @@ export function useCreateMarket() {
   const [marketAddress, setMarketAddress] = useState<Address | null>(null);
   const publicClient = usePublicClient();
 
-  // Extract market address from transaction receipt
   useEffect(() => {
     const extractMarketAddress = async () => {
       if (isSuccess && receipt && publicClient) {
@@ -41,7 +40,6 @@ export function useCreateMarket() {
                   (decodedLog.args as any).marketAddress;
                 if (marketAddr) {
                   setMarketAddress(marketAddr as Address);
-                  console.log("Market address extracted:", marketAddr);
                   break;
                 }
               }
@@ -66,10 +64,8 @@ export function useCreateMarket() {
     durationDays: number
   ) => {
     const factoryAddress = CONTRACT_ADDRESSES.factory || "";
-    console.log("Factory Address:", factoryAddress);
     if (!factoryAddress) throw new Error("Factory not deployed on this chain");
 
-    // Reset market address when creating new market
     setMarketAddress(null);
 
     return await writeContract({

@@ -20,7 +20,7 @@ export interface UserMarketsQueryParams {
 }
 
 
-export const createMarket = async (authToken: string, question: string, resolution_criteria: string, description: string, expiry_date: string | number, image: string, contract_address: string,tags?: string[] | null | undefined) => {
+export const createMarket = async (authToken: string, question: string, resolution_criteria: string, description: string, expiry_date: string | number, image: string,marketId:string, contract_address: string,tags?: string[] | null | undefined) => {
   try {
     const response = await axios.post(
       `${import.meta.env.VITE_BACKEND_URL}/market/create-market`,
@@ -32,6 +32,7 @@ export const createMarket = async (authToken: string, question: string, resoluti
         contract_address,
         tags,
         image,
+        marketId,
       },
       {
         headers: {
@@ -42,7 +43,6 @@ export const createMarket = async (authToken: string, question: string, resoluti
       }
     );
 
-    console.log('Market created:', response.data);
     return [response.data, response.status];
   } catch (error: any) {
     console.error('Failed to create market:', error.response?.data || error.message);
@@ -144,3 +144,24 @@ export const fetchUserMarkets = async (
     return [null, error.response?.status || -1];
   }
 };
+
+
+
+export const resolveMarket = async (marketId:number,outcomeWon:string)=>{
+  try{
+
+    const response = await axios.patch(
+      `${import.meta.env.VITE_BACKEND_URL}/market/resolve-market`,
+      {marketId,outcomeWon})
+
+      return response.data;
+
+
+
+
+
+  }catch(error:any){
+    console.error('Failed to resolve market:', error.response?.data || error.message);
+    throw [null, -1];
+  }
+}

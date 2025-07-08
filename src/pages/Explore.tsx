@@ -6,10 +6,9 @@ import TrendingBar from "../components/TrendingBar";
 import { Link } from "react-router-dom";
 import { Plus } from "lucide-react";
 import { useEffect, useState } from "react";
-import type { Market } from "../types/apis";
+import type { Market } from "../lib/interface";
 import { fetchMarkets } from "../apis/market";
 
-// Loader Component
 const Loader = () => {
   return (
     <div className="flex justify-center items-center py-20">
@@ -30,21 +29,14 @@ const Explore = () => {
   const [marketFilterTag, setMarketFilterTag] = useState<string | undefined>(
     undefined
   );
+
   const [isLoading, setIsLoading] = useState(false);
-
-  // Helper function to check if market is closed
-  const isMarketClosed = (market: Market) => {
-    return new Date(market.expiry_date).getTime() <= new Date().getTime();
-  };
-
-  // Separate live and closed markets
-  const liveMarkets = markets.filter((market) => !isMarketClosed(market));
-  const closedMarkets = markets.filter((market) => isMarketClosed(market));
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         setIsLoading(true);
+
         let filterdTags = undefined;
         if (marketFilterTag !== undefined) {
           filterdTags = [marketFilterTag];
@@ -53,6 +45,9 @@ const Explore = () => {
           filterdTags = undefined;
         }
         const response = await fetchMarkets({ tags: filterdTags });
+
+        console.log("Fetched markets:", response.data);
+
         setMarkets(response.data);
       } catch (error) {
         console.error("Error fetching markets:", error);
@@ -62,6 +57,16 @@ const Explore = () => {
     };
     fetchData();
   }, [marketFilterTag]);
+
+  const isMarketClosed = (market: Market) => {
+    const expiryDate = market.expiry_date;
+    const currentDate = new Date();
+    return new Date(expiryDate).getTime() <= currentDate.getTime();
+  };
+
+  // Separate live and closed markets
+  const liveMarkets = markets.filter((market) => !isMarketClosed(market));
+  const closedMarkets = markets.filter((market) => isMarketClosed(market));
 
   return (
     <div className="w-full px-4 sm:px-6 md:px-8 py-4 md:py-6">

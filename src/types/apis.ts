@@ -25,6 +25,7 @@ export interface Market {
   resolution_criteria: string;
   question: string;
   expiry_date: string;
+  marketId: string; 
   image: string;
   createdAt: string;
   updatedAt: string;

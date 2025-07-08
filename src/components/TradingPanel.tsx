@@ -118,7 +118,9 @@ const TradingPanel = ({
     if (isBuy) {
       // When buying, use user's balance
       onQuantityChange(
-        parseFloat(formatUnits(userBalance?.value!, userBalance?.decimals!))
+        userBalance?.value && userBalance?.decimals
+          ? parseFloat(formatUnits(userBalance.value, userBalance.decimals))
+          : 0
       );
     } else {
       // When selling, use user's shares for the selected outcome
@@ -176,8 +178,6 @@ const TradingPanel = ({
 
       // The transaction was submitted successfully, but we need to wait for confirmation
       if (transactionHash) {
-        console.log("Transaction submitted:", transactionHash);
-
         // Wait longer for the transaction to be confirmed
         await new Promise((resolve) => setTimeout(resolve, 8000));
 
@@ -255,8 +255,6 @@ const TradingPanel = ({
         }
       }
     } catch (error) {
-      console.error("Transaction failed:", error);
-
       // Reset submission state immediately on error
       setIsSubmitting(false);
 

@@ -100,10 +100,14 @@ export type Market = {
   resolution_criteria: string;
   contract_address: string;
   question: string;
-  expiry_date: string; // ISO string format
+  expiry_date: string | Date; // ISO string format
   image: string;
   tags: string[];
+  marketId: string;
+  isResolved: boolean;
   status: "ACTIVE" | "RESOLVED" | "CANCELLED"; // expand as needed
+  outcomeWonTitle:string,
+  winningOutcome:string,
   outcomeWon: number | null;
   creatorId: number;
   createdAt: string;
@@ -139,4 +143,53 @@ export interface UpdateProfileData {
   profile_pic?: File;
   about: string;
   keepExistingImage: boolean;
+}
+
+
+
+export type MarketOutcome = 0 | 1 | 2;
+
+export const MarketOutcomeValues = {
+  UNRESOLVED: 0 as MarketOutcome,
+  OPTION_A: 1 as MarketOutcome,
+  OPTION_B: 2 as MarketOutcome,
+};
+
+export interface UseResolveMarketProps {
+  marketData: Market;
+  onSuccess?: () => void;
+  onError?: (error: string) => void;
+}
+
+export interface UseResolveMarketReturn {
+  marketData: any;
+  error: string | null;
+  isProcessing: boolean;
+  isResolving: boolean;
+  isConfirming: boolean;
+  isSuccess: boolean;
+  resolveMarket: (outcome: MarketOutcome) => Promise<void>;
+  resetState: () => void;
+  isPending: () => boolean;
+  hasMarketEnded: () => boolean;
+  getMarketEndTime: () => number | null;
+  receipt: any;
+  transactionHash: string | null;
+  contractMarketInfo: any;
+  contractMarketId: any;
+  isContractResolved: boolean;
+}
+
+
+export interface FormData {
+  title: string;
+  options: string[];
+  resolutionCriteria: string;
+  tags?: string[] | null;
+  endDate: number | string;
+  endTime: number | string;
+  image?: File;
+  description: string;
+  initialLiquidity: string;
+  createOnChain: boolean;
 }

@@ -13,19 +13,7 @@ import { decodeEventLog, parseAbiItem } from "viem";
 import { baseSepolia } from "viem/chains";
 import { useUsdtToken } from "../hooks/useToken";
 import { CONTRACT_ADDRESSES } from "../utils/wagmiConfig";
-
-interface FormData {
-  title: string;
-  options: string[];
-  resolutionCriteria: string;
-  tags?: string[] | null;
-  endDate: number | string;
-  endTime: number | string;
-  image?: File;
-  description: string;
-  initialLiquidity: string;
-  createOnChain: boolean;
-}
+import type { FormData } from "../lib/interface";
 
 const MAX_IMAGE_SIZE = 1024 * 1024;
 
@@ -38,8 +26,8 @@ const CreatePredictionForm = () => {
     description: "Bitcoin price prediction market",
     resolutionCriteria: "Based on CoinGecko price data",
     tags: ["Crypto"],
-    endDate: "2025-08-06",
-    endTime: "14:00",
+    endDate: "",
+    endTime: "",
     initialLiquidity: "10",
     createOnChain: true,
   });
@@ -49,6 +37,7 @@ const CreatePredictionForm = () => {
   const [marketContractAddress, setMarketContractAddress] = useState<
     string | null
   >(null);
+  const [marketId, setMarketId] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [, setHasInitialized] = useState(false);
 
@@ -122,20 +111,16 @@ const CreatePredictionForm = () => {
     try {
       const endDateTime = new Date(`${formData.endDate}T${formData.endTime}`);
       const now = new Date();
-      const durationDays = Math.ceil(
-        (endDateTime.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)
+      const durationSeconds = Math.floor(
+        (endDateTime.getTime() - now.getTime()) / 1000
       );
-      console.log(durationDays);
 
-      // Step 1: Create smart contract market
       await createSmartContractMarket(
         formData.title,
         formData.options[0],
         formData.options[1],
-        endDateTime.getTime() / 1000
+        durationSeconds
       );
-
-      // Note: Market initialization will be handled by the useEffect when contractHash is available
     } catch (err) {
       console.error("Error in handleSubmit:", err);
       error("Failed to create prediction");
@@ -181,6 +166,7 @@ const CreatePredictionForm = () => {
           uploadedImageUrl ||
             "https://rrgzufevhpeypfviivan.supabase.co/storage/v1/object/public/spreadd/market/1750689653867_photo_5103127210662931859_y.jpg",
           marketContractAddress,
+          marketId || "",
           formData.tags || null
         );
 
@@ -216,11 +202,14 @@ const CreatePredictionForm = () => {
         if (parsed.eventName === "MarketCreated") {
           const marketContract = parsed.args.marketContract;
           setMarketContractAddress(marketContract);
+          const marketId = parsed.args.marketId;
+          setMarketId(marketId);
+          success("Market created successfully!");
+
           break;
         }
       } catch (err) {
         // Not a MarketCreated log
-        console.log("error occurred: ", err);
         setMarketContractAddress(null);
       }
     }

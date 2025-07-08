@@ -77,10 +77,8 @@ export const fetchLeaderboard = async (
       }
     );
 
-    console.log('Leaderboard fetched:', response.data);
     return [response.data, response.status];
   } catch (error: any) {
-    console.error('Failed to fetch leaderboard:', error.response?.data || error.message);
     
     if (error.response?.status === 400) {
       throw new Error('Invalid point type or parameters');
@@ -113,10 +111,8 @@ export const fetchMostTradedMarkets = async (
       }
     );
 
-    console.log('Most traded markets fetched:', response.data);
     return [response.data, response.status];
   } catch (error: any) {
-    console.error('Failed to fetch most traded markets:', error.response?.data || error.message);
     
     if (error.response?.status === 500) {
       throw new Error('Server error while fetching most traded markets');
@@ -143,10 +139,8 @@ export const fetchMarketVolume = async (
       }
     );
 
-    console.log('Market volume fetched:', response.data);
     return [response.data, response.status];
   } catch (error: any) {
-    console.error('Failed to fetch market volume:', error.response?.data || error.message);
     
     if (error.response?.status === 404) {
       throw new Error('Market not found');
@@ -179,10 +173,8 @@ export const fetchDetailedMarketVolume = async (
       }
     );
 
-    console.log('Detailed market volume fetched:', response.data);
     return [response.data, response.status];
   } catch (error: any) {
-    console.error('Failed to fetch detailed market volume:', error.response?.data || error.message);
     
     if (error.response?.status === 404) {
       throw new Error('Market not found');
