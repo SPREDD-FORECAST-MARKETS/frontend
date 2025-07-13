@@ -421,11 +421,10 @@ const UserProfile = () => {
               setActiveTab("transactions");
               setShowAllTransactions(false);
             }}
-            className={`px-3 py-3 sm:px-6 sm:py-4 flex-1 flex items-center justify-center gap-1 sm:gap-2 text-xs sm:text-sm font-medium transition-all duration-300 ${
-              activeTab === "transactions"
-                ? "text-orange-500 border-b-2 border-orange-500 bg-zinc-900/80"
-                : "text-gray-400 hover:text-white hover:bg-zinc-900/50"
-            }`}
+            className={`px-3 py-3 sm:px-6 sm:py-4 flex-1 flex items-center justify-center gap-1 sm:gap-2 text-xs sm:text-sm font-medium transition-all duration-300 ${activeTab === "transactions"
+              ? "text-orange-500 border-b-2 border-orange-500 bg-zinc-900/80"
+              : "text-gray-400 hover:text-white hover:bg-zinc-900/50"
+              }`}
           >
             <Activity size={14} className="hidden sm:inline" />
             <span>Transactions</span>
@@ -436,11 +435,10 @@ const UserProfile = () => {
               setActiveTab("created");
               setShowAllCreated(false);
             }}
-            className={`px-3 py-3 sm:px-6 sm:py-4 flex-1 flex items-center justify-center gap-1 sm:gap-2 text-xs sm:text-sm font-medium transition-all duration-300 ${
-              activeTab === "created"
-                ? "text-orange-500 border-b-2 border-orange-500 bg-zinc-900/80"
-                : "text-gray-400 hover:text-white hover:bg-zinc-900/50"
-            }`}
+            className={`px-3 py-3 sm:px-6 sm:py-4 flex-1 flex items-center justify-center gap-1 sm:gap-2 text-xs sm:text-sm font-medium transition-all duration-300 ${activeTab === "created"
+              ? "text-orange-500 border-b-2 border-orange-500 bg-zinc-900/80"
+              : "text-gray-400 hover:text-white hover:bg-zinc-900/50"
+              }`}
           >
             <Clock size={14} className="hidden sm:inline" />
             <span>Created</span>
@@ -485,9 +483,8 @@ const UserProfile = () => {
               {/* Transactions list with scroll */}
               <div
                 ref={transactionScrollRef}
-                className={`${
-                  showAllTransactions ? "max-h-96 overflow-y-auto" : ""
-                } space-y-2`}
+                className={`${showAllTransactions ? "max-h-96 overflow-y-auto" : ""
+                  } space-y-2`}
               >
                 {transactions.map((tx) => (
                   <div
@@ -588,9 +585,8 @@ const UserProfile = () => {
                   {/* Markets list with scroll */}
                   <div
                     ref={marketsScrollRef}
-                    className={`${
-                      showAllCreated ? "max-h-96 overflow-y-auto" : ""
-                    } grid grid-cols-1 gap-4 sm:gap-6`}
+                    className={`${showAllCreated ? "max-h-96 overflow-y-auto" : ""
+                      } grid grid-cols-1 gap-4 sm:gap-6`}
                   >
                     {userMarkets.map((market) => (
                       <div
@@ -718,11 +714,16 @@ const UserProfile = () => {
             </div>
 
             <div className="flex items-center gap-2 sm:gap-4">
+
               <button className="text-xs sm:text-sm text-gray-400 hover:text-orange-500 transition-colors px-2 py-1">
-                Terms
+                <Link to={"/privacy-policy"}>
+                  Privacy
+                </Link>
               </button>
-              <button className="text-xs sm:text-sm text-gray-400 hover:text-orange-500 transition-colors px-2 py-1">
-                Privacy
+               <button className="text-xs sm:text-sm text-gray-400 hover:text-orange-500 transition-colors px-2 py-1">
+                <Link to={"/terms-conditions"}>
+                   Terms
+                </Link>
               </button>
               <button className="text-xs sm:text-sm text-gray-400 hover:text-orange-500 transition-colors px-2 py-1">
                 Help
