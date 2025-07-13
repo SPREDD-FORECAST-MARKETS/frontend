@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { FiInfo } from "react-icons/fi";
 import { Link } from "react-router-dom";
 import { useToast } from "../hooks/useToast";
 import { uploadFile } from "../apis/files";
@@ -216,213 +215,170 @@ const CreatePredictionForm = () => {
   }, [receipt]);
 
   return (
-    <div className="w-full max-w-2xl mx-auto py-6 px-4 sm:px-0">
-      <div className="text-center mb-6">
-        <Link
-          to="/"
-          className="text-gray-400 hover:text-gray-200 transition-colors duration-200 text-sm uppercase tracking-wider"
-        >
-          [ Go Back ]
-        </Link>
-      </div>
+   <div className="w-full max-w-6xl mx-auto py-12 px-6 lg:px-12 text-white min-h-screen">
+  <div className="flex justify-end mb-6">
+    <Link
+      to="/"
+      className="flex items-center gap-2 text-gray-400 hover:text-orange-500 transition-colors duration-300 text-sm uppercase tracking-wide"
+    >
+      <span className="text-xl">←</span> Go Back
+    </Link>
+  </div>
 
-      <div className="bg-gray-900 border border-gray-800 rounded-lg shadow-xl overflow-hidden">
-        <div className="p-5 sm:p-6">
-          <h2 className="text-2xl font-bold text-white mb-7 text-center">
-            Create Prediction
-          </h2>
+  <div className="bg-gradient-to-b from-[#111] to-[#0a0a0a] rounded-2xl shadow-xl p-8 sm:p-10 md:p-12 border border-zinc-800">
+    <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-orange-600 to-orange-700 mb-10 text-center font-serif tracking-tight">
+      Create Prediction
+    </h2>
 
-          <form onSubmit={handleSubmit}>
-            <div className="mb-5">
-              <label
-                htmlFor="title"
-                className="block text-gray-400 font-medium mb-2 text-sm uppercase tracking-wider"
-              >
-                Event Title
-              </label>
-              <input
-                type="text"
-                id="title"
-                name="title"
-                value={formData.title}
-                onChange={handleInputChange}
-                placeholder="Enter a clear, specific title"
-                className="w-full bg-gray-800 border border-gray-700 rounded-md px-4 py-2.5 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-colors duration-200"
-                required
-              />
-            </div>
+    <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-10">
+      {/* LEFT COLUMN */}
+      <div className="space-y-8">
+        <div>
+          <label htmlFor="title" className="block text-gray-400 font-medium mb-3 text-xs uppercase tracking-wider">
+            Event Title
+          </label>
+          <input
+            type="text"
+            id="title"
+            name="title"
+            value={formData.title}
+            onChange={handleInputChange}
+            placeholder="Enter a clear, specific title"
+            className="w-full bg-[#111] border border-zinc-800 rounded-xl px-5 py-4 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-600/50 transition-all duration-300 shadow-inner"
+            required
+          />
+        </div>
 
-            <div className="mb-5">
-              <label
-                htmlFor="description"
-                className="block text-gray-400 font-medium mb-2 text-sm uppercase tracking-wider"
-              >
-                Description
-              </label>
-              <textarea
-                id="description"
-                name="description"
-                value={formData.description}
-                onChange={handleInputChange}
-                rows={4}
-                placeholder="Provide detailed information about this prediction"
-                className="w-full bg-gray-800 border border-gray-700 rounded-md px-4 py-2.5 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-colors duration-200"
-              />
-            </div>
+        <div>
+          <label htmlFor="description" className="block text-gray-400 font-medium mb-3 text-xs uppercase tracking-wider">
+            Description
+          </label>
+          <textarea
+            id="description"
+            name="description"
+            value={formData.description}
+            onChange={handleInputChange}
+            rows={4}
+            placeholder="Provide detailed information about this prediction"
+            className="w-full bg-[#111] border border-zinc-800 rounded-xl px-5 py-4 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-600/50 transition-all duration-300 shadow-inner resize-none"
+          />
+        </div>
 
-            <div className="mb-5">
-              <label
-                htmlFor="resolutionCriteria"
-                className="block text-gray-400 font-medium mb-2 text-sm uppercase tracking-wider"
-              >
-                Resolution Criteria
-              </label>
-              <textarea
-                id="resolutionCriteria"
-                name="resolutionCriteria"
-                value={formData.resolutionCriteria}
-                onChange={handleInputChange}
-                rows={3}
-                placeholder="Explain clearly how this prediction will be resolved"
-                className="w-full bg-gray-800 border border-gray-700 rounded-md px-4 py-2.5 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-colors duration-200"
-              />
-            </div>
+        <div>
+          <label htmlFor="resolutionCriteria" className="block text-gray-400 font-medium mb-3 text-xs uppercase tracking-wider">
+            Resolution Criteria
+          </label>
+          <textarea
+            id="resolutionCriteria"
+            name="resolutionCriteria"
+            value={formData.resolutionCriteria}
+            onChange={handleInputChange}
+            rows={3}
+            placeholder="Explain clearly how this prediction will be resolved"
+            className="w-full bg-[#111] border border-zinc-800 rounded-xl px-5 py-4 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-600/50 transition-all duration-300 shadow-inner resize-none"
+          />
+        </div>
 
-            <div className="mb-5">
-              <label
-                htmlFor="tags"
-                className="block text-gray-400 font-medium mb-2 text-sm uppercase tracking-wider"
-              >
-                Market Category
-              </label>
-              <textarea
-                id="tags"
-                name="tags"
-                value={(formData.tags ?? []).join(", ")}
-                onChange={handleInputChange}
-                rows={3}
-                placeholder="Enter categories separated by commas (e.g., Sports, Politics)"
-                className="w-full bg-gray-800 border border-gray-700 rounded-md px-4 py-2.5 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-colors duration-200"
-              />
-            </div>
-
-            <div className="mb-5">
-              <label
-                htmlFor="initialLiquidity"
-                className="block text-gray-400 font-medium mb-2 text-sm uppercase tracking-wider"
-              >
-                Initial Liquidity (USDT)
-              </label>
-              <input
-                type="number"
-                id="initialLiquidity"
-                name="initialLiquidity"
-                value={formData.initialLiquidity}
-                onChange={handleInputChange}
-                step="0.001"
-                min="0.001"
-                placeholder="Enter initial liquidity amount"
-                className="w-full bg-gray-800 border border-gray-700 rounded-md px-4 py-2.5 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-colors duration-200"
-                required
-              />
-            </div>
-
-            <div className="mb-5">
-              <label className="block text-gray-400 font-medium mb-2 text-sm uppercase tracking-wider">
-                Upload Image
-              </label>
-              <div
-                className={`border-2 border-dashed ${
-                  imagePreview ? "border-green-500" : "border-gray-700"
-                } rounded-md p-5 sm:p-6 text-center cursor-pointer hover:border-orange-500 transition-colors duration-200`}
-                onClick={() => document.getElementById("image-upload")?.click()}
-              >
-                {imagePreview ? (
-                  <div className="flex justify-center">
-                    <img
-                      src={imagePreview}
-                      alt="Preview"
-                      className="max-h-40 rounded object-cover max-w-full h-auto"
-                    />
-                  </div>
-                ) : (
-                  <div className="text-gray-500 text-sm">
-                    <p>Drag and drop photo or click to upload (max 1MB)</p>
-                  </div>
-                )}
-                <input
-                  type="file"
-                  id="image-upload"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={handleImageUpload}
-                />
-              </div>
-            </div>
-
-            <div className="mb-6">
-              <div className="flex items-center">
-                <label className="block text-gray-400 font-medium mb-2 text-sm uppercase tracking-wider">
-                  End Time
-                </label>
-                <button
-                  type="button"
-                  className="ml-2 text-gray-500 hover:text-orange-500 transition-colors duration-200"
-                  title="Help"
-                >
-                  <FiInfo size={16} />
-                </button>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {/* Date Input */}
-                <div className="relative">
-                  <input
-                    type="date"
-                    id="endDate"
-                    name="endDate"
-                    value={formData.endDate}
-                    onChange={handleInputChange}
-                    className="w-full bg-gray-800 border border-gray-700 rounded-md px-4 py-2.5 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-colors duration-200"
-                    style={{
-                      colorScheme: "dark",
-                      WebkitAppearance: "none",
-                      MozAppearance: "textfield",
-                    }}
-                    required
-                  />
-                </div>
-
-                {/* Time Input */}
-                <div className="relative">
-                  <input
-                    type="time"
-                    id="endTime"
-                    name="endTime"
-                    value={formData.endTime}
-                    onChange={handleInputChange}
-                    className="w-full bg-gray-800 border border-gray-700 rounded-md px-4 py-2.5 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-colors duration-200"
-                    style={{
-                      colorScheme: "dark",
-                      WebkitAppearance: "none",
-                      MozAppearance: "textfield",
-                    }}
-                    required
-                  />
-                </div>
-              </div>
-            </div>
-
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="w-full bg-orange-500 hover:bg-orange-600 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-bold py-3 px-4 rounded-md transition-colors duration-200 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-opacity-50 text-lg mb-4"
-            >
-              {isSubmitting ? "Creating..." : "Create Event"}
-            </button>
-          </form>
+        <div>
+          <label htmlFor="tags" className="block text-gray-400 font-medium mb-3 text-xs uppercase tracking-wider">
+            Market Category
+          </label>
+          <input
+            type="text"
+            id="tags"
+            name="tags"
+            value={(formData.tags ?? []).join(", ")}
+            onChange={handleInputChange}
+            placeholder="e.g. Crypto, Sports"
+            className="w-full bg-[#111] border border-zinc-800 rounded-xl px-5 py-4 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-600/50 transition-all duration-300 shadow-inner"
+          />
         </div>
       </div>
-    </div>
+
+      {/* RIGHT COLUMN */}
+      <div className="space-y-8">
+        <div>
+          <label className="block text-gray-400 font-medium mb-3 text-xs uppercase tracking-wider">
+            Upload Image
+          </label>
+          <div
+            className={`border-2 border-dashed ${imagePreview ? "border-green-500" : "border-zinc-800"} rounded-2xl p-8 text-center cursor-pointer hover:border-orange-600 transition-all duration-300 bg-[#111]`}
+            onClick={() => document.getElementById("image-upload")?.click()}
+          >
+            {imagePreview ? (
+              <img src={imagePreview} alt="Preview" className="max-h-56 mx-auto rounded-2xl object-cover ring-2 ring-orange-600/20" />
+            ) : (
+              <p className="text-gray-400 text-base">Drag & drop or click (max 1MB)</p>
+            )}
+            <input
+              type="file"
+              id="image-upload"
+              accept="image/*"
+              className="hidden"
+              onChange={handleImageUpload}
+            />
+          </div>
+        </div>
+
+        <div>
+          <label className="block text-gray-400 font-medium mb-3 text-xs uppercase tracking-wider">
+            End Time {/* here we can add country like endtime in (Asia/Tokyo) */}
+          </label>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <input
+              type="date"
+              id="endDate"
+              name="endDate"
+              value={formData.endDate}
+              onChange={handleInputChange}
+              className="w-full bg-[#111] border border-zinc-800 rounded-xl px-5 py-4 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-600/50 transition-all duration-300 shadow-inner"
+              style={{ colorScheme: "dark" }}
+              required
+            />
+            <input
+              type="time"
+              id="endTime"
+              name="endTime"
+              value={formData.endTime}
+              onChange={handleInputChange}
+              className="w-full bg-[#111] border border-zinc-800 rounded-xl px-5 py-4 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-600/50 transition-all duration-300 shadow-inner"
+              style={{ colorScheme: "dark" }}
+              required
+            />
+          </div>
+        </div>
+
+        <div>
+          <label htmlFor="initialLiquidity" className="block text-gray-400 font-medium mb-3 text-xs uppercase tracking-wider">
+            Initial Liquidity (USDT)
+          </label>
+          <input
+            type="number"
+            id="initialLiquidity"
+            name="initialLiquidity"
+            value={formData.initialLiquidity}
+            onChange={handleInputChange}
+            step="0.001"
+            min="0.001"
+            placeholder="Enter initial liquidity amount"
+            className="w-full bg-[#111] border border-zinc-800 rounded-xl px-5 py-4 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-600/50 transition-all duration-300 shadow-inner"
+            required
+          />
+        </div>
+
+        <button
+          type="submit"
+          disabled={isSubmitting}
+          className="w-full bg-gradient-to-br from-orange-600 to-orange-700 shadow-orange-500/20 p-4 rounded-xl transition-all duration-300 hover:shadow-orange-500/40 hover:scale-105 hover:from-orange-500 hover:to-orange-600 text-white font-bold"
+        >
+          {isSubmitting ? "Creating..." : "Create Event"}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+
   );
 };
 

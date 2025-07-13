@@ -58,7 +58,7 @@ function AppContent() {
       <BrowserRouter>
         <ScrollToTop />
 
-        <main className="flex-grow">
+        <main className="flex-grow pt-20">
           <Routes>
             {/* Public route - Explore page accessible to everyone */}
             <Route

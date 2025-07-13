@@ -130,7 +130,8 @@ const Navbar = () => {
   }, [authenticated, refreshUser]);
 
   return (
-    <nav className="flex flex-col md:flex-row md:items-center md:justify-between px-4 lg:px-8 py-4 bg-black text-white border-b border-gray-800">
+    <nav className="fixed top-0 left-0 w-full z-50 flex flex-col md:flex-row md:items-center md:justify-between px-4 lg:px-8 py-4 bg-black/50 backdrop-blur-md text-white border-b border-gray-800">
+
       <div className="flex justify-between items-center md:contents">
         <div className="flex items-center">
           <Link to="/" className="flex items-center">
@@ -147,42 +148,39 @@ const Navbar = () => {
           </Link>
         </div>
 
-        <div className="hidden md:flex items-center space-x-6 lg:space-x-8 text-sm lg:text-base font-medium">
-          <Link
-            to="/"
-            className="hover:text-orange-500 transition-colors duration-200 py-2"
-          >
-            Explore
-          </Link>
-          <Link
-            to="/faucet"
-            className="hover:text-orange-500 transition-colors duration-200 py-2"
-          >
-            Faucet
-          </Link>
-          <Link
-            to="/leaderboard"
-            className="hover:text-orange-500 transition-colors duration-200 py-2"
-          >
-            Leaderboard
-          </Link>
+        <div className="hidden md:flex flex-1 justify-center items-center space-x-4 lg:space-x-6 text-sm lg:text-base font-medium">
+          {[
+            { name: "Explore", to: "/" },
+            { name: "Faucet", to: "/faucet" },
+            { name: "Leaderboard", to: "/leaderboard" },
+            { name: "Stake", to: "/" },
+          ].map((link) => (
+            <Link
+              key={link.name}
+              to={link.to}
+              className="relative group px-3 py-2 overflow-hidden"
+            >
+              <span className="group-hover:text-black relative z-10">{link.name}</span>
+              <span className="group-hover:text-black absolute inset-0 bg-orange-500 rounded-full opacity-0 group-hover:opacity-100 transition duration-300"></span>
+            </Link>
+          ))}
 
-          <Link
-            to="/"
-            className="hover:text-orange-500 transition-colors duration-200 py-2"
-          >
-            Stake
-          </Link>
           <Link
             to="https://app.virtuals.io/geneses/1057"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center hover:text-orange-500 transition-colors duration-200 py-2"
+            className="relative group flex items-center border border-orange-500 rounded-full px-4 py-2 overflow-hidden hover:bg-orange-500/20 transition-colors duration-300"
           >
-            Buy $SPRDD
-            <FaExternalLinkAlt className="h-3 w-3 lg:h-4 lg:w-4 ml-1 text-current group-hover:text-orange-500 transition-colors duration-200" />
+            <span className="relative z-10 flex items-center">
+              Buy $SPRDD
+              <FaExternalLinkAlt className="h-3 w-3 lg:h-4 lg:w-4 ml-2 text-current" />
+            </span>
           </Link>
+
         </div>
+
+
+
 
         <div className="md:hidden">
           <button
@@ -295,11 +293,10 @@ const Navbar = () => {
             <button
               ref={profileButtonRef}
               onClick={() => setShowProfileDropdown(!showProfileDropdown)}
-              className={`text-gray-300 p-2 rounded-full transition-all duration-300 transform ${
-                showProfileDropdown
+              className={`text-gray-300 p-2 rounded-full transition-all duration-300 transform ${showProfileDropdown
                   ? "bg-orange-500 text-black rotate-[360deg]"
                   : "hover:bg-gray-800 hover:text-white"
-              }`}
+                }`}
             >
               <UserRound className="h-6 w-6" />
             </button>
