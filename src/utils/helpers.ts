@@ -1,9 +1,3 @@
-export function toISO8601(dateStr: string, timeStr: string): string | null {
-  if (!dateStr || !timeStr) return null;
-  // Combine to "YYYY-MM-DDTHH:mm:00Z"
-  const isoString = new Date(`${dateStr}T${timeStr}:00Z`).toISOString();
-  return isNaN(new Date(isoString).getTime()) ? null : isoString;
-}
 
 export function formatDateTime(isoString: string): string {
   const date = new Date(isoString);
@@ -18,7 +12,6 @@ export function formatDateTime(isoString: string): string {
   return `${day}/${month}/${year} | ${hours}:${minutes} ${ampm}`;
 }
 
-// ✅ NEW: Format date as "6th July" with ordinal suffix
 export function formatDateWithOrdinal(isoString: string): string {
   const date = new Date(isoString);
   const day = date.getUTCDate();
@@ -43,7 +36,6 @@ export function formatDateWithOrdinal(isoString: string): string {
 
 
 
-// ✅ NEW: Combined format: "6th July, 4hrs left"
 export function formatDateAndTimeLeft(isoString: string): string {
   const dateStr = formatDateWithOrdinal(isoString);
   const timeLeft = getTimeLeft(isoString);
@@ -83,119 +75,230 @@ export function formatDateAndTimeLeftShort(isoString: string): string {
   }
 }
 
-// Enhanced timezone utilities
-export const TimeUtils = {
-  // Convert UTC date to user's local time
-  toLocalTime: (utcDate: string | Date) => {
-    const date = typeof utcDate === "string" ? new Date(utcDate) : utcDate;
-    return date; // Date object automatically converts to local time when displayed
+
+
+
+
+
+export const UTCTimeHelpers = {
+  // Convert local date/time input to UTC timestamp
+  toUTCTimestamp: (dateStr: string, timeStr: string): number => {
+    const localDateTime = new Date(`${dateStr}T${timeStr}`);
+    return Math.floor(localDateTime.getTime() / 1000);
   },
 
-  // Format date in user's timezone
-  formatLocalDate: (utcDate: string | Date, options = {}) => {
-    const date = typeof utcDate === "string" ? new Date(utcDate) : utcDate;
-    return date.toLocaleString(undefined, {
-      dateStyle: "medium",
-      timeStyle: "short",
-      ...options,
-    });
+  // Convert local date/time to ISO string for database storage
+  toISOString: (dateStr: string, timeStr: string): string => {
+    const localDateTime = new Date(`${dateStr}T${timeStr}`);
+    return localDateTime.toISOString();
   },
 
-  // Get user's timezone
-  getUserTimezone: () => {
+  // Get user's timezone for display
+  getUserTimezone: (): string => {
     return Intl.DateTimeFormat().resolvedOptions().timeZone;
   },
 
-  // ✅ UPDATED: Use the new getTimeLeft function for consistency
-  getTimeUntilClosing: (utcClosingDate: string | Date) => {
-    const dateString = typeof utcClosingDate === "string" ? utcClosingDate : utcClosingDate.toISOString();
-    return getTimeLeft(dateString);
+  // Format UTC timestamp back to local time for display
+  formatUTCTimestamp: (utcTimestamp: number): string => {
+    const date = new Date(utcTimestamp * 1000);
+    return date.toLocaleString(undefined, {
+      year: 'numeric',
+      month: 'short', 
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      timeZoneName: 'short'
+    });
   },
 
-  // Check if market is closed
-  isMarketClosed: (utcExpiryDate: string | Date) => {
-    return new Date(utcExpiryDate).getTime() <= new Date().getTime();
-  },
+   validateFutureTime : (dateStr: string, timeStr: string): { 
+    isValid: boolean; 
+    error?: string; 
+    utcTimestamp?: number;
+  } => {
+    try {
+      const endDateTime = new Date(`${dateStr}T${timeStr}`);
+      
+      if (isNaN(endDateTime.getTime())) {
+        return { isValid: false, error: "Invalid date/time format" };
+      }
+      
+      const utcTimestamp = Math.floor(endDateTime.getTime() / 1000);
+      const nowUTC = Math.floor(Date.now() / 1000);
+      
+      if (utcTimestamp <= nowUTC) {
+        return { isValid: false, error: "End time must be in the future" };
+      }
+      
 
-  // Get relative time (e.g., "2 hours ago", "in 3 days")
-  getRelativeTime: (utcDate: string | Date) => {
-    const date = new Date(utcDate);
-    const now = new Date();
-    const diffTime = date.getTime() - now.getTime();
-    const diffDays = Math.floor(Math.abs(diffTime) / (1000 * 60 * 60 * 24));
-    const diffHours = Math.floor(Math.abs(diffTime) / (1000 * 60 * 60));
-    const diffMinutes = Math.floor(Math.abs(diffTime) / (1000 * 60));
-
-    if (diffTime > 0) {
-      // Future date
-      if (diffDays > 0) return `in ${diffDays} day${diffDays > 1 ? "s" : ""}`;
-      if (diffHours > 0)
-        return `in ${diffHours} hour${diffHours > 1 ? "s" : ""}`;
-      if (diffMinutes > 0)
-        return `in ${diffMinutes} minute${diffMinutes > 1 ? "s" : ""}`;
-      return "in a moment";
-    } else {
-      // Past date
-      if (diffDays > 0) return `${diffDays} day${diffDays > 1 ? "s" : ""} ago`;
-      if (diffHours > 0)
-        return `${diffHours} hour${diffHours > 1 ? "s" : ""} ago`;
-      if (diffMinutes > 0)
-        return `${diffMinutes} minute${diffMinutes > 1 ? "s" : ""} ago`;
-      return "just now";
+      
+      return { isValid: true, utcTimestamp };
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      return { isValid: false, error: `Time validation failed: ${errorMessage}` };
     }
-  },
+  }
+  
 };
 
 
 
 
-// Helper function to correctly parse expiry date without timezone issues
-export const parseMarketExpiryDate = (expiryDate: any): Date => {
-  if (typeof expiryDate === "string") {
-    // Remove timezone indicators to force local time interpretation
-    const cleanDateString = expiryDate.replace(/\.000Z$/, "").replace(/Z$/, "");
-    return new Date(cleanDateString);
-  }
+// utils/helpers.ts
 
-  if (typeof expiryDate === "number") {
-    // If it's a timestamp, convert it
-    const timestamp =
-      expiryDate > 1000000000000 ? expiryDate : expiryDate * 1000;
-    return new Date(timestamp);
-  }
+export const TimeUtils = {
+  // Get user's timezone for display
+  getUserTimezone: (): string => {
+    return Intl.DateTimeFormat().resolvedOptions().timeZone;
+  },
 
-  if (expiryDate instanceof Date) {
-    return expiryDate;
-  }
+  // Get relative time for creation date
+  getRelativeTime: (createdAt: string | Date): string => {
+    const date = new Date(createdAt);
+    const now = new Date();
+    const diff = now.getTime() - date.getTime();
 
-  // Fallback
+    const minutes = Math.floor(diff / (1000 * 60));
+    const hours = Math.floor(diff / (1000 * 60 * 60));
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+
+    if (days > 0) return `${days}d ago`;
+    if (hours > 0) return `${hours}h ago`;
+    if (minutes > 0) return `${minutes}m ago`;
+    return "Just now";
+  }
+};
+
+/**
+ * Parse market expiry date from database UTC ISO string
+ * @param expiryDate - UTC ISO string like "2025-07-14T22:09:00.000Z"
+ * @returns Date object
+ */
+export const parseMarketExpiryDate = (expiryDate: string | Date): Date => {
+  if (typeof expiryDate === 'string') {
+    // Handle UTC ISO string from database
+    return new Date(expiryDate);
+  }
   return new Date(expiryDate);
 };
 
-// Helper function to get time left in a readable format
-export const getTimeLeft = (expiryDate: any): string => {
-  const marketExpiry = parseMarketExpiryDate(expiryDate);
+/**
+ * Get time remaining until market ends
+ * @param expiryDate - UTC ISO string or Date object
+ * @returns Formatted time string like "2d 5h" or "Ended"
+ */
+export const getTimeLeft = (expiryDate: string | Date): string => {
+  const endDate = parseMarketExpiryDate(expiryDate);
   const now = new Date();
-  const timeDiff = marketExpiry.getTime() - now.getTime();
+  const diff = endDate.getTime() - now.getTime();
 
-  if (timeDiff <= 0) {
-    return "Market closed";
-  }
+  if (diff <= 0) return "Ended";
 
-  const days = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
-  const hours = Math.floor(
-    (timeDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
-  );
-  const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
-  const seconds = Math.floor((timeDiff % (1000 * 60)) / 1000);
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+  const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
 
-  if (days > 0) {
-    return `${days}d ${hours}h left`;
-  } else if (hours > 0) {
-    return `${hours}h ${minutes}m left`;
-  } else if (minutes > 0) {
-    return `${minutes}m left`;
-  } else {
-    return `${seconds}s left`;
-  }
+  if (days > 0) return `${days}d ${hours}h`;
+  if (hours > 0) return `${hours}h ${minutes}m`;
+  return `${minutes}m`;
+};
+
+/**
+ * Get precise countdown for markets ending soon
+ * @param expiryDate - UTC ISO string or Date object
+ * @returns Formatted countdown like "45m 30s left"
+ */
+export const getPreciseCountdown = (expiryDate: string | Date): string => {
+  const endDate = parseMarketExpiryDate(expiryDate);
+  const now = new Date();
+  const diff = endDate.getTime() - now.getTime();
+
+  if (diff <= 0) return "Ended";
+
+  const minutes = Math.floor(diff / (1000 * 60));
+  const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+  return `${minutes}m ${seconds}s left`;
+};
+
+/**
+ * Convert local date/time input to ISO string for database storage
+ * @param dateStr - Date string like "2025-07-14"
+ * @param timeStr - Time string like "14:55"
+ * @returns ISO string for database storage
+ */
+export const toISO8601 = (dateStr: string, timeStr: string): string => {
+  const localDateTime = new Date(`${dateStr}T${timeStr}`);
+  return localDateTime.toISOString();
+};
+
+/**
+ * Format market expiry date for display
+ * @param expiryDate - UTC ISO string from database
+ * @returns Object with different time format options
+ */
+export const formatMarketTime = (expiryDate: string | Date) => {
+  const endDate = parseMarketExpiryDate(expiryDate);
+  const now = new Date();
+  const diff = endDate.getTime() - now.getTime();
+
+  return {
+    // User's local timezone
+    local: endDate.toLocaleString(undefined, {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      timeZoneName: 'short'
+    }),
+    // UTC timezone for reference
+    utc: endDate.toLocaleString('en-US', {
+      timeZone: 'UTC',
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      timeZoneName: 'short'
+    }),
+    // Relative time (e.g., "2d 5h")
+    relative: getTimeLeft(expiryDate),
+    // Is ending soon (less than 24 hours)
+    isEndingSoon: diff > 0 && diff < 86400000,
+    // Has ended
+    isEnded: diff <= 0,
+    // Raw time difference in milliseconds
+    timeDifference: diff
+  };
+};
+
+/**
+ * Check if market is active (not ended)
+ * @param expiryDate - UTC ISO string from database
+ * @returns boolean indicating if market is still active
+ */
+export const isMarketActive = (expiryDate: string | Date): boolean => {
+  const endDate = parseMarketExpiryDate(expiryDate);
+  const now = new Date();
+  return endDate.getTime() > now.getTime();
+};
+
+
+
+/**
+ * Debug function to log time parsing information
+ * @param expiryDate - The expiry date to debug
+ */
+export const debugMarketTime = (expiryDate: string | Date): void => {
+  const endDate = parseMarketExpiryDate(expiryDate);
+  console.log('Market Time Debug:', {
+    input: expiryDate,
+    parsed: endDate.toISOString(),
+    local: endDate.toLocaleString(),
+    utc: endDate.toUTCString(),
+    timestamp: endDate.getTime(),
+    timeLeft: getTimeLeft(expiryDate),
+    isActive: isMarketActive(expiryDate)
+  });
 };

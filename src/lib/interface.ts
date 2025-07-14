@@ -186,8 +186,8 @@ export interface FormData {
   options: string[];
   resolutionCriteria: string;
   tags?: string[] | null;
-  endDate: number | string;
-  endTime: number | string;
+  endDate:  string;
+  endTime: string;
   image?: File;
   description: string;
   initialLiquidity: string;

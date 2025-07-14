@@ -4,8 +4,8 @@ import { Lock } from "lucide-react";
 import type { Market } from "../lib/interface";
 import {
   TimeUtils,
-  getTimeLeft,
-  parseMarketExpiryDate,
+  formatMarketTime,
+  getPreciseCountdown,
 } from "../utils/helpers";
 import { usePrivy } from "@privy-io/react-auth";
 import { MarketResolutionModal } from "./MarketResolutionModal";
@@ -13,6 +13,7 @@ import { MarketResolutionModal } from "./MarketResolutionModal";
 interface MarketCardsProps {
   data: Market[];
 }
+
 const MarketCards = ({ data }: MarketCardsProps) => {
   const hasBuyOptions = true;
 
@@ -41,25 +42,23 @@ const EnhancedCard = ({
   const navigate = useNavigate();
   const { user } = usePrivy();
 
-  const currentDate = new Date();
-  const marketExpiryDate = parseMarketExpiryDate(data.expiry_date);
-
-  const isMarketClosed = marketExpiryDate.getTime() <= currentDate.getTime();
-  const timeDifference = marketExpiryDate.getTime() - currentDate.getTime();
-
+  const timeInfo = formatMarketTime(data.expiry_date);
   const userTimezone = TimeUtils.getUserTimezone();
 
+  // Market state using updated time info
+  const isMarketClosed = timeInfo.isEnded;
+  const timeDifference = timeInfo.timeDifference;
+  const isEndingSoon = timeInfo.isEndingSoon;
+
+  // User and creator state
   const userWalletAddress = user?.wallet?.address;
   const isUserCreator = Boolean(
     userWalletAddress &&
     data.creator.wallet_address &&
-    userWalletAddress.toLowerCase() ===
-    data.creator.wallet_address.toLowerCase()
+    userWalletAddress.toLowerCase() === data.creator.wallet_address.toLowerCase()
   );
 
   const needsResolution = isMarketClosed && !data.isResolved && isUserCreator;
-
-  const isEndingSoon = timeDifference > 0 && timeDifference < 86400000; // Less than 24 hours in milliseconds
 
   const handleCardClick = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -74,7 +73,7 @@ const EnhancedCard = ({
         no: `No`,
       },
       tags: data.tags,
-      endDate: marketExpiryDate.toLocaleString(),
+      endDate: timeInfo.local, // Use formatted local time
       creator: data.creator.username,
       description: data.description,
       iconUrl: data.image,
@@ -92,10 +91,11 @@ const EnhancedCard = ({
         }
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
-        className={`bg-gradient-to-b from-[#111] to-[#0a0a0a] rounded-xl border border-zinc-800 overflow-hidden shadow-xl relative h-[420px] sm:h-[450px] flex flex-col p-0 transition-all duration-500 group ${isMarketClosed || needsResolution
+        className={`bg-gradient-to-b from-[#111] to-[#0a0a0a] rounded-xl border border-zinc-800 overflow-hidden shadow-xl relative h-[420px] sm:h-[450px] flex flex-col p-0 transition-all duration-500 group ${
+          isMarketClosed || needsResolution
             ? "opacity-75 cursor-default"
             : "hover:shadow-2xl hover:shadow-orange-900/10 hover:border-zinc-700 cursor-pointer"
-          }`}
+        }`}
       >
         {/* Card content with responsive improvements */}
         <div className="absolute inset-0 bg-gradient-to-br from-orange-900/5 via-transparent to-transparent pointer-events-none opacity-70 group-hover:opacity-100 transition-opacity duration-500"></div>
@@ -168,13 +168,15 @@ const EnhancedCard = ({
             <img
               src={data.image}
               alt={data.question}
-              className={`w-full h-full object-cover rounded-md transition-transform duration-500 ${!isMarketClosed ? "group-hover:scale-110" : ""
-                }`}
+              className={`w-full h-full object-cover rounded-md transition-transform duration-500 ${
+                !isMarketClosed ? "group-hover:scale-110" : ""
+              }`}
             />
           </div>
           <h3
-            className={`text-white font-serif font-bold text-sm sm:text-base md:text-lg flex-1 tracking-wide transition-colors duration-300 line-clamp-2 leading-tight ${!isMarketClosed ? "group-hover:text-orange-50" : ""
-              }`}
+            className={`text-white font-serif font-bold text-sm sm:text-base md:text-lg flex-1 tracking-wide transition-colors duration-300 line-clamp-2 leading-tight ${
+              !isMarketClosed ? "group-hover:text-orange-50" : ""
+            }`}
           >
             {data.question}
           </h3>
@@ -189,27 +191,28 @@ const EnhancedCard = ({
             </p>
           </div>
 
-          {/* Enhanced Time Section */}
+          {/* Enhanced Time Section with Better UTC Display */}
           <div className="mt-4 rounded-lg p-3 transition-colors duration-300">
             {/* Status indicator and countdown */}
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center space-x-2">
                 <div
-                  className={`w-2 h-2 rounded-full flex-shrink-0 ${data.isResolved
+                  className={`w-2 h-2 rounded-full flex-shrink-0 ${
+                    data.isResolved
                       ? "bg-blue-500"
                       : isMarketClosed
-                        ? "bg-red-500"
-                        : isEndingSoon
-                          ? "bg-red-500 animate-pulse"
-                          : "bg-green-500"
-                    }`}
+                      ? "bg-red-500"
+                      : isEndingSoon
+                      ? "bg-red-500 animate-pulse"
+                      : "bg-green-500"
+                  }`}
                 ></div>
                 <span className="text-zinc-300 text-xs font-medium uppercase tracking-wide">
                   {data.isResolved
                     ? "Resolved"
                     : isMarketClosed
-                      ? "Closed"
-                      : "Active"}
+                    ? "Closed"
+                    : "Active"}
                 </span>
               </div>
 
@@ -217,42 +220,42 @@ const EnhancedCard = ({
               {!isMarketClosed && timeDifference > 0 && (
                 <div className="px-2 py-1 rounded-md">
                   <span
-                    className={`text-xs font-semibold ${isEndingSoon ? "text-red-400" : "text-orange-400"
-                      }`}
+                    className={`text-xs font-semibold ${
+                      isEndingSoon ? "text-red-400" : "text-orange-400"
+                    }`}
                   >
-                    {getTimeLeft(data.expiry_date)}
+                    {timeInfo.relative}
                   </span>
                 </div>
               )}
             </div>
 
-            {/* Enhanced Date information */}
+            {/* Enhanced Date information with UTC display */}
             <div className="border-t border-zinc-700/50 pt-2 space-y-1">
               <div className="flex justify-between items-center">
                 <span className="text-zinc-400 text-xs">
                   {data.isResolved
                     ? "Resolved:"
                     : isMarketClosed
-                      ? "Closed:"
-                      : "Closes:"}
+                    ? "Closed:"
+                    : "Closes:"}
                 </span>
                 <span className="text-zinc-300 text-xs font-medium">
-                  {getTimeLeft(data.expiry_date)}
+                  {timeInfo.relative}
                 </span>
               </div>
 
-              {/* Full date/time display */}
-              <div className="text-zinc-500 text-xs">
-                {marketExpiryDate.toLocaleString()}
+              {/* Local time display */}
+              <div className="text-zinc-300 text-xs">
+                {timeInfo.local}
               </div>
 
-              {/* Precise countdown for active markets */}
+              {/* Precise countdown for markets ending within 1 hour */}
               {!isMarketClosed &&
                 timeDifference > 0 &&
                 timeDifference < 3600000 && (
                   <div className="text-orange-400 text-xs font-mono">
-                    {Math.floor(timeDifference / (1000 * 60))}m{" "}
-                    {Math.floor((timeDifference % (1000 * 60)) / 1000)}s left
+                    {getPreciseCountdown(data.expiry_date)}
                   </div>
                 )}
             </div>
@@ -263,8 +266,9 @@ const EnhancedCard = ({
         <div className="flex justify-between items-center p-4 sm:p-5 bg-gradient-to-r from-zinc-900/30 to-zinc-800/20 flex-shrink-0">
           <div className="flex items-center group/creator">
             <span
-              className={`text-orange-400 font-bold text-xs sm:text-sm transition-colors duration-300 underline decoration-orange-500/30 underline-offset-2 decoration-1 truncate max-w-[80px] sm:max-w-[100px] ${!isMarketClosed ? "group-hover/creator:text-orange-300" : ""
-                }`}
+              className={`text-orange-400 font-bold text-xs sm:text-sm transition-colors duration-300 underline decoration-orange-500/30 underline-offset-2 decoration-1 truncate max-w-[80px] sm:max-w-[100px] ${
+                !isMarketClosed ? "group-hover/creator:text-orange-300" : ""
+              }`}
             >
               {data.creator.username}
             </span>
@@ -297,7 +301,7 @@ const EnhancedCard = ({
                         name: data.question,
                         outcomes: { yes: `Yes`, no: `No` },
                         tags: data.tags,
-                        endDate: marketExpiryDate.toLocaleString(),
+                        endDate: timeInfo.local, // Use formatted local time
                         creator: data.creator.username,
                         description: data.description,
                         iconUrl: data.image,
@@ -335,7 +339,7 @@ const EnhancedCard = ({
                         name: data.question,
                         outcomes: { yes: `Yes`, no: `No` },
                         tags: data.tags,
-                        endDate: marketExpiryDate.toLocaleString(),
+                        endDate: timeInfo.local, // Use formatted local time
                         creator: data.creator.username,
                         description: data.description,
                         iconUrl: data.image,
@@ -376,7 +380,10 @@ const EnhancedCard = ({
                   {data.isResolved ? "Market Resolved" : "Trading Ended"}
                 </span>
                 <div className="text-xs text-zinc-600 mt-1">
-                  {marketExpiryDate.toLocaleString()}
+                  {timeInfo.local}
+                </div>
+                <div className="text-xs text-zinc-500 mt-1">
+                  UTC: {timeInfo.utc}
                 </div>
                 {data.isResolved && data.outcomeWon && (
                   <div className="text-xs text-orange-400 mt-1 font-semibold">

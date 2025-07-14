@@ -2,7 +2,7 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { ArrowUp, ArrowDown, Info, RefreshCw } from "lucide-react";
 import type { Market, ChartDataPoint, TimeframeOption } from "../lib/interface";
 import { calculateOdds, generateChartData } from "../utils/calculations";
-import { TimeUtils } from "../utils/helpers";
+import { getTimeLeft } from "../utils/helpers";
 
 interface ChartCardProps {
   marketData: Market;
@@ -704,7 +704,7 @@ const ChartCard = ({ marketData, marketId }: ChartCardProps) => {
               <span className="mx-2">•</span>
               <span>
                 <span className="text-red-500">Ending:</span>{" "}
-                {TimeUtils.formatLocalDate(marketData.expiry_date)}
+                {getTimeLeft(marketData.expiry_date)}
               </span>
             </div>
           </div>
