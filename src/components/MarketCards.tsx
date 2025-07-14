@@ -52,9 +52,9 @@ const EnhancedCard = ({
   const userWalletAddress = user?.wallet?.address;
   const isUserCreator = Boolean(
     userWalletAddress &&
-      data.creator.wallet_address &&
-      userWalletAddress.toLowerCase() ===
-        data.creator.wallet_address.toLowerCase()
+    data.creator.wallet_address &&
+    userWalletAddress.toLowerCase() ===
+    data.creator.wallet_address.toLowerCase()
   );
 
   const needsResolution = isMarketClosed && !data.isResolved && isUserCreator;
@@ -92,11 +92,10 @@ const EnhancedCard = ({
         }
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
-        className={`bg-gradient-to-b from-[#111] to-[#0a0a0a] rounded-xl border border-zinc-800 overflow-hidden shadow-xl relative h-[420px] sm:h-[450px] flex flex-col p-0 transition-all duration-500 group ${
-          isMarketClosed || needsResolution
+        className={`bg-gradient-to-b from-[#111] to-[#0a0a0a] rounded-xl border border-zinc-800 overflow-hidden shadow-xl relative h-[420px] sm:h-[450px] flex flex-col p-0 transition-all duration-500 group ${isMarketClosed || needsResolution
             ? "opacity-75 cursor-default"
             : "hover:shadow-2xl hover:shadow-orange-900/10 hover:border-zinc-700 cursor-pointer"
-        }`}
+          }`}
       >
         {/* Card content with responsive improvements */}
         <div className="absolute inset-0 bg-gradient-to-br from-orange-900/5 via-transparent to-transparent pointer-events-none opacity-70 group-hover:opacity-100 transition-opacity duration-500"></div>
@@ -169,15 +168,13 @@ const EnhancedCard = ({
             <img
               src={data.image}
               alt={data.question}
-              className={`w-full h-full object-cover rounded-md transition-transform duration-500 ${
-                !isMarketClosed ? "group-hover:scale-110" : ""
-              }`}
+              className={`w-full h-full object-cover rounded-md transition-transform duration-500 ${!isMarketClosed ? "group-hover:scale-110" : ""
+                }`}
             />
           </div>
           <h3
-            className={`text-white font-serif font-bold text-sm sm:text-base md:text-lg flex-1 tracking-wide transition-colors duration-300 line-clamp-2 leading-tight ${
-              !isMarketClosed ? "group-hover:text-orange-50" : ""
-            }`}
+            className={`text-white font-serif font-bold text-sm sm:text-base md:text-lg flex-1 tracking-wide transition-colors duration-300 line-clamp-2 leading-tight ${!isMarketClosed ? "group-hover:text-orange-50" : ""
+              }`}
           >
             {data.question}
           </h3>
@@ -198,22 +195,21 @@ const EnhancedCard = ({
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center space-x-2">
                 <div
-                  className={`w-2 h-2 rounded-full flex-shrink-0 ${
-                    data.isResolved
+                  className={`w-2 h-2 rounded-full flex-shrink-0 ${data.isResolved
                       ? "bg-blue-500"
                       : isMarketClosed
-                      ? "bg-red-500"
-                      : isEndingSoon
-                      ? "bg-red-500 animate-pulse"
-                      : "bg-green-500"
-                  }`}
+                        ? "bg-red-500"
+                        : isEndingSoon
+                          ? "bg-red-500 animate-pulse"
+                          : "bg-green-500"
+                    }`}
                 ></div>
                 <span className="text-zinc-300 text-xs font-medium uppercase tracking-wide">
                   {data.isResolved
                     ? "Resolved"
                     : isMarketClosed
-                    ? "Closed"
-                    : "Active"}
+                      ? "Closed"
+                      : "Active"}
                 </span>
               </div>
 
@@ -221,9 +217,8 @@ const EnhancedCard = ({
               {!isMarketClosed && timeDifference > 0 && (
                 <div className="px-2 py-1 rounded-md">
                   <span
-                    className={`text-xs font-semibold ${
-                      isEndingSoon ? "text-red-400" : "text-orange-400"
-                    }`}
+                    className={`text-xs font-semibold ${isEndingSoon ? "text-red-400" : "text-orange-400"
+                      }`}
                   >
                     {getTimeLeft(data.expiry_date)}
                   </span>
@@ -238,8 +233,8 @@ const EnhancedCard = ({
                   {data.isResolved
                     ? "Resolved:"
                     : isMarketClosed
-                    ? "Closed:"
-                    : "Closes:"}
+                      ? "Closed:"
+                      : "Closes:"}
                 </span>
                 <span className="text-zinc-300 text-xs font-medium">
                   {getTimeLeft(data.expiry_date)}
@@ -268,9 +263,8 @@ const EnhancedCard = ({
         <div className="flex justify-between items-center p-4 sm:p-5 bg-gradient-to-r from-zinc-900/30 to-zinc-800/20 flex-shrink-0">
           <div className="flex items-center group/creator">
             <span
-              className={`text-orange-400 font-bold text-xs sm:text-sm transition-colors duration-300 underline decoration-orange-500/30 underline-offset-2 decoration-1 truncate max-w-[80px] sm:max-w-[100px] ${
-                !isMarketClosed ? "group-hover/creator:text-orange-300" : ""
-              }`}
+              className={`text-orange-400 font-bold text-xs sm:text-sm transition-colors duration-300 underline decoration-orange-500/30 underline-offset-2 decoration-1 truncate max-w-[80px] sm:max-w-[100px] ${!isMarketClosed ? "group-hover/creator:text-orange-300" : ""
+                }`}
             >
               {data.creator.username}
             </span>
