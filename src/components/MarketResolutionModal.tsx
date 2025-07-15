@@ -44,8 +44,7 @@ export const MarketResolutionModal = ({
           setIsProcessing(false);
         } catch (backendError: any) {
           setError(
-            `Backend resolution failed: ${
-              backendError.message || "Unknown error"
+            `Backend resolution failed: ${backendError.message || "Unknown error"
             }`
           );
           setIsProcessing(false);
@@ -107,11 +106,9 @@ export const MarketResolutionModal = ({
 
   return (
     <div className="fixed inset-0 bg-transparent backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 max-w-md w-full shadow-2xl relative">
-        {/* Subtle Orange Accent */}
-        <div className="absolute inset-0  rounded-2xl pointer-events-none"></div>
+      <div className="bg-gradient-to-b from-[#111] to-[#0a0a0a] rounded-2xl border border-zinc-800 shadow-2xl relative max-w-md w-full p-6">
+        <div className="absolute inset-0 bg-gradient-to-br from-orange-900/10 via-transparent to-transparent rounded-2xl pointer-events-none"></div>
 
-        {/* Close Button */}
         <button
           onClick={onClose}
           disabled={isProcessing || isResolving || isConfirming}
@@ -132,7 +129,6 @@ export const MarketResolutionModal = ({
           </svg>
         </button>
 
-        {/* Header */}
         <div className="text-center mb-6">
           <div className="w-12 h-12 bg-orange-500 rounded-xl flex items-center justify-center mx-auto mb-4">
             <svg
@@ -149,7 +145,7 @@ export const MarketResolutionModal = ({
               />
             </svg>
           </div>
-          <h2 className="text-xl font-semibold text-white mb-2">
+          <h2 className="text-xl font-medium text-white mb-2">
             Resolve Market
           </h2>
           <p className="text-zinc-400 text-sm">
@@ -157,7 +153,6 @@ export const MarketResolutionModal = ({
           </p>
         </div>
 
-        {/* Market Info */}
         <div className="bg-zinc-800 rounded-xl p-4 mb-6">
           <div className="flex items-start gap-3">
             <div className="w-10 h-10 bg-zinc-700 rounded-lg overflow-hidden flex-shrink-0">
@@ -194,7 +189,6 @@ export const MarketResolutionModal = ({
           </div>
         </div>
 
-        {/* Progress Status */}
         {isProcessing && currentStep && (
           <div className="bg-orange-500/10 border border-orange-500/20 rounded-xl p-3 mb-4">
             <div className="flex items-center gap-3">
@@ -206,7 +200,6 @@ export const MarketResolutionModal = ({
           </div>
         )}
 
-        {/* Error Message */}
         {error && (
           <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-3 mb-4">
             <div className="flex items-start gap-3">
@@ -218,7 +211,7 @@ export const MarketResolutionModal = ({
                 >
                   <path
                     fillRule="evenodd"
-                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                    d="M18 10a8 8 0 11-18 0 8 8 0 0118 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
                     clipRule="evenodd"
                   />
                 </svg>
@@ -233,7 +226,6 @@ export const MarketResolutionModal = ({
           </div>
         )}
 
-        {/* Success Message */}
         {success && (
           <div className="bg-green-500/10 border border-green-500/20 rounded-xl p-3 mb-4">
             <div className="flex items-center gap-3">
@@ -262,12 +254,11 @@ export const MarketResolutionModal = ({
           </div>
         )}
 
-        {/* Action Buttons */}
         <div className="grid grid-cols-2 gap-3 mb-6">
           <button
             onClick={() => handleResolve(MarketOutcomeValues.OPTION_A)}
             disabled={isProcessing || isResolving || isConfirming}
-            className="bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-4 rounded-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            className="bg-zinc-800 hover:bg-zinc-700 text-white font-medium py-3 px-4 rounded-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
             <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
               <path
@@ -276,7 +267,7 @@ export const MarketResolutionModal = ({
                 clipRule="evenodd"
               />
             </svg>
-            <span>
+            <span className="text-green-400">
               {isProcessing || isResolving || isConfirming
                 ? "Processing..."
                 : "Yes"}
@@ -286,7 +277,7 @@ export const MarketResolutionModal = ({
           <button
             onClick={() => handleResolve(MarketOutcomeValues.OPTION_B)}
             disabled={isProcessing || isResolving || isConfirming}
-            className="bg-red-600 hover:bg-red-700 text-white font-medium py-3 px-4 rounded-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            className="bg-zinc-800 hover:bg-zinc-700 text-white font-medium py-3 px-4 rounded-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
             <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
               <path
@@ -295,7 +286,7 @@ export const MarketResolutionModal = ({
                 clipRule="evenodd"
               />
             </svg>
-            <span>
+            <span className="text-red-400">
               {isProcessing || isResolving || isConfirming
                 ? "Processing..."
                 : "No"}
@@ -303,7 +294,6 @@ export const MarketResolutionModal = ({
           </button>
         </div>
 
-        {/* Cancel Button */}
         <button
           onClick={onClose}
           disabled={isProcessing || isResolving || isConfirming}

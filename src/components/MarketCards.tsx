@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Lock } from "lucide-react";
 import type { Market } from "../lib/interface";
@@ -14,6 +14,7 @@ interface MarketCardsProps {
   data: Market[];
 }
 
+
 const MarketCards = ({ data }: MarketCardsProps) => {
   const hasBuyOptions = true;
 
@@ -24,6 +25,7 @@ const MarketCards = ({ data }: MarketCardsProps) => {
           key={index}
           data={marketData}
           hasBuyOptions={hasBuyOptions}
+          index={index}
         />
       ))}
     </div>
@@ -33,14 +35,19 @@ const MarketCards = ({ data }: MarketCardsProps) => {
 const EnhancedCard = ({
   data,
   hasBuyOptions,
+  index,
 }: {
   data: Market;
   hasBuyOptions: boolean;
+  index: number;
 }) => {
   const [, setIsHovered] = useState(false);
   const [showResolutionModal, setShowResolutionModal] = useState(false);
   const navigate = useNavigate();
   const { user } = usePrivy();
+  const cardRef = useRef<HTMLDivElement>(null);
+  const [isVisible, setIsVisible] = useState(false);
+  const [isInView, setIsInView] = useState(false);
 
   const timeInfo = formatMarketTime(data.expiry_date);
   const userTimezone = TimeUtils.getUserTimezone();
@@ -59,6 +66,36 @@ const EnhancedCard = ({
   );
 
   const needsResolution = isMarketClosed && !data.isResolved && isUserCreator;
+
+  //const isEndingSoon = timeDifference > 0 && timeDifference < 86400000;
+
+  // Intersection Observer for scroll-triggered reveal and shrink animation
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          setIsInView(true);
+        } else {
+          setIsInView(false);
+        }
+      },
+      {
+        threshold: 0.3,
+        rootMargin: "0px 0px -100px 0px", // Trigger slightly early
+      }
+    );
+
+    if (cardRef.current) {
+      observer.observe(cardRef.current);
+    }
+
+    return () => {
+      if (cardRef.current) {
+        observer.unobserve(cardRef.current);
+      }
+    };
+  }, []);
 
   const handleCardClick = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -86,27 +123,28 @@ const EnhancedCard = ({
   return (
     <>
       <div
-        onClick={
-          !isMarketClosed && !needsResolution ? handleCardClick : undefined
-        }
+        ref={cardRef}
+        onClick={!isMarketClosed && !needsResolution ? handleCardClick : undefined}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
-        className={`bg-gradient-to-b from-[#111] to-[#0a0a0a] rounded-xl border border-zinc-800 overflow-hidden shadow-xl relative h-[420px] sm:h-[450px] flex flex-col p-0 transition-all duration-500 group ${
+        className={`bg-gradient-to-b from-[#111] to-[#0a0a0a] rounded-2xl border border-zinc-800 shadow-xl transition-all duration-300 overflow-hidden relative h-[420px] sm:h-[450px] flex flex-col p-0 ${
           isMarketClosed || needsResolution
             ? "opacity-75 cursor-default"
-            : "hover:shadow-2xl hover:shadow-orange-900/10 hover:border-zinc-700 cursor-pointer"
-        }`}
+            : "hover:shadow-orange-900/20 hover:border-orange-700 cursor-pointer"
+          } ${isVisible
+            ? "animate-reveal opacity-100"
+            : "opacity-0 translate-y-10 scale-95"
+          } ${!isInView && isVisible ? "scale-98" : ""}`}
+        style={{ transition: "transform 0.3s ease-out", animationDelay: `${index * 150}ms` }}
       >
-        {/* Card content with responsive improvements */}
-        <div className="absolute inset-0 bg-gradient-to-br from-orange-900/5 via-transparent to-transparent pointer-events-none opacity-70 group-hover:opacity-100 transition-opacity duration-500"></div>
-        <div className="absolute -top-20 -right-20 w-40 h-40 bg-orange-500/5 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-orange-900/10 via-transparent to-transparent pointer-events-none opacity-70 group-hover:opacity-100 transition-opacity duration-500"></div>
+        <div className="absolute -top-20 -right-20 w-40 h-40 bg-orange-500/10 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-700 animate-pulse-slow"></div>
 
-        {/* Market Closed/Resolved Overlay */}
         {isMarketClosed && data.isResolved && (
-          <div className="absolute inset-0 backdrop-blur-sm z-10 flex flex-col items-center justify-center">
-            <div className="rounded-xl p-6 text-center">
-              <Lock size={32} className="text-zinc-500 mx-auto mb-3" />
-              <h3 className="text-zinc-400 text-lg font-medium">
+          <div className="absolute inset-0 backdrop-blur-md z-10 flex flex-col items-center justify-center">
+            <div className="rounded-xl p-6 text-center bg-zinc-900/80">
+              <Lock size={32} className="text-zinc-400 mx-auto mb-3" />
+              <h3 className="text-zinc-300 text-lg font-semibold">
                 Market Resolved
               </h3>
               <p className="text-zinc-500 text-sm mt-1">
@@ -121,14 +159,13 @@ const EnhancedCard = ({
           </div>
         )}
 
-        {/* Needs Resolution Overlay for Creator */}
         {needsResolution && (
-          <div className="absolute inset-0 backdrop-blur-sm z-10 flex flex-col items-center justify-center">
-            <div className="rounded-xl p-6 text-center">
+          <div className="absolute inset-0 backdrop-blur-md z-10 flex flex-col items-center justify-center">
+            <div className="rounded-xl p-6 text-center bg-zinc-900/80">
               <div className="w-8 h-8 bg-orange-500 rounded-full mx-auto mb-3 flex items-center justify-center">
                 <span className="text-white text-sm font-bold">!</span>
               </div>
-              <h3 className="text-orange-400 text-lg font-medium">
+              <h3 className="text-orange-400 text-lg font-semibold">
                 Needs Resolution
               </h3>
               <p className="text-zinc-400 text-sm mt-1 mb-4">
@@ -147,12 +184,11 @@ const EnhancedCard = ({
           </div>
         )}
 
-        {/* Regular Market Closed Overlay */}
         {isMarketClosed && !data.isResolved && !isUserCreator && (
-          <div className="absolute inset-0 backdrop-blur-sm z-10 flex flex-col items-center justify-center">
-            <div className="rounded-xl p-6 text-center">
-              <Lock size={32} className="text-zinc-500 mx-auto mb-3" />
-              <h3 className="text-zinc-400 text-lg font-medium">
+          <div className="absolute inset-0 backdrop-blur-md z-10 flex flex-col items-center justify-center">
+            <div className="rounded-xl p-6 text-center bg-zinc-900/80">
+              <Lock size={32} className="text-zinc-400 mx-auto mb-3" />
+              <h3 className="text-zinc-300 text-lg font-semibold">
                 Market Closed
               </h3>
               <p className="text-zinc-500 text-sm mt-1">
@@ -162,9 +198,8 @@ const EnhancedCard = ({
           </div>
         )}
 
-        {/* Header Section */}
-        <div className="p-4 sm:p-5 pb-3 flex items-center gap-3 border-b border-zinc-800/20 flex-shrink-0">
-          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg overflow-hidden bg-gradient-to-br from-zinc-800 to-black p-0.5 shadow-md shadow-black/20 group-hover:shadow-orange-900/20 transition-all duration-500 flex-shrink-0">
+        <div className="p-4 sm:p-5 pb-3 flex items-center gap-3 border-b border-zinc-800 flex-shrink-0">
+          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg overflow-hidden bg-gradient-to-br from-zinc-700 to-black p-0.5 shadow-md shadow-black/20 group-hover:shadow-orange-900/20 transition-all duration-500 flex-shrink-0">
             <img
               src={data.image}
               alt={data.question}
@@ -174,7 +209,7 @@ const EnhancedCard = ({
             />
           </div>
           <h3
-            className={`text-white font-serif font-bold text-sm sm:text-base md:text-lg flex-1 tracking-wide transition-colors duration-300 line-clamp-2 leading-tight ${
+            className={`text-white font-medium text-sm sm:text-base md:text-lg flex-1 tracking-wide transition-colors duration-300 line-clamp-2 leading-tight ${
               !isMarketClosed ? "group-hover:text-orange-50" : ""
             }`}
           >
@@ -182,29 +217,25 @@ const EnhancedCard = ({
           </h3>
         </div>
 
-        {/* Content Section - Flexible */}
         <div className="px-4 sm:px-5 pt-3 sm:pt-4 flex-1 flex flex-col justify-between min-h-0">
-          {/* Description */}
           <div className="flex-1">
-            <p className="text-zinc-300 font-serif text-sm sm:text-base leading-relaxed tracking-wide line-clamp-3">
+            <p className="text-zinc-300 font-medium text-sm sm:text-base leading-relaxed tracking-wide line-clamp-3">
               {data.description}
             </p>
           </div>
 
-          {/* Enhanced Time Section with Better UTC Display */}
-          <div className="mt-4 rounded-lg p-3 transition-colors duration-300">
-            {/* Status indicator and countdown */}
+          <div className="mt-4 rounded-lg p-3 bg-zinc-900/50 transition-colors duration-300">
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center space-x-2">
                 <div
                   className={`w-2 h-2 rounded-full flex-shrink-0 ${
                     data.isResolved
-                      ? "bg-blue-500"
+                      ? "bg-orange-500"
                       : isMarketClosed
-                      ? "bg-red-500"
+                      ? "bg-zinc-500"
                       : isEndingSoon
-                      ? "bg-red-500 animate-pulse"
-                      : "bg-green-500"
+                      ? "bg-orange-500 animate-pulse"
+                      : "bg-orange-500"
                   }`}
                 ></div>
                 <span className="text-zinc-300 text-xs font-medium uppercase tracking-wide">
@@ -216,12 +247,11 @@ const EnhancedCard = ({
                 </span>
               </div>
 
-              {/* Show time left for active markets */}
               {!isMarketClosed && timeDifference > 0 && (
-                <div className="px-2 py-1 rounded-md">
+                <div className="px-2 py-1 rounded-md bg-orange-500/20">
                   <span
                     className={`text-xs font-semibold ${
-                      isEndingSoon ? "text-red-400" : "text-orange-400"
+                      isEndingSoon ? "text-orange-400" : "text-orange-400"
                     }`}
                   >
                     {timeInfo.relative}
@@ -230,6 +260,7 @@ const EnhancedCard = ({
               )}
             </div>
 
+            <div className="border-t border-zinc-600/50 pt-2 space-y-1">
             {/* Enhanced Date information with UTC display */}
             <div className="border-t border-zinc-700/50 pt-2 space-y-1">
               <div className="flex justify-between items-center">
@@ -262,8 +293,7 @@ const EnhancedCard = ({
           </div>
         </div>
 
-        {/* Footer Section */}
-        <div className="flex justify-between items-center p-4 sm:p-5 bg-gradient-to-r from-zinc-900/30 to-zinc-800/20 flex-shrink-0">
+        <div className="flex justify-between items-center p-4 sm:p-5 bg-gradient-to-r from-zinc-800/30 to-zinc-700/20 flex-shrink-0">
           <div className="flex items-center group/creator">
             <span
               className={`text-orange-400 font-bold text-xs sm:text-sm transition-colors duration-300 underline decoration-orange-500/30 underline-offset-2 decoration-1 truncate max-w-[80px] sm:max-w-[100px] ${
@@ -280,18 +310,17 @@ const EnhancedCard = ({
           </div>
 
           <div className="flex flex-col items-end">
-            <span className="text-zinc-500 font-serif text-xs truncate">
+            <span className="text-zinc-500 font-medium text-xs truncate">
               {TimeUtils.getRelativeTime(data.createdAt)}
             </span>
           </div>
         </div>
 
-        {/* Buy Options - Active Markets */}
         {hasBuyOptions && !isMarketClosed && !data.isResolved && (
-          <div className="px-4 sm:px-5 py-3 sm:py-4 bg-gradient-to-b from-transparent to-zinc-900/20 flex-shrink-0">
+          <div className="px-4 sm:px-5 py-3 sm:py-4 bg-gradient-to-b from-transparent to-zinc-800/30 flex-shrink-0">
             <div className="grid grid-cols-2 gap-3">
               <button
-                className="bg-gradient-to-br from-green-600 to-green-800 hover:from-green-500 hover:to-green-700 py-3 sm:py-3.5 rounded-lg text-xs sm:text-sm text-white flex items-center justify-center gap-2 transition-all duration-300 hover:shadow-lg hover:shadow-green-800/30 transform hover:translate-y-[-1px] group/buy font-semibold"
+                className="bg-zinc-800 hover:bg-zinc-700 py-3 sm:py-3.5 rounded-lg text-xs sm:text-sm text-white flex items-center justify-center gap-2 transition-all duration-300 hover:shadow-lg hover:shadow-orange-900/20 transform hover:translate-y-[-1px] group/buy font-medium"
                 onClick={(e) => {
                   e.stopPropagation();
                   navigate(`/trade/${data.id}`, {
@@ -312,7 +341,7 @@ const EnhancedCard = ({
                   });
                 }}
               >
-                <span>Buy Yes</span>
+                <span className="text-green-400">Buy Yes</span>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   width="12"
@@ -329,7 +358,7 @@ const EnhancedCard = ({
                 </svg>
               </button>
               <button
-                className="bg-gradient-to-br from-red-600 to-red-800 hover:from-red-500 hover:to-red-700 py-3 sm:py-3.5 rounded-lg text-xs sm:text-sm text-white flex items-center justify-center gap-2 transition-all duration-300 hover:shadow-lg hover:shadow-red-800/30 transform hover:translate-y-[-1px] group/buy font-semibold"
+                className="bg-zinc-800 hover:bg-zinc-700 py-3 sm:py-3.5 rounded-lg text-xs sm:text-sm text-white flex items-center justify-center gap-2 transition-all duration-300 hover:shadow-lg hover:shadow-orange-900/20 transform hover:translate-y-[-1px] group/buy font-medium"
                 onClick={(e) => {
                   e.stopPropagation();
                   navigate(`/trade/${data.id}`, {
@@ -350,7 +379,7 @@ const EnhancedCard = ({
                   });
                 }}
               >
-                <span>Buy No</span>
+                <span className="text-red-400">Buy No</span>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   width="12"
@@ -370,13 +399,12 @@ const EnhancedCard = ({
           </div>
         )}
 
-        {/* Closed/Resolved Market Footer */}
         {hasBuyOptions &&
           (isMarketClosed || data.isResolved) &&
           !needsResolution && (
-            <div className="px-4 sm:px-5 py-3 sm:py-4 bg-gradient-to-b from-transparent to-zinc-900/20 flex-shrink-0">
-              <div className="bg-zinc-800/50 rounded-lg py-3 text-center">
-                <span className="text-zinc-500 text-sm font-medium">
+            <div className="px-4 sm:px-5 py-3 sm:py-4 bg-gradient-to-b from-transparent to-zinc-800/30 flex-shrink-0">
+              <div className="bg-zinc-800/60 rounded-lg py-3 text-center">
+                <span className="text-zinc-400 text-sm font-medium">
                   {data.isResolved ? "Market Resolved" : "Trading Ended"}
                 </span>
                 <div className="text-xs text-zinc-600 mt-1">
@@ -394,6 +422,7 @@ const EnhancedCard = ({
             </div>
           )}
       </div>
+      </div>
 
       <MarketResolutionModal
         market={data}
@@ -405,3 +434,4 @@ const EnhancedCard = ({
 };
 
 export default MarketCards;
+

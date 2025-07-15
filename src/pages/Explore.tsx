@@ -80,39 +80,111 @@ const Explore = () => {
         </div>
       </div>
 
-      {/* Modern Markets Header Section */}
-      <div className="relative mb-12">
-        {/* Background glow effects */}
-        <div className="absolute inset-0 flex items-center justify-center opacity-20">
-          <div className="w-80 h-80 bg-gradient-to-r from-orange-500/20 to-orange-600/20 rounded-full blur-3xl animate-pulse"></div>
-        </div>
-        <div className="absolute inset-0 flex items-center justify-center opacity-10">
-          <div className="w-64 h-64 bg-gradient-to-r from-orange-400/30 to-orange-500/30 rounded-full blur-2xl animate-pulse delay-75"></div>
-        </div>
-
-        {/* Header bar: Markets + Arrows + Button */}
-        <div className="relative z-10 flex flex-col items-center text-center space-y-4 py-10">
-          <div className="flex flex-col sm:flex-row w-full items-center justify-between px-4 sm:px-8">
-            {/* Left: Markets heading */}
-            <div className="flex items-center mb-4 sm:mb-0">
-              <h1 className="text-4xl sm:text-5xl lg:text-5xl font-black bg-gradient-to-r from-white via-orange-200 to-orange-500 bg-clip-text text-transparent tracking-tight">
-                Markets
-              </h1>
-              {/* Arrows right of Markets */}
-              <div className="flex flex-col ml-3">
-                <svg className="w-4 h-4 text-orange-500 animate-bounce delay-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                  <path d="M19 9l-7 7-7-7" />
-                </svg>
-                <svg className="w-4 h-4 text-orange-500 animate-bounce delay-200" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                  <path d="M19 9l-7 7-7-7" />
-                </svg>
-                <svg className="w-4 h-4 text-orange-500 animate-bounce delay-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                  <path d="M19 9l-7 7-7-7" />
-                </svg>
-              </div>
+      {/* Enhanced Markets Header Section with Side Energy Waves */}
+      {/* up and down margin below line */}
+      <div className="relative mb-16 py-10">
+        {/* Left Side Energy Waves */}
+        <div className="absolute left-0 top-1/2 transform -translate-y-1/2 w-48 h-48 pointer-events-none">
+          <div className="relative w-full h-full">
+            {/* Geometric pattern */}
+            <div className="absolute inset-0">
+              <div className="w-29 h-1 bg-gradient-to-r from-transparent to-orange-500/50 animate-pulse-wave origin-left"></div>
+              <div className="w-32 h-1 bg-gradient-to-r from-transparent to-orange-500/40 animate-pulse-wave origin-left mt-8" style={{ animationDelay: '0.5s' }}></div>
+              <div className="w-20 h-1 bg-gradient-to-r from-transparent to-orange-500/60 animate-pulse-wave origin-left mt-16" style={{ animationDelay: '1s' }}></div>
+              <div className="w-28 h-0.5 bg-gradient-to-r from-transparent to-orange-500/30 animate-pulse-wave origin-left mt-20" style={{ animationDelay: '1.5s' }}></div>
             </div>
 
-            {/* Right: Create Prediction button */}
+            {/* Floating geometric shapes */}
+            <div className="absolute top-4 left-16 w-4 h-4 border-2 border-orange-500/50 rotate-45 animate-float"></div>
+            <div className="absolute bottom-8 left-20 w-3 h-3 bg-orange-500/60 rounded-full animate-pulse"></div>
+            <div className="absolute top-16 left-8 w-6 h-1 bg-orange-500/40 animate-fade-in-out"></div>
+            <div className="absolute top-24 left-12 w-2 h-2 border border-orange-500/40 animate-float-delayed"></div>
+            <div className="absolute bottom-16 left-6 w-8 h-0.5 bg-gradient-to-r from-orange-500/20 to-transparent animate-pulse-wave" style={{ animationDelay: '2s' }}></div>
+          </div>
+        </div>
+
+        {/* Right Side Energy Waves */}
+        <div className="absolute right-0 top-1/2 transform -translate-y-1/2 w-48 h-48 pointer-events-none">
+          <div className="relative w-full h-full">
+            {/* Geometric pattern - mirrored */}
+            <div className="absolute inset-0 scale-x-[-1]">
+              <div className="w-29 h-1 bg-gradient-to-r from-transparent to-orange-500/50 animate-pulse-wave origin-left"></div>
+              <div className="w-32 h-1 bg-gradient-to-r from-transparent to-orange-500/40 animate-pulse-wave origin-left mt-8" style={{ animationDelay: '0.5s' }}></div>
+              <div className="w-20 h-1 bg-gradient-to-r from-transparent to-orange-500/60 animate-pulse-wave origin-left mt-16" style={{ animationDelay: '1s' }}></div>
+              <div className="w-28 h-0.5 bg-gradient-to-r from-transparent to-orange-500/30 animate-pulse-wave origin-left mt-20" style={{ animationDelay: '1.5s' }}></div>
+            </div>
+
+            {/* Floating geometric shapes - mirrored */}
+            <div className="absolute top-4 right-16 w-4 h-4 border-2 border-orange-500/50 rotate-45 animate-float-delayed"></div>
+            <div className="absolute bottom-8 right-20 w-3 h-3 bg-orange-500/60 rounded-full animate-pulse"></div>
+            <div className="absolute top-16 right-8 w-6 h-1 bg-orange-500/40 animate-fade-in-out"></div>
+            <div className="absolute top-24 right-12 w-2 h-2 border border-orange-500/40 animate-float"></div>
+            <div className="absolute bottom-16 right-6 w-8 h-0.5 bg-gradient-to-l from-orange-500/20 to-transparent animate-pulse-wave" style={{ animationDelay: '2s' }}></div>
+          </div>
+        </div>
+
+        {/* Floating particles background */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-1/2 left-1/4 w-2 h-2 bg-orange-500/30 rounded-full animate-ping delay-0"></div>
+          <div className="absolute top-1/3 right-1/3 w-1 h-1 bg-orange-500/40 rounded-full animate-ping delay-300"></div>
+          <div className="absolute bottom-1/3 left-1/2 w-1.5 h-1.5 bg-orange-500/20 rounded-full animate-ping delay-700"></div>
+          <div className="absolute top-2/3 right-1/4 w-1 h-1 bg-orange-500/50 rounded-full animate-ping delay-1000"></div>
+          <div className="absolute top-1/4 left-3/4 w-1.5 h-1.5 bg-orange-500/25 rounded-full animate-ping delay-1500"></div>
+        </div>
+
+        {/* Main energy bar */}
+        <div className="relative flex items-center justify-center mb-8">
+          {/* Left flowing line */}
+          <div className="flex-1 h-0.5 bg-gradient-to-r from-transparent via-zinc-700 to-orange-500/50 relative overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent to-orange-500 opacity-60 animate-pulse"></div>
+            <div className="absolute inset-0 bg-gradient-to-r from-orange-500 to-transparent w-20 h-full animate-slide-right"></div>
+          </div>
+
+          {/* Center energy orb */}
+          <div className="relative mx-8">
+            <div className="w-16 h-16 rounded-full bg-gradient-to-r from-orange-500 to-orange-600 flex items-center justify-center relative">
+              {/* Pulsing rings */}
+              <div className="absolute inset-0 rounded-full border-2 border-orange-500/30 animate-ping"></div>
+              <div className="absolute inset-0 rounded-full border border-orange-500/20 animate-pulse delay-300"></div>
+
+              {/* Center icon */}
+              <Zap className="w-8 h-8 text-black animate-pulse" />
+
+              {/* Glow effect */}
+              <div className="absolute inset-0 rounded-full bg-orange-500/20 blur-xl animate-pulse"></div>
+            </div>
+          </div>
+
+          {/* Right flowing line */}
+          <div className="flex-1 h-0.5 bg-gradient-to-l from-transparent via-zinc-700 to-orange-500/50 relative overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-l from-transparent to-orange-500 opacity-60 animate-pulse"></div>
+            <div className="absolute inset-0 bg-gradient-to-l from-orange-500 to-transparent w-20 h-full animate-slide-left"></div>
+          </div>
+        </div>
+
+        {/* Markets heading with enhanced styling */}
+        <div className="text-center space-y-6">
+          <div className="relative inline-block">
+            {/* Background glow for heading */}
+            <div className="absolute inset-0 bg-gradient-to-r from-orange-500/10 to-orange-600/10 blur-3xl rounded-full"></div>
+
+            <h1 className="relative text-4xl sm:text-5xl lg:text-6xl font-black bg-gradient-to-r from-white via-orange-200 to-orange-500 bg-clip-text text-transparent tracking-tight">
+              Markets
+            </h1>
+
+            {/* Animated underline */}
+            <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-24 h-1 bg-gradient-to-r from-transparent via-orange-500 to-transparent rounded-full">
+              <div className="absolute inset-0 bg-gradient-to-r from-orange-500 to-orange-600 rounded-full animate-pulse"></div>
+              <div className="absolute inset-0 bg-white/20 rounded-full w-8 animate-slide-right"></div>
+            </div>
+          </div>
+
+          <p className="text-zinc-400 text-base sm:text-lg font-medium max-w-2xl mx-auto">
+            Discover the future of prediction markets
+          </p>
+
+          {/* Create Prediction button with enhanced positioning */}
+          <div className="pt-4">
             <Link
               to="/create-prediction"
               className="group relative inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-orange-500 to-orange-600 text-black font-bold text-base rounded-full shadow-xl hover:shadow-orange-500/25 transition-all duration-300 transform hover:scale-105 hover:-translate-y-1 active:scale-95"
@@ -125,16 +197,11 @@ const Explore = () => {
               </div>
             </Link>
           </div>
+        </div>
 
-          {/* Subheading centered */}
-          <p className="text-zinc-400 text-base sm:text-lg font-medium mt-2">
-            Discover the future of prediction markets
-          </p>
-
-          {/* Underline centered */}
-          <div className="relative w-24 h-1 bg-gradient-to-r from-transparent via-orange-500 to-transparent rounded-full mt-2">
-            <div className="absolute inset-0 bg-gradient-to-r from-orange-400 to-orange-600 rounded-full animate-pulse"></div>
-          </div>
+        {/* Bottom energy wave */}
+        <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-orange-500/30 to-transparent">
+          <div className="absolute inset-0 bg-gradient-to-r from-orange-500 to-transparent w-32 h-full animate-slide-right opacity-60"></div>
         </div>
       </div>
 

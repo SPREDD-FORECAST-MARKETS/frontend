@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback } from 'react';
 import { useParams, Link, useLocation } from 'react-router-dom';
 import type { TradeState, TimeframeOption, Market } from '../lib/interface';
@@ -23,14 +22,12 @@ const Trade = () => {
   const { marketId } = useParams<{ marketId: string }>();
   const location = useLocation();
 
-  const [marketData, setMarketData] = useState<Market | null>(null)
+  const [marketData, setMarketData] = useState<Market | null>(null);
 
-  // Extract marketData and initialBuy (for Yes/No buttons) from location state
   const passedState = location.state as {
     initialBuy?: boolean
   } | null;
 
-  // Initialize state with passed marketData if available
   const [state, setState] = useState<TradeState>({
     ...initialState,
     isBuy: passedState?.initialBuy ?? true,
@@ -53,11 +50,10 @@ const Trade = () => {
   const [isYes, setIsYes] = useState(true);
   const [isBuyState, setIsBuy] = useState(isBuy);
 
-
   const fetchMarketData = async () => {
     const data = await fetchMarket(marketId!);
     setMarketData(data);
-  }
+  };
 
   const fetchChartData = useCallback(() => {
     try {
@@ -77,12 +73,10 @@ const Trade = () => {
     }
   }, [activeTimeframe, marketId, updateState]);
 
-  // Handle timeframe change
   const handleTimeframeChange = (timeframe: TimeframeOption) => {
     updateState({ activeTimeframe: timeframe });
   };
 
-  // Handle chart refresh
   const refreshChart = () => {
     updateState({ status: 'loading' });
     setTimeout(() => {
@@ -102,36 +96,28 @@ const Trade = () => {
 
   const handleSubmitForecast = () => {
     if (!marketData || quantity <= 0) return;
-
-    // alert(`Forecast placed: ${isBuy ? 'YES - ' + marketData.outcomes.yes : 'NO - ' + marketData.outcomes.no} for $${quantity.toFixed(2)}`);
+    // Submit logic here
   };
 
-
-
-  // Initialize chart data when market data is ready
   useEffect(() => {
     if (status === 'success' && marketData && !chartData) {
       fetchChartData();
     }
   }, [fetchChartData, status, marketData, chartData]);
 
-  // Update chart when timeframe changes
   useEffect(() => {
     if (status === 'success' && chartData) {
       fetchChartData();
     }
   }, [activeTimeframe, fetchChartData, status, chartData]);
 
-
   useEffect(() => {
     fetchMarketData();
-  }, [])
+  }, []);
 
-
-  // Loading state
   if (status === 'loading' && !chartData) {
     return (
-      <div className="bg-[#0d1117] min-h-screen flex items-center justify-center">
+      <div className="bg-black min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-orange-500"></div>
       </div>
     );
@@ -139,27 +125,41 @@ const Trade = () => {
 
   if (!marketData) {
     return (
-      <div className="bg-[#0d1117] min-h-screen flex items-center justify-center">
-        <div className="text-white">No market data available</div>
+      <div className="bg-black min-h-screen flex items-center justify-center text-white">
+        No market data available
       </div>
     );
   }
 
   return (
-    <div className="bg-[#030303] min-h-screen font-sans text-white">
-      <div className="max-w-7xl mx-auto p-4">
-        <div className="mb-4">
-          <Link to="/" className="text-gray-400 hover:text-orange-500 transition-colors duration-200 flex items-center gap-2">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <div className="bg-black min-h-screen text-white">
+      <div className="max-w-7xl mx-auto p-6 sm:p-8">
+        {/* Back link */}
+        <div className="mb-6">
+          <Link
+            to="/"
+            className="text-gray-400 hover:text-orange-500 flex items-center gap-2 group"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
               <path d="m15 18-6-6 6-6" />
             </svg>
-            Back to Markets
+            <span className="group-hover:underline">Back to Markets</span>
           </Link>
         </div>
 
-        <div className="flex flex-col lg:flex-row gap-5">
-          <div className="lg:w-8/12 flex flex-col space-y-5">
-            {/* Chart Card */}
+        {/* Layout */}
+        <div className="flex flex-col lg:flex-row gap-6">
+          <div className="lg:w-3/5 flex flex-col gap-6">
+            {/* Chart */}
             <ChartCard
               marketData={marketData}
               chartData={chartData}
@@ -169,15 +169,14 @@ const Trade = () => {
               isLoading={status === 'loading'}
               onTimeframeChange={handleTimeframeChange}
               onRefresh={refreshChart}
-              marketId={"1"}
+              marketId={marketId!}
             />
 
-            <MarketInfoCard
-              marketData={marketData}
-            />
+            {/* Market info */}
+            <MarketInfoCard marketData={marketData} />
           </div>
 
-          <div className="lg:w-4/12">
+          <div className="lg:w-2/5">
             <TradingPanel
               marketData={marketData}
               isBuy={isBuyState}

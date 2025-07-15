@@ -64,8 +64,7 @@ const LeaderBoard = () => {
   };
 
   return (
-    <div className="bg-gradient-to-b from-black via-zinc-900 to-black rounded-2xl border border-zinc-800 shadow-xl hover:shadow-2xl transition-all duration-300 overflow-hidden">
-      {/* Header Section */}
+    <div className="bg-gradient-to-b from-[#111] to-[#0a0a0a] rounded-2xl border border-zinc-800 shadow-xl hover:shadow-2xl transition-all duration-300 overflow-hidden">
       <div className="p-6 pb-4 border-b border-zinc-800">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
@@ -84,8 +83,8 @@ const LeaderBoard = () => {
             <button
               onClick={() => handlePointTypeChange("CREATOR")}
               className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${leaderboardPointType === "CREATOR"
-                  ? "bg-orange-500 text-white shadow-md"
-                  : "text-zinc-400 hover:text-white hover:bg-zinc-700"
+                ? "bg-orange-500 text-white shadow-md"
+                : "text-zinc-400 hover:text-white hover:bg-zinc-700"
                 }`}
             >
               <Lightbulb className="w-4 h-4" />
@@ -94,8 +93,8 @@ const LeaderBoard = () => {
             <button
               onClick={() => handlePointTypeChange("TRADER")}
               className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${leaderboardPointType === "TRADER"
-                  ? "bg-orange-500 text-white shadow-md"
-                  : "text-zinc-400 hover:text-white hover:bg-zinc-700"
+                ? "bg-orange-500 text-white shadow-md"
+                : "text-zinc-400 hover:text-white hover:bg-zinc-700"
                 }`}
             >
               <TrendingUp className="w-4 h-4" />
@@ -105,7 +104,6 @@ const LeaderBoard = () => {
         </div>
       </div>
 
-      {/* Content Section */}
       <div className="p-6 pt-4">
         <div className="space-y-2 max-h-80 overflow-y-auto scrollbar-hide">
           {loading && isInitialLoad && (
