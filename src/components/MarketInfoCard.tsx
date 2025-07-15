@@ -9,7 +9,7 @@ const MarketInfoCard = ({ marketData }: MarketInfoCardProps) => {
   const { creator, createdAt, description, resolution_criteria, image, question } = marketData;
 
   return (
-    <div className="border border-[#222] rounded-lg overflow-hidden bg-[#0d1117] p-3 sm:p-4 md:p-5 shadow-lg">
+    <div className="border border-[#222] rounded-lg overflow-hidden bg-gradient-to-b from-[#111] to-[#0a0a0a] p-3 sm:p-4 md:p-5 shadow-lg">
       <div className="flex items-start justify-between mb-3 sm:mb-4 md:mb-5 flex-col sm:flex-row gap-3 sm:gap-4">
         <div className="flex items-center gap-3 sm:gap-4">
           <div className="min-w-[48px] sm:min-w-[56px] h-12 w-12 sm:h-14 sm:w-14 rounded-lg bg-gray-500 flex items-center justify-center">

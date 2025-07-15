@@ -683,7 +683,7 @@ const ChartCard = ({ marketData, marketId }: ChartCardProps) => {
   };
 
   return (
-    <div className="border border-[#222] rounded-lg overflow-hidden bg-[#0d1117] shadow-lg">
+    <div className="border border-[#222] rounded-lg overflow-hidden bg-gradient-to-b from-[#111] to-[#0a0a0a] shadow-lg">
       {/* Header */}
       <div className="px-5 py-4 border-b border-[#222] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
         <div className="flex items-center gap-3">

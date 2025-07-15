@@ -336,7 +336,7 @@ const TradingPanel = ({
   }, [quantity, isBuy, isYes, userSharesYes, userSharesNo, userBalance]);
 
   return (
-    <div className="bg-[#0d1117] rounded-lg border border-[#222] overflow-hidden h-full shadow-lg">
+    <div className="bg-gradient-to-b from-[#111] to-[#0a0a0a]rounded-lg border border-[#222] overflow-hidden h-full shadow-lg">
       {/* Buy/Sell tabs */}
       <div className="grid grid-cols-2">
         <button
