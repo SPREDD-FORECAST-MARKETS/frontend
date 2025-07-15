@@ -336,165 +336,188 @@ const TradingPanel = ({
   }, [quantity, isBuy, isYes, userSharesYes, userSharesNo, userBalance]);
 
   return (
-    <div className="bg-gradient-to-b from-[#111] to-[#0a0a0a]rounded-lg border border-[#222] overflow-hidden h-full shadow-lg">
-      {/* Buy/Sell tabs */}
-      <div className="grid grid-cols-2">
-        <button
-          className={`py-4 text-center font-medium text-lg transition-all ${
-            isBuy
-              ? "bg-green-600 text-white"
-              : "bg-[#0d1117] text-white hover:bg-[#171c21]"
-          }`}
-          onClick={() => onBuySellToggle(true)}
-        >
-          BUY
-        </button>
-        <button
-          className={`py-4 text-center font-medium text-lg transition-all ${
-            !isBuy
-              ? "bg-red-600 text-white"
-              : "bg-[#0d1117] text-white hover:bg-[#171c21]"
-          }`}
-          onClick={() => onBuySellToggle(false)}
-        >
-          SELL
-        </button>
+     <div className="bg-[#1a1a1a] rounded-2xl border border-[#2a2a2a] overflow-hidden shadow-2xl">
+      {/* Panel Header */}
+      <div className="bg-[#1a1a1a] px-6 py-4 border-b border-[#2a2a2a]">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+            </svg>
+          </div>
+          <div>
+            <h2 className="text-lg font-semibold text-white">Trading Panel</h2>
+            <p className="text-sm text-gray-400">Place your forecast</p>
+          </div>
+        </div>
       </div>
 
-      {/* Outcome section */}
-      <div className="p-5 border-b border-[#222]">
-        <h3 className="text-lg font-medium mb-4 text-white">Outcome</h3>
-        <div className="grid grid-cols-2 gap-4">
-          <div
-            className={`p-4 rounded transition-all cursor-pointer ${
+      {/* Buy/Sell Toggle */}
+      <div className="p-6 border-b border-[#2a2a2a]">
+        <div className="grid grid-cols-2 gap-2 p-1 bg-[#0f0f0f] rounded-lg">
+          <button
+            className={`py-3 px-4 rounded-md font-medium transition-all duration-200 ${
+              isBuy
+                ? "bg-green-500 text-white shadow-lg transform scale-105"
+                : "text-gray-400 hover:text-white hover:bg-[#1a1a1a]"
+            }`}
+            onClick={() => onBuySellToggle(true)}
+          >
+            BUY
+          </button>
+          <button
+            className={`py-3 px-4 rounded-md font-medium transition-all duration-200 ${
+              !isBuy
+                ? "bg-red-500 text-white shadow-lg transform scale-105"
+                : "text-gray-400 hover:text-white hover:bg-[#1a1a1a]"
+            }`}
+            onClick={() => onBuySellToggle(false)}
+          >
+            SELL
+          </button>
+        </div>
+      </div>
+
+      {/* Outcome Selection */}
+      <div className="p-6 border-b border-[#2a2a2a]">
+        <h3 className="text-sm font-medium text-gray-400 mb-4">Outcome</h3>
+        <div className="grid grid-cols-2 gap-3">
+          <button
+            className={`p-4 rounded-xl transition-all duration-200 border-2 ${
               isYes
-                ? "bg-[#132416] border border-green-900"
-                : "bg-[#171c21] hover:bg-[#1f2429]"
+                ? "bg-green-500/10 border-green-500 shadow-lg shadow-green-500/20"
+                : "bg-[#0f0f0f] border-[#2a2a2a] hover:border-green-500/50"
             }`}
             onClick={() => onYesNoToggle(true)}
           >
-            <div className="flex flex-col items-center text-center">
-              <div className="flex items-center mb-2">
-                <span className="h-6 w-6 rounded-full bg-green-600 text-white flex items-center justify-center text-xs mr-2">
-                  Y
-                </span>
-                <span className="text-green-500 font-bold">YES</span>
+            <div className="text-center">
+              <div className="flex items-center justify-center gap-2 mb-2">
+                <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
+                  <span className="text-white text-xs font-bold">Y</span>
+                </div>
+                <span className="text-green-500 font-bold text-sm">YES</span>
               </div>
-              <span className="text-[#ccc] font-medium text-sm">
+              <div className="text-white font-medium">
                 {isBuy ? (
-                  `${priceYes.toFixed(2)}`
+                  `$${priceYes.toFixed(2)}`
                 ) : (
-                  <span className="flex items-center">
-                    <span className="text-xs mr-1">S</span>
-                    {userSharesYes > 999999
-                      ? `${(userSharesYes / 1000000).toFixed(1)}M`
-                      : userSharesYes > 9999
-                      ? `${(userSharesYes / 1000).toFixed(1)}K`
-                      : userSharesYes.toString()}
+                  <span className="text-xs text-gray-400">
+                    {userSharesYes.toLocaleString()} shares
                   </span>
                 )}
-              </span>
+              </div>
             </div>
-          </div>
-          <div
-            className={`p-4 rounded transition-all cursor-pointer ${
+          </button>
+
+          <button
+            className={`p-4 rounded-xl transition-all duration-200 border-2 ${
               !isYes
-                ? "bg-[#241313] border border-red-900"
-                : "bg-[#171c21] hover:bg-[#1f2429]"
+                ? "bg-red-500/10 border-red-500 shadow-lg shadow-red-500/20"
+                : "bg-[#0f0f0f] border-[#2a2a2a] hover:border-red-500/50"
             }`}
             onClick={() => onYesNoToggle(false)}
           >
-            <div className="flex flex-col items-center text-center">
-              <div className="flex items-center mb-2">
-                <span className="h-6 w-6 rounded-full bg-red-600 text-white flex items-center justify-center text-xs mr-2">
-                  N
-                </span>
-                <span className="text-red-500 font-bold">NO</span>
+            <div className="text-center">
+              <div className="flex items-center justify-center gap-2 mb-2">
+                <div className="w-6 h-6 bg-red-500 rounded-full flex items-center justify-center">
+                  <span className="text-white text-xs font-bold">N</span>
+                </div>
+                <span className="text-red-500 font-bold text-sm">NO</span>
               </div>
-              <span className="text-[#ccc] font-medium text-sm">
+              <div className="text-white font-medium">
                 {isBuy ? (
-                  `${priceNo.toFixed(2)}`
+                  `$${priceNo.toFixed(2)}`
                 ) : (
-                  <span className="flex items-center">
-                    <span className="text-xs mr-1">S</span>
-                    {userSharesNo > 999999
-                      ? `${(userSharesNo / 1000000).toFixed(1)}M`
-                      : userSharesNo > 9999
-                      ? `${(userSharesNo / 1000).toFixed(1)}K`
-                      : userSharesNo.toString()}
+                  <span className="text-xs text-gray-400">
+                    {userSharesNo.toLocaleString()} shares
                   </span>
                 )}
-              </span>
+              </div>
             </div>
-          </div>
+          </button>
         </div>
       </div>
 
-      {/* Amount input */}
-      <div className="p-5 border-b border-[#222]">
-        <div className="flex justify-between items-center mb-3">
-          <h3 className="text-lg font-medium text-white">
+      {/* Amount Input */}
+      <div className="p-6 border-b border-[#2a2a2a]">
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-sm font-medium text-gray-400">
             {isBuy ? "Forecast Amount (USDT)" : "Shares to Sell"}
           </h3>
+          <span className="text-xs text-gray-500">
+            Available: {isBuy ? `$${userBalance?.value ? formatUnits(userBalance.value, userBalance.decimals!) : '0'}` : `${isYes ? userSharesYes : userSharesNo} shares`}
+          </span>
         </div>
+        
         <div className="relative">
           <input
             type="number"
             value={quantity}
             onChange={handleQuantityChange}
-            className="w-full bg-[#171c21] border border-[#333] rounded px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500"
+            className="w-full bg-[#0f0f0f] border-2 border-[#2a2a2a] rounded-xl px-4 py-4 text-white text-lg font-medium focus:outline-none focus:border-orange-500 transition-colors"
+            placeholder="0"
             min="0"
             step={isBuy ? "0.01" : "1"}
           />
           <button
             onClick={handleMaxClick}
-            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-xs text-[#888] bg-[#232830] px-2 py-1 rounded hover:bg-[#2c3136]"
+            className="absolute right-4 top-1/2 transform -translate-y-1/2 text-xs text-orange-500 bg-orange-500/10 px-3 py-1 rounded-md hover:bg-orange-500/20 transition-colors font-medium"
           >
             MAX
           </button>
         </div>
 
-        <div className="grid grid-cols-3 gap-3 mt-3">
+        {/* Quick Amount Buttons */}
+        <div className="grid grid-cols-3 gap-2 mt-4">
           <button
             onClick={() => onQuantityChange(0)}
-            className="bg-[#171c21] text-[#ccc] py-2 rounded text-sm hover:bg-[#1f2429] transition-colors"
+            className="bg-[#0f0f0f] border border-[#2a2a2a] text-gray-400 py-2 rounded-lg text-sm hover:bg-[#1a1a1a] hover:text-white transition-colors"
           >
             Reset
           </button>
           <button
             onClick={() => onQuantityChange(isBuy ? 10 : 10)}
-            className="bg-[#171c21] text-[#ccc] py-2 rounded text-sm hover:bg-[#1f2429] transition-colors"
+            className="bg-[#0f0f0f] border border-[#2a2a2a] text-gray-400 py-2 rounded-lg text-sm hover:bg-[#1a1a1a] hover:text-white transition-colors"
           >
-            {isBuy ? "$10" : "10 Shares"}
+            {isBuy ? "$10" : "10"}
           </button>
           <button
             onClick={() => onQuantityChange(isBuy ? 50 : 50)}
-            className="bg-[#171c21] text-[#ccc] py-2 rounded text-sm hover:bg-[#1f2429] transition-colors"
+            className="bg-[#0f0f0f] border border-[#2a2a2a] text-gray-400 py-2 rounded-lg text-sm hover:bg-[#1a1a1a] hover:text-white transition-colors"
           >
-            {isBuy ? "$50" : "50 Shares"}
+            {isBuy ? "$50" : "50"}
           </button>
         </div>
       </div>
 
-      {/* Potential returns */}
-      <div className="p-5 border-b border-[#222]">
-        <div className="flex justify-between items-center">
-          <span className="text-[#888]">
-            {isBuy ? "Potential forecast points:" : "Potential returns:"}
-          </span>
-          <span className="text-white font-medium">
-            {isBuy
-              ? `${calculateReturn(quantity, isBuy)} FP`
-              : `$${(quantity * (isYes ? priceYes : priceNo)).toFixed(2)}`}
-          </span>
-        </div>
-        <div className="flex justify-between items-center mt-2">
-          <span className="text-[#888]">
-            {isBuy ? "Total Shares" : "Shares to Sell"}
-          </span>
-          <span className="text-white font-medium">
-            {totalShares.toFixed(0)} {isYes ? "YES" : "NO"}
-          </span>
+      {/* Trade Summary */}
+      <div className="p-6 border-b border-[#2a2a2a] bg-[#0f0f0f]/50">
+        <h3 className="text-sm font-medium text-gray-400 mb-4">Trade Summary</h3>
+        <div className="space-y-3">
+          <div className="flex justify-between items-center">
+            <span className="text-sm text-gray-400">
+              {isBuy ? "Forecast Points:" : "Potential Returns:"}
+            </span>
+            <span className="text-white font-medium">
+              {isBuy
+                ? `${calculateReturn(quantity, isBuy)} FP`
+                : `$${(quantity * (isYes ? priceYes : priceNo)).toFixed(2)}`}
+            </span>
+          </div>
+          
+          <div className="flex justify-between items-center">
+            <span className="text-sm text-gray-400">Total Shares:</span>
+            <span className="text-white font-medium">
+              {totalShares.toFixed(0)} {isYes ? "YES" : "NO"}
+            </span>
+          </div>
+          
+          <div className="flex justify-between items-center">
+            <span className="text-sm text-gray-400">Price per Share:</span>
+            <span className="text-white font-medium">
+              ${(isYes ? priceYes : priceNo).toFixed(2)}
+            </span>
+          </div>
         </div>
       </div>
 
