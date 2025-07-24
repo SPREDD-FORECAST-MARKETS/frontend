@@ -16,6 +16,36 @@ export const FACTORY_ABI = [
 		"type": "error"
 	},
 	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "token",
+				"type": "address"
+			}
+		],
+		"name": "SafeERC20FailedOperation",
+		"type": "error"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "to",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "amount",
+				"type": "uint256"
+			}
+		],
+		"name": "FactoryFeesWithdrawn",
+		"type": "event"
+	},
+	{
 		"anonymous": false,
 		"inputs": [
 			{
@@ -74,6 +104,19 @@ export const FACTORY_ABI = [
 		"anonymous": false,
 		"inputs": [
 			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "newFee",
+				"type": "uint256"
+			}
+		],
+		"name": "MarketCreationFeeUpdated",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
 				"indexed": true,
 				"internalType": "address",
 				"name": "prevOwner",
@@ -116,6 +159,10 @@ export const FACTORY_ABI = [
 		"type": "event"
 	},
 	{
+		"stateMutability": "payable",
+		"type": "fallback"
+	},
+	{
 		"inputs": [
 			{
 				"internalType": "address",
@@ -148,6 +195,19 @@ export const FACTORY_ABI = [
 		"type": "function"
 	},
 	{
+		"inputs": [],
+		"name": "collectedFees",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
 		"inputs": [
 			{
 				"internalType": "string",
@@ -166,7 +226,7 @@ export const FACTORY_ABI = [
 			},
 			{
 				"internalType": "uint256",
-				"name": "_duration",
+				"name": "_endTime",
 				"type": "uint256"
 			}
 		],
@@ -183,7 +243,7 @@ export const FACTORY_ABI = [
 				"type": "address"
 			}
 		],
-		"stateMutability": "nonpayable",
+		"stateMutability": "payable",
 		"type": "function"
 	},
 	{
@@ -194,6 +254,32 @@ export const FACTORY_ABI = [
 				"internalType": "contract WeeklyForecastPointManager",
 				"name": "",
 				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "getAllMarkets",
+		"outputs": [
+			{
+				"internalType": "bytes32[]",
+				"name": "",
+				"type": "bytes32[]"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "getCollectedFees",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
 			}
 		],
 		"stateMutability": "view",
@@ -232,6 +318,19 @@ export const FACTORY_ABI = [
 		"type": "function"
 	},
 	{
+		"inputs": [],
+		"name": "getMarketCreationFee",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
 		"inputs": [
 			{
 				"internalType": "bytes32",
@@ -239,16 +338,123 @@ export const FACTORY_ABI = [
 				"type": "bytes32"
 			}
 		],
-		"name": "getMarketPrices",
+		"name": "getMarketDetails",
 		"outputs": [
 			{
+				"internalType": "string",
+				"name": "question",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "optionA",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "optionB",
+				"type": "string"
+			},
+			{
 				"internalType": "uint256",
-				"name": "priceA",
+				"name": "endTime",
+				"type": "uint256"
+			},
+			{
+				"internalType": "bool",
+				"name": "resolved",
+				"type": "bool"
+			},
+			{
+				"internalType": "uint256",
+				"name": "volumeA",
 				"type": "uint256"
 			},
 			{
 				"internalType": "uint256",
-				"name": "priceB",
+				"name": "volumeB",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "totalVolume",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "oddsA",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "oddsB",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "bettorCount",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "bytes32",
+				"name": "_marketId",
+				"type": "bytes32"
+			}
+		],
+		"name": "getMarketOdds",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "oddsA",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "oddsB",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "totalVolume",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "getMarketStats",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "totalMarkets",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "totalTVL",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "activeMarkets",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "totalBets",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "totalBettors",
 				"type": "uint256"
 			}
 		],
@@ -294,18 +500,64 @@ export const FACTORY_ABI = [
 		"type": "function"
 	},
 	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_token",
+				"type": "address"
+			}
+		],
+		"name": "getMarketsByToken",
+		"outputs": [
+			{
+				"internalType": "bytes32[]",
+				"name": "",
+				"type": "bytes32[]"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "getSupportedTokens",
+		"outputs": [
+			{
+				"internalType": "address[]",
+				"name": "",
+				"type": "address[]"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
 		"inputs": [],
 		"name": "getTotalValueLocked",
 		"outputs": [
 			{
-				"internalType": "address[]",
-				"name": "tokens",
-				"type": "address[]"
-			},
+				"internalType": "uint256",
+				"name": "totalTVL",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
 			{
-				"internalType": "uint256[]",
-				"name": "values",
-				"type": "uint256[]"
+				"internalType": "address",
+				"name": "_token",
+				"type": "address"
+			}
+		],
+		"name": "isTokenSupported",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
 			}
 		],
 		"stateMutability": "view",
@@ -314,6 +566,19 @@ export const FACTORY_ABI = [
 	{
 		"inputs": [],
 		"name": "marketCount",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "marketCreationFee",
 		"outputs": [
 			{
 				"internalType": "uint256",
@@ -402,6 +667,19 @@ export const FACTORY_ABI = [
 	{
 		"inputs": [
 			{
+				"internalType": "uint256",
+				"name": "_amount",
+				"type": "uint256"
+			}
+		],
+		"name": "receiveFactoryFees",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
 				"internalType": "address",
 				"name": "_token",
 				"type": "address"
@@ -421,6 +699,19 @@ export const FACTORY_ABI = [
 			}
 		],
 		"name": "setFPManager",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "_newFee",
+				"type": "uint256"
+			}
+		],
+		"name": "setMarketCreationFee",
 		"outputs": [],
 		"stateMutability": "nonpayable",
 		"type": "function"
@@ -512,5 +803,29 @@ export const FACTORY_ABI = [
 		],
 		"stateMutability": "view",
 		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "withdrawETH",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_to",
+				"type": "address"
+			}
+		],
+		"name": "withdrawFactoryFees",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"stateMutability": "payable",
+		"type": "receive"
 	}
 ]

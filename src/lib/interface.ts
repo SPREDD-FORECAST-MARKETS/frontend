@@ -190,6 +190,5 @@ export interface FormData {
   endTime: string;
   image?: File;
   description: string;
-  initialLiquidity: string;
   createOnChain: boolean;
 }

@@ -4,19 +4,15 @@ import { useToast } from "../hooks/useToast";
 import { uploadFile } from "../apis/files";
 import { createMarket } from "../apis/market";
 import { getAccessToken } from "@privy-io/react-auth";
-import { useCreateMarket, useInitializeMarket } from "../hooks/useCreateMarket";
+import { useCreateMarket } from "../hooks/useCreateMarket";
 import React from "react";
 import { useSwitchChain, useWaitForTransactionReceipt } from "wagmi";
 import { decodeEventLog, parseAbiItem } from "viem";
 import { baseSepolia } from "viem/chains";
-import { useUsdtToken } from "../hooks/useToken";
-import { CONTRACT_ADDRESSES } from "../utils/wagmiConfig";
 import type { FormData } from "../lib/interface";
 import { UTCTimeHelpers } from "../utils/helpers";
 
-
 const MAX_IMAGE_SIZE = 1024 * 1024;
-
 
 const CreatePredictionForm = () => {
   const { error, success } = useToast();
@@ -29,7 +25,6 @@ const CreatePredictionForm = () => {
     tags: ["Crypto"],
     endDate: "",
     endTime: "",
-    initialLiquidity: "10",
     createOnChain: true,
   });
 
@@ -38,7 +33,6 @@ const CreatePredictionForm = () => {
   const [marketContractAddress, setMarketContractAddress] = useState<string | null>(null);
   const [marketId, setMarketId] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [, setHasInitialized] = useState(false);
 
   const [confirmedEndTimeUTC, setConfirmedEndTimeUTC] = useState<number | null>(null);
 
@@ -53,9 +47,6 @@ const CreatePredictionForm = () => {
   const marketCreatedEvent = parseAbiItem(
     "event MarketCreated(bytes32 indexed marketId, address indexed marketContract, address indexed owner, address token, string question, string optionA, string optionB, uint256 endTime)"
   );
-
-  const { initializeMarket } = useInitializeMarket();
-  const { approve } = useUsdtToken();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -119,14 +110,14 @@ const CreatePredictionForm = () => {
       
       setConfirmedEndTimeUTC(endTimeUTC);
 
+      console.log("Creating market with endTimeUTC:", endTimeUTC);
 
-      // here i am passing utc time in smart contract directly
-      // it wil not end the market as current logic involves blocktimestamp + duration for market ending
+      // Create smart contract market - no token approval or initialization needed
       await createSmartContractMarket(
         formData.title,
         formData.options[0],
         formData.options[1],
-        endTimeUTC  // please pay attention to this 
+        endTimeUTC
       );
     } catch (err) {
       console.error("Error in handleSubmit:", err);
@@ -136,28 +127,12 @@ const CreatePredictionForm = () => {
     }
   };
 
+  // Handle market creation success and database storage
   useEffect(() => {
-    if (marketContractAddress === null || confirmedEndTimeUTC === null) return;
+    if (!marketContractAddress || !marketId || !confirmedEndTimeUTC) return;
 
-    const handleMarketInitialization = async () => {
+    const handleDatabaseStorage = async () => {
       try {
-        await approve({
-          tokenAddress: CONTRACT_ADDRESSES.token as `0x${string}`,
-          spender: marketContractAddress as `0x${string}`,
-          usdAmount: parseFloat(formData.initialLiquidity),
-          decimals: 6,
-        });
-      } catch {
-        error("Couldn't approve USDT token");
-        return;
-      }
-
-      try {
-        await initializeMarket(
-          marketContractAddress as `0x${string}`,
-          formData.initialLiquidity
-        );
-
         const dbDateString = new Date(confirmedEndTimeUTC * 1000).toISOString();
 
         console.log('Storing in database:');
@@ -174,7 +149,7 @@ const CreatePredictionForm = () => {
           uploadedImageUrl ||
             "https://rrgzufevhpeypfviivan.supabase.co/storage/v1/object/public/spreadd/market/1750689653867_photo_5103127210662931859_y.jpg",
           marketContractAddress,
-          marketId || "",
+          marketId,
           formData.tags || null
         );
 
@@ -184,18 +159,35 @@ const CreatePredictionForm = () => {
         }
 
         success("Prediction created successfully!");
+        
+        // Reset form state
         setImagePreview(null);
-        setHasInitialized(false);
-        success("Market initialization transaction submitted!");
+        setMarketContractAddress(null);
+        setMarketId(null);
+        setConfirmedEndTimeUTC(null);
+        
+        // Optionally reset form data
+        setFormData({
+          title: "",
+          options: ["Yes", "No"],
+          description: "",
+          resolutionCriteria: "",
+          tags: [""],
+          endDate: "",
+          endTime: "",
+          createOnChain: true,
+        });
+
       } catch (err) {
-        console.error("Error initializing market:", err);
-        error("Failed to initialize market");
+        console.error("Error storing market in database:", err);
+        error("Market created on blockchain but failed to store in database");
       }
     };
 
-    handleMarketInitialization();
-  }, [marketContractAddress, confirmedEndTimeUTC]);
+    handleDatabaseStorage();
+  }, [marketContractAddress, marketId, confirmedEndTimeUTC]);
 
+  // Parse transaction receipt for market creation event
   useEffect(() => {
     if (!receipt?.logs) return;
 
@@ -215,6 +207,7 @@ const CreatePredictionForm = () => {
           setMarketContractAddress(marketContract);
           setMarketId(marketId);
           
+          // Verify timestamp consistency
           if (confirmedEndTimeUTC && Number(contractEndTime) !== confirmedEndTimeUTC) {
             console.warn('Timestamp mismatch!', {
               stored: confirmedEndTimeUTC,
@@ -222,12 +215,11 @@ const CreatePredictionForm = () => {
             });
           }
 
-          success("Market created successfully!");
+          success("Market created on blockchain successfully!");
           break;
         }
-      } catch (error:any) {
-        setMarketContractAddress(null);
-        console.log(error)
+      } catch (error: any) {
+        console.error("Error parsing MarketCreated event:", error);
       }
     }
   }, [receipt, confirmedEndTimeUTC]);
@@ -364,24 +356,6 @@ const CreatePredictionForm = () => {
                   required
                 />
               </div>
-            </div>
-
-            <div>
-              <label htmlFor="initialLiquidity" className="block text-gray-400 font-medium mb-3 text-xs uppercase tracking-wider">
-                Initial Liquidity (USDT)
-              </label>
-              <input
-                type="number"
-                id="initialLiquidity"
-                name="initialLiquidity"
-                value={formData.initialLiquidity}
-                onChange={handleInputChange}
-                step="0.001"
-                min="0.001"
-                placeholder="Enter initial liquidity amount"
-                className="w-full bg-[#111] border border-zinc-800 rounded-xl px-5 py-4 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-600/50 transition-all duration-300 shadow-inner"
-                required
-              />
             </div>
 
             <button
