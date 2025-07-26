@@ -120,317 +120,313 @@ const EnhancedCard = ({
     navigate(`/trade/${data.id}`, { state: { marketData } });
   };
 
-  return (
-    <>
-      <div
-        ref={cardRef}
-        onClick={!isMarketClosed && !needsResolution ? handleCardClick : undefined}
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
-        className={`bg-gradient-to-b from-[#111] to-[#0a0a0a] rounded-2xl border border-zinc-800 shadow-xl transition-all duration-300 overflow-hidden relative h-[420px] sm:h-[450px] flex flex-col p-0 ${
-          isMarketClosed || needsResolution
-            ? "opacity-75 cursor-default"
-            : "hover:shadow-orange-900/20 hover:border-orange-700 cursor-pointer"
-          } ${isVisible
-            ? "animate-reveal opacity-100"
-            : "opacity-0 translate-y-10 scale-95"
-          } ${!isInView && isVisible ? "scale-98" : ""}`}
-        style={{ transition: "transform 0.3s ease-out", animationDelay: `${index * 150}ms` }}
-      >
-        <div className="absolute inset-0 bg-gradient-to-br from-orange-900/10 via-transparent to-transparent pointer-events-none opacity-70 group-hover:opacity-100 transition-opacity duration-500"></div>
-        <div className="absolute -top-20 -right-20 w-40 h-40 bg-orange-500/10 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-700 animate-pulse-slow"></div>
+ return (
+  <>
+    <div
+      ref={cardRef}
+      onClick={!isMarketClosed && !needsResolution ? handleCardClick : undefined}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      className={`
+        relative group
+        bg-gradient-to-br from-zinc-900/90 via-zinc-800/80 to-black/90
+        backdrop-blur-xl border border-zinc-700/50
+        rounded-3xl shadow-2xl shadow-black/50
+        transition-all duration-500 ease-out
+        overflow-hidden
+        min-h-[480px] max-h-[520px]
+        flex flex-col p-0
+        ${isMarketClosed || needsResolution
+          ? "opacity-70 cursor-default scale-98"
+          : "hover:shadow-orange-500/20 hover:shadow-2xl hover:border-orange-500/30 hover:scale-[1.02] cursor-pointer"
+        }
+        ${isVisible
+          ? "animate-reveal opacity-100"
+          : "opacity-0 translate-y-10 scale-95"
+        }
+        ${!isInView && isVisible ? "scale-98" : ""}
+        before:absolute before:inset-0 
+        before:bg-gradient-to-br before:from-white/5 before:via-transparent before:to-transparent
+        before:opacity-0 before:group-hover:opacity-100 before:transition-opacity before:duration-700
+        after:absolute after:inset-0 
+        after:bg-gradient-to-t after:from-orange-500/5 after:via-transparent after:to-transparent
+        after:opacity-0 after:group-hover:opacity-100 after:transition-opacity after:duration-500
+      `}
+      style={{ 
+        transition: "all 0.5s cubic-bezier(0.4, 0, 0.2, 1)", 
+        animationDelay: `${index * 150}ms`,
+        backdropFilter: 'blur(20px)',
+        background: `
+          linear-gradient(135deg, 
+            rgba(39, 39, 42, 0.9) 0%, 
+            rgba(24, 24, 27, 0.8) 50%, 
+            rgba(0, 0, 0, 0.9) 100%
+          )
+        `
+      }}
+    >
+      {/* Enhanced Glassmorphism Overlay */}
+      <div className="absolute inset-0 bg-gradient-to-br from-orange-500/10 via-transparent to-purple-500/5 opacity-60 group-hover:opacity-100 transition-opacity duration-700"></div>
+      
+      {/* Animated Glow Effects */}
+      <div className="absolute -top-24 -right-24 w-48 h-48 bg-gradient-radial from-orange-500/20 to-transparent rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-all duration-1000 animate-pulse-slow"></div>
+      <div className="absolute -bottom-12 -left-12 w-32 h-32 bg-gradient-radial from-orange-400/15 to-transparent rounded-full blur-2xl opacity-0 group-hover:opacity-80 transition-all duration-1000 delay-200"></div>
 
-        {isMarketClosed && data.isResolved && (
-          <div className="absolute inset-0 backdrop-blur-md z-10 flex flex-col items-center justify-center">
-            <div className="rounded-xl p-6 text-center bg-zinc-900/80">
-              <Lock size={32} className="text-zinc-400 mx-auto mb-3" />
-              <h3 className="text-zinc-300 text-lg font-semibold">
+      {/* Status Overlays - Enhanced */}
+      {isMarketClosed && data.isResolved && (
+        <div className="absolute inset-0 backdrop-blur-2xl bg-black/60 z-20 flex flex-col items-center justify-center">
+          <div className="relative bg-gradient-to-br from-zinc-800/90 to-zinc-900/90 backdrop-blur-xl rounded-2xl p-8 text-center border border-zinc-600/30 shadow-2xl">
+            <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent rounded-2xl"></div>
+            <div className="relative z-10">
+              <Lock size={40} className="text-zinc-300 mx-auto mb-4 drop-shadow-lg" />
+              <h3 className="text-zinc-100 text-xl font-bold mb-2 tracking-wide">
                 Market Resolved
               </h3>
-              <p className="text-zinc-500 text-sm mt-1">
+              <p className="text-zinc-400 text-sm mb-4">
                 This market has been resolved
               </p>
               {data.outcomeWon && (
-                <p className="text-orange-400 text-sm mt-2 font-semibold">
-                  Winner: {data.winningOutcome}
-                </p>
-              )}
-            </div>
-          </div>
-        )}
-
-        {needsResolution && (
-          <div className="absolute inset-0 backdrop-blur-md z-10 flex flex-col items-center justify-center">
-            <div className="rounded-xl p-6 text-center bg-zinc-900/80">
-              <div className="w-8 h-8 bg-orange-500 rounded-full mx-auto mb-3 flex items-center justify-center">
-                <span className="text-white text-sm font-bold">!</span>
-              </div>
-              <h3 className="text-orange-400 text-lg font-semibold">
-                Needs Resolution
-              </h3>
-              <p className="text-zinc-400 text-sm mt-1 mb-4">
-                This market has ended and needs to be resolved
-              </p>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setShowResolutionModal(true);
-                }}
-                className="bg-orange-500 hover:bg-orange-600 text-white font-semibold px-4 py-2 rounded-lg transition-colors duration-200"
-              >
-                Resolve Market
-              </button>
-            </div>
-          </div>
-        )}
-
-        {isMarketClosed && !data.isResolved && !isUserCreator && (
-          <div className="absolute inset-0 backdrop-blur-md z-10 flex flex-col items-center justify-center">
-            <div className="rounded-xl p-6 text-center bg-zinc-900/80">
-              <Lock size={32} className="text-zinc-400 mx-auto mb-3" />
-              <h3 className="text-zinc-300 text-lg font-semibold">
-                Market Closed
-              </h3>
-              <p className="text-zinc-500 text-sm mt-1">
-                Trading has ended, awaiting resolution
-              </p>
-            </div>
-          </div>
-        )}
-
-        <div className="p-4 sm:p-5 pb-3 flex items-center gap-3 border-b border-zinc-800 flex-shrink-0">
-          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg overflow-hidden bg-gradient-to-br from-zinc-700 to-black p-0.5 shadow-md shadow-black/20 group-hover:shadow-orange-900/20 transition-all duration-500 flex-shrink-0">
-            <img
-              src={data.image}
-              alt={data.question}
-              className={`w-full h-full object-cover rounded-md transition-transform duration-500 ${
-                !isMarketClosed ? "group-hover:scale-110" : ""
-              }`}
-            />
-          </div>
-          <h3
-            className={`text-white font-medium text-sm sm:text-base md:text-lg flex-1 tracking-wide transition-colors duration-300 line-clamp-2 leading-tight ${
-              !isMarketClosed ? "group-hover:text-orange-50" : ""
-            }`}
-          >
-            {data.question}
-          </h3>
-        </div>
-
-        <div className="px-4 sm:px-5 pt-3 sm:pt-4 flex-1 flex flex-col justify-between min-h-0">
-          <div className="flex-1">
-            <p className="text-zinc-300 font-medium text-sm sm:text-base leading-relaxed tracking-wide line-clamp-3">
-              {data.description}
-            </p>
-          </div>
-
-          <div className="mt-4 rounded-lg p-3 bg-zinc-900/50 transition-colors duration-300">
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center space-x-2">
-                <div
-                  className={`w-2 h-2 rounded-full flex-shrink-0 ${
-                    data.isResolved
-                      ? "bg-orange-500"
-                      : isMarketClosed
-                      ? "bg-zinc-500"
-                      : isEndingSoon
-                      ? "bg-orange-500 animate-pulse"
-                      : "bg-orange-500"
-                  }`}
-                ></div>
-                <span className="text-zinc-300 text-xs font-medium uppercase tracking-wide">
-                  {data.isResolved
-                    ? "Resolved"
-                    : isMarketClosed
-                    ? "Closed"
-                    : "Active"}
-                </span>
-              </div>
-
-              {!isMarketClosed && timeDifference > 0 && (
-                <div className="px-2 py-1 rounded-md bg-orange-500/20">
-                  <span
-                    className={`text-xs font-semibold ${
-                      isEndingSoon ? "text-orange-400" : "text-orange-400"
-                    }`}
-                  >
-                    {timeInfo.relative}
+                <div className="inline-flex items-center gap-2 bg-orange-500/20 border border-orange-500/30 rounded-full px-4 py-2">
+                  <div className="w-2 h-2 bg-orange-500 rounded-full animate-pulse"></div>
+                  <span className="text-orange-300 text-sm font-semibold">
+                    Winner: {data.winningOutcome}
                   </span>
                 </div>
               )}
             </div>
+          </div>
+        </div>
+      )}
 
-            <div className="border-t border-zinc-600/50 pt-2 space-y-1">
-            {/* Enhanced Date information with UTC display */}
-            <div className="border-t border-zinc-700/50 pt-2 space-y-1">
-              <div className="flex justify-between items-center">
-                <span className="text-zinc-400 text-xs">
-                  {data.isResolved
-                    ? "Resolved:"
-                    : isMarketClosed
-                    ? "Closed:"
-                    : "Closes:"}
-                </span>
-                <span className="text-zinc-300 text-xs font-medium">
+      {/* Enhanced Header Section - Fixed Height */}
+      <div className="relative p-6 pb-4 flex items-center gap-4 border-b border-zinc-700/50 flex-shrink-0 bg-gradient-to-r from-zinc-800/30 to-transparent">
+        {/* Enhanced Image Container */}
+        <div className="relative group/image flex-shrink-0">
+          <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl overflow-hidden bg-gradient-to-br from-zinc-600 via-zinc-700 to-black p-0.5 shadow-xl shadow-black/40 group-hover:shadow-orange-900/30 transition-all duration-700">
+            <div className="w-full h-full rounded-[14px] overflow-hidden relative">
+              <img
+                src={data.image}
+                alt={data.question}
+                className={`w-full h-full object-cover transition-all duration-700 ${
+                  !isMarketClosed ? "group-hover:scale-110 group-hover:brightness-110" : ""
+                }`}
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+            </div>
+          </div>
+          {!isMarketClosed && (
+            <div className="absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-br from-orange-400 to-orange-600 rounded-full border-2 border-zinc-800 shadow-lg opacity-0 group-hover:opacity-100 transition-all duration-500 animate-pulse"></div>
+          )}
+        </div>
+
+        {/* Enhanced Title - Fixed to 2 lines max */}
+        <div className="flex-1 min-w-0">
+          <h3 className={`text-white font-bold text-base sm:text-lg leading-tight tracking-wide transition-all duration-500 line-clamp-2 min-h-[2.5rem] ${
+            !isMarketClosed ? "group-hover:text-orange-50 group-hover:drop-shadow-lg" : ""
+          }`}>
+            {data.question}
+          </h3>
+          
+          {/* Enhanced Status Badge */}
+          <div className="flex items-center gap-2 mt-2">
+            <div className="flex items-center gap-2 bg-zinc-800/60 backdrop-blur-sm rounded-full px-3 py-1 border border-zinc-700/50">
+              <div className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                data.isResolved
+                  ? "bg-orange-500 shadow-lg shadow-orange-500/50"
+                  : isMarketClosed
+                  ? "bg-zinc-500"
+                  : isEndingSoon
+                  ? "bg-orange-500 animate-pulse shadow-lg shadow-orange-500/50"
+                  : "bg-emerald-500 shadow-lg shadow-emerald-500/50"
+              }`}></div>
+              <span className="text-zinc-300 text-xs font-semibold uppercase tracking-wider">
+                {data.isResolved ? "Resolved" : isMarketClosed ? "Closed" : "Live"}
+              </span>
+            </div>
+            
+            {!isMarketClosed && timeDifference > 0 && (
+              <div className="bg-gradient-to-r from-orange-500/20 to-orange-600/20 backdrop-blur-sm border border-orange-500/30 rounded-full px-3 py-1">
+                <span className="text-orange-300 text-xs font-bold">
                   {timeInfo.relative}
                 </span>
               </div>
+            )}
+          </div>
+        </div>
+      </div>
 
-              {/* Local time display */}
-              <div className="text-zinc-300 text-xs">
+      {/* Enhanced Content Section - Improved Flex Layout */}
+      <div className="flex-1 flex flex-col min-h-0 px-6 pt-5">
+        {/* Description - Fixed height with overflow handling */}
+        <div className="flex-shrink-0 mb-4">
+          <p className="text-zinc-300 font-medium text-sm sm:text-base leading-relaxed tracking-wide line-clamp-4 max-h-[6rem] overflow-hidden group-hover:text-zinc-200 transition-colors duration-300">
+            {data.description}
+          </p>
+        </div>
+
+        {/* Flexible spacer that adapts */}
+        <div className="flex-1 min-h-[1rem]"></div>
+
+        {/* Enhanced Time Information - Always positioned correctly */}
+        <div className="flex-shrink-0 mb-4">
+          <div className="bg-gradient-to-br from-zinc-800/60 via-zinc-800/40 to-zinc-900/60 backdrop-blur-xl rounded-2xl p-4 border border-zinc-700/30 shadow-inner">
+            <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent rounded-2xl"></div>
+            
+            <div className="relative space-y-3">
+              <div className="flex justify-between items-center">
+                <span className="text-zinc-400 text-xs font-medium uppercase tracking-wider">
+                  {data.isResolved ? "Resolved" : isMarketClosed ? "Closed" : "Closes"}
+                </span>
+                <span className="text-zinc-200 text-xs font-bold">
+                  {timeInfo.relative}
+                </span>
+              </div>
+              
+              <div className="text-zinc-300 text-xs font-mono bg-zinc-900/40 rounded-lg p-2 border border-zinc-700/20">
                 {timeInfo.local}
               </div>
-
-              {/* Precise countdown for markets ending within 1 hour */}
-              {!isMarketClosed &&
-                timeDifference > 0 &&
-                timeDifference < 3600000 && (
-                  <div className="text-orange-400 text-xs font-mono">
-                    {getPreciseCountdown(data.expiry_date)}
-                  </div>
-                )}
+              
+              {!isMarketClosed && timeDifference > 0 && timeDifference < 3600000 && (
+                <div className="text-orange-400 text-xs font-mono text-center bg-orange-500/10 rounded-lg p-2 border border-orange-500/20 animate-pulse">
+                  ⏰ {getPreciseCountdown(data.expiry_date)}
+                </div>
+              )}
             </div>
           </div>
         </div>
 
-        <div className="flex justify-between items-center p-4 sm:p-5 bg-gradient-to-r from-zinc-800/30 to-zinc-700/20 flex-shrink-0">
-          <div className="flex items-center group/creator">
-            <span
-              className={`text-orange-400 font-bold text-xs sm:text-sm transition-colors duration-300 underline decoration-orange-500/30 underline-offset-2 decoration-1 truncate max-w-[80px] sm:max-w-[100px] ${
+        {/* Enhanced Creator Section - Always visible at bottom */}
+        <div className="flex-shrink-0 mb-0">
+          <div className="flex justify-between items-center pt-3 border-t border-zinc-700/30">
+            <div className="flex items-center gap-2 group/creator">
+              <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
+              <span className={`text-orange-400 font-bold text-xs sm:text-sm transition-colors duration-300 underline decoration-orange-500/30 underline-offset-2 decoration-1 truncate max-w-[100px] ${
                 !isMarketClosed ? "group-hover/creator:text-orange-300" : ""
-              }`}
-            >
-              {data.creator.username}
-            </span>
-            {isUserCreator && (
-              <span className="ml-2 px-2 py-0.5 bg-orange-500/20 rounded-full text-xs text-orange-400 font-medium">
-                You
+              }`}>
+                {data.creator.username}
               </span>
-            )}
-          </div>
-
-          <div className="flex flex-col items-end">
-            <span className="text-zinc-500 font-medium text-xs truncate">
+              {isUserCreator && (
+                <span className="bg-gradient-to-r from-orange-500/20 to-orange-600/20 border border-orange-500/30 rounded-full px-2 py-0.5 text-xs text-orange-300 font-semibold">
+                  Creator
+                </span>
+              )}
+            </div>
+            <span className="text-zinc-500 font-medium text-xs">
               {TimeUtils.getRelativeTime(data.createdAt)}
             </span>
           </div>
         </div>
+      </div>
 
-        {hasBuyOptions && !isMarketClosed && !data.isResolved && (
-          <div className="px-4 sm:px-5 py-3 sm:py-4 bg-gradient-to-b from-transparent to-zinc-800/30 flex-shrink-0">
-            <div className="grid grid-cols-2 gap-3">
-              <button
-                className="bg-zinc-800 hover:bg-zinc-700 py-3 sm:py-3.5 rounded-lg text-xs sm:text-sm text-white flex items-center justify-center gap-2 transition-all duration-300 hover:shadow-lg hover:shadow-orange-900/20 transform hover:translate-y-[-1px] group/buy font-medium"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  navigate(`/trade/${data.id}`, {
-                    state: {
-                      marketData: {
-                        id: data.id,
-                        name: data.question,
-                        outcomes: { yes: `Yes`, no: `No` },
-                        tags: data.tags,
-                        endDate: timeInfo.local, // Use formatted local time
-                        creator: data.creator.username,
-                        description: data.description,
-                        iconUrl: data.image,
-                        userTimezone: userTimezone,
-                      },
-                      initialBuy: true,
+      {/* Enhanced Glass-like Action Buttons - Fixed positioning */}
+      {hasBuyOptions && !isMarketClosed && !data.isResolved && (
+        <div className="flex-shrink-0 p-6 pt-4 bg-gradient-to-t from-black/20 to-transparent">
+          <div className="grid grid-cols-2 gap-4">
+            {/* Glass-like YES Button */}
+            <button
+              className="group/btn relative backdrop-blur-xl bg-gradient-to-br from-emerald-400/20 via-emerald-500/15 to-emerald-600/20 hover:from-emerald-400/30 hover:via-emerald-500/25 hover:to-emerald-600/30 py-4 rounded-2xl text-sm font-bold text-emerald-100 flex items-center justify-center gap-3 transition-all duration-500 shadow-lg shadow-emerald-500/10 hover:shadow-emerald-400/20 hover:shadow-xl transform hover:translate-y-[-2px] hover:scale-[1.02] border border-emerald-400/30 hover:border-emerald-300/50 overflow-hidden"
+              onClick={(e) => {
+                e.stopPropagation();
+                navigate(`/trade/${data.id}`, {
+                  state: {
+                    marketData: {
+                      id: data.id,
+                      name: data.question,
+                      outcomes: { yes: `Yes`, no: `No` },
+                      tags: data.tags,
+                      endDate: timeInfo.local,
+                      creator: data.creator.username,
+                      description: data.description,
+                      iconUrl: data.image,
+                      userTimezone: userTimezone,
                     },
-                  });
-                }}
-              >
-                <span className="text-green-400">Buy Yes</span>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="12"
-                  height="12"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="group-hover/buy:translate-y-0.5 transition-transform duration-300"
-                >
-                  <path d="m6 9 6 6 6-6" />
+                    initialBuy: true,
+                  },
+                });
+              }}
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-white/10 via-white/5 to-transparent opacity-0 group-hover/btn:opacity-100 transition-opacity duration-500"></div>
+              <div className="absolute inset-0 bg-gradient-to-t from-emerald-500/10 to-transparent"></div>
+              <span className="relative z-10 flex items-center gap-2">
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.707l-3-3a1 1 0 00-1.414 1.414L10.586 9H7a1 1 0 100 2h3.586l-1.293 1.293a1 1 0 101.414 1.414l3-3a1 1 0 000-1.414z" clipRule="evenodd" />
                 </svg>
-              </button>
-              <button
-                className="bg-zinc-800 hover:bg-zinc-700 py-3 sm:py-3.5 rounded-lg text-xs sm:text-sm text-white flex items-center justify-center gap-2 transition-all duration-300 hover:shadow-lg hover:shadow-orange-900/20 transform hover:translate-y-[-1px] group/buy font-medium"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  navigate(`/trade/${data.id}`, {
-                    state: {
-                      marketData: {
-                        id: data.id,
-                        name: data.question,
-                        outcomes: { yes: `Yes`, no: `No` },
-                        tags: data.tags,
-                        endDate: timeInfo.local, // Use formatted local time
-                        creator: data.creator.username,
-                        description: data.description,
-                        iconUrl: data.image,
-                        userTimezone: userTimezone,
-                      },
-                      initialBuy: false,
+                <span className="font-black">BUY YES</span>
+              </span>
+            </button>
+            
+            {/* Glass-like NO Button */}
+            <button
+              className="group/btn relative backdrop-blur-xl bg-gradient-to-br from-red-400/20 via-red-500/15 to-red-600/20 hover:from-red-400/30 hover:via-red-500/25 hover:to-red-600/30 py-4 rounded-2xl text-sm font-bold text-red-100 flex items-center justify-center gap-3 transition-all duration-500 shadow-lg shadow-red-500/10 hover:shadow-red-400/20 hover:shadow-xl transform hover:translate-y-[-2px] hover:scale-[1.02] border border-red-400/30 hover:border-red-300/50 overflow-hidden"
+              onClick={(e) => {
+                e.stopPropagation();
+                navigate(`/trade/${data.id}`, {
+                  state: {
+                    marketData: {
+                      id: data.id,
+                      name: data.question,
+                      outcomes: { yes: `Yes`, no: `No` },
+                      tags: data.tags,
+                      endDate: timeInfo.local,
+                      creator: data.creator.username,
+                      description: data.description,
+                      iconUrl: data.image,
+                      userTimezone: userTimezone,
                     },
-                  });
-                }}
-              >
-                <span className="text-red-400">Buy No</span>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="12"
-                  height="12"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="group-hover/buy:translate-y-0.5 transition-transform duration-300"
-                >
-                  <path d="m6 9 6 6 6-6" />
+                    initialBuy: false,
+                  },
+                });
+              }}
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-white/10 via-white/5 to-transparent opacity-0 group-hover/btn:opacity-100 transition-opacity duration-500"></div>
+              <div className="absolute inset-0 bg-gradient-to-t from-red-500/10 to-transparent"></div>
+              <span className="relative z-10 flex items-center gap-2">
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.707l-3-3a1 1 0 00-1.414 1.414L10.586 9H7a1 1 0 100 2h3.586l-1.293 1.293a1 1 0 101.414 1.414l3-3a1 1 0 000-1.414z" clipRule="evenodd" />
                 </svg>
-              </button>
+                <span className="font-black">BUY NO</span>
+              </span>
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Enhanced Closed State */}
+      {hasBuyOptions && (isMarketClosed || data.isResolved) && !needsResolution && (
+        <div className="flex-shrink-0 p-6 pt-4 bg-gradient-to-t from-zinc-900/40 to-transparent">
+          <div className="bg-gradient-to-br from-zinc-800/80 to-zinc-900/80 backdrop-blur-xl rounded-2xl p-4 text-center border border-zinc-600/30 shadow-inner">
+            <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent rounded-2xl"></div>
+            <div className="relative">
+              <span className="text-zinc-300 text-sm font-bold block mb-2">
+                {data.isResolved ? "🏁 Market Resolved" : "⏰ Trading Ended"}
+              </span>
+              <div className="text-xs text-zinc-500 space-y-1">
+                <div>{timeInfo.local}</div>
+                <div className="font-mono">UTC: {timeInfo.utc}</div>
+              </div>
+              {data.isResolved && data.outcomeWon && (
+                <div className="mt-3 inline-flex items-center gap-2 bg-orange-500/20 border border-orange-500/30 rounded-full px-3 py-1">
+                  <span className="text-orange-300 text-xs font-bold">
+                    🏆 Winner: {data.outcomeWon === 1 ? "YES" : "NO"}
+                  </span>
+                </div>
+              )}
             </div>
           </div>
-        )}
+        </div>
+      )}
+    </div>
 
-        {hasBuyOptions &&
-          (isMarketClosed || data.isResolved) &&
-          !needsResolution && (
-            <div className="px-4 sm:px-5 py-3 sm:py-4 bg-gradient-to-b from-transparent to-zinc-800/30 flex-shrink-0">
-              <div className="bg-zinc-800/60 rounded-lg py-3 text-center">
-                <span className="text-zinc-400 text-sm font-medium">
-                  {data.isResolved ? "Market Resolved" : "Trading Ended"}
-                </span>
-                <div className="text-xs text-zinc-600 mt-1">
-                  {timeInfo.local}
-                </div>
-                <div className="text-xs text-zinc-500 mt-1">
-                  UTC: {timeInfo.utc}
-                </div>
-                {data.isResolved && data.outcomeWon && (
-                  <div className="text-xs text-orange-400 mt-1 font-semibold">
-                    Winner: {data.outcomeWon === 1 ? "Yes" : "No"}
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-      </div>
-      </div>
+    <MarketResolutionModal
+      market={data}
+      isOpen={showResolutionModal}
+      onClose={() => setShowResolutionModal(false)}
+    />
+  </>
+);
 
-      <MarketResolutionModal
-        market={data}
-        isOpen={showResolutionModal}
-        onClose={() => setShowResolutionModal(false)}
-      />
-    </>
-  );
+
+
 };
 
 export default MarketCards;

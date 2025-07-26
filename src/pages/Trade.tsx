@@ -131,9 +131,9 @@ const Trade = () => {
     );
   }
 
-  return (
+ return (
     <div className="bg-black min-h-screen text-white">
-      <div className="max-w-7xl mx-auto p-6 sm:p-8">
+      <div className="max-w-8xl mx-auto p-6 sm:p-8">
         {/* Back link */}
         <div className="mb-6">
           <Link
@@ -156,10 +156,10 @@ const Trade = () => {
           </Link>
         </div>
 
-        {/* Layout */}
-        <div className="flex flex-col lg:flex-row gap-6">
-          <div className="lg:w-3/5 flex flex-col gap-6">
-            {/* Chart */}
+        {/* Layout - Optimized for laptop screen symmetry */}
+        <div className="flex flex-col lg:flex-row gap-6 ">
+          {/* Left side - Chart takes full height */}
+          <div className="lg:w-4/5 lg:h-full">
             <ChartCard
               marketData={marketData}
               chartData={chartData}
@@ -171,22 +171,26 @@ const Trade = () => {
               onRefresh={refreshChart}
               marketId={marketId!}
             />
-
-            {/* Market info */}
-            <MarketInfoCard marketData={marketData} />
           </div>
 
-          <div className="lg:w-2/5">
-            <TradingPanel
-              marketData={marketData}
-              isBuy={isBuyState}
-              isYes={isYes}
-              quantity={quantity}
-              onBuySellToggle={setIsBuy}
-              onYesNoToggle={setIsYes}
-              onQuantityChange={handleQuantityChange}
-              onSubmit={handleSubmitForecast}
-            />
+          {/* Right side - Trading panel and market info stacked to match chart height */}
+          <div className="lg:w-1/5 lg:h-full flex flex-col gap-4">
+            <div className="lg:flex-1">
+              <TradingPanel
+                marketData={marketData}
+                isBuy={isBuyState}
+                isYes={isYes}
+                quantity={quantity}
+                onBuySellToggle={setIsBuy}
+                onYesNoToggle={setIsYes}
+                onQuantityChange={handleQuantityChange}
+                onSubmit={handleSubmitForecast}
+              />
+            </div>
+            
+            <div className="lg:flex-1">
+              <MarketInfoCard marketData={marketData} />
+            </div>
           </div>
         </div>
       </div>

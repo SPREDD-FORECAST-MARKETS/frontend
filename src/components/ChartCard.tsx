@@ -16,7 +16,7 @@ interface ChartCardProps {
   onRefresh: () => void;
 }
 
-// Self-contained component that manages its own chart data
+// A self-contained component that manages its own chart data
 const ChartCard = ({ marketData, marketId }: ChartCardProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [activeTimeframe, setActiveTimeframe] = useState<TimeframeOption>("1D");
@@ -38,18 +38,18 @@ const ChartCard = ({ marketData, marketId }: ChartCardProps) => {
     volume: number;
   } | null>(null);
 
-  // Fetch chart data directly in the component
+  // Fetch chart data directly within the component
   const fetchChartData = useCallback(() => {
     try {
       setIsLoading(true);
 
-      // Generate chart data based on timeframe and market ID
+      // Generate chart data based on the selected timeframe and market ID
       const data = generateChartData(activeTimeframe, marketId);
 
-      // Calculate chart metrics
+      // Calculate chart metrics from the generated data
       const closes = data.map((d) => d.close);
       const volumes = data.map(
-        (_, i) => Math.random() * 100 * (1 + Math.sin(i / 10)) // Simulated volume data
+        (_, i) => Math.random() * 100 * (1 + Math.sin(i / 10)) // Simulated volume
       );
 
       const metrics = {
@@ -59,11 +59,11 @@ const ChartCard = ({ marketData, marketId }: ChartCardProps) => {
         volume: volumes.reduce((sum, vol) => sum + vol, 0),
       };
 
-      // Set the new data and price information
+      // Update the state with new data and price information
       setChartData(data);
       setCurrentPrice(data[data.length - 1].close);
 
-      // Calculate price change (last day)
+      // Calculate the price change (for the last day)
       const lastIndex = data.length - 1;
       const prevIndex = Math.max(
         0,
@@ -83,17 +83,17 @@ const ChartCard = ({ marketData, marketId }: ChartCardProps) => {
     }
   }, [activeTimeframe, marketId]);
 
-  // Handle timeframe change
+  // Handle changes in the timeframe selection
   const handleTimeframeChange = (timeframe: TimeframeOption) => {
     setActiveTimeframe(timeframe);
   };
 
-  // Handle chart refresh
+  // Refresh the chart data
   const refreshChart = () => {
     fetchChartData();
   };
 
-  // Initialize chart data on mount and when timeframe changes
+  // Initialize and update chart data when the component mounts or timeframe changes
   useEffect(() => {
     fetchChartData();
   }, [fetchChartData]);
@@ -117,26 +117,26 @@ const ChartCard = ({ marketData, marketId }: ChartCardProps) => {
     canvas: HTMLCanvasElement,
     data: ChartDataPoint[]
   ) => {
-    // Find min/max for scaling
+    // Determine min/max prices for scaling
     let minPrice = Math.min(...data.map((d) => d.low));
     let maxPrice = Math.max(...data.map((d) => d.high));
     const padding = (maxPrice - minPrice) * 0.1;
     minPrice = Math.max(0, minPrice - padding);
     maxPrice = Math.min(1, maxPrice + padding);
 
-    // Scale Y values
+    // Scale Y values to fit the canvas height
     const scaleY = (value: number) =>
       canvas.height -
       ((value - minPrice) / (maxPrice - minPrice || 1)) * canvas.height;
 
-    // Candle dimensions
+    // Define candle dimensions
     const candleSpacing = canvas.width / Math.max(1, data.length);
 
     const handleMouseMove = (e: MouseEvent) => {
       const rect = canvas.getBoundingClientRect();
       const x = e.clientX - rect.left;
 
-      // Find the closest data point
+      // Find the closest data point to the mouse position
       const index = Math.min(
         data.length - 1,
         Math.max(0, Math.floor(x / candleSpacing))
@@ -187,10 +187,10 @@ const ChartCard = ({ marketData, marketId }: ChartCardProps) => {
 
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      // Draw custom background with gradient
+      // Draw a custom background with a gradient
       const bgGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-      bgGradient.addColorStop(0, "#0d1117");
-      bgGradient.addColorStop(1, "#090c10");
+      bgGradient.addColorStop(0, "#1a1f27");
+      bgGradient.addColorStop(1, "#11151a");
       ctx.fillStyle = bgGradient;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -200,13 +200,13 @@ const ChartCard = ({ marketData, marketId }: ChartCardProps) => {
       // Draw volume bars
       drawVolumeChart(ctx, data, canvas.width, canvas.height);
 
-      // Draw candlestick chart
+      // Draw the candlestick chart
       drawCandlestickChart(ctx, data, canvas.width, canvas.height);
 
-      // Draw trend line (moving average)
+      // Draw the trend line (moving average)
       drawTrendLine(ctx, data, canvas.width, canvas.height);
 
-      // Draw current price indicator
+      // Draw the current price indicator
       drawCurrentPriceIndicator(
         ctx,
         currentPrice,
@@ -224,10 +224,10 @@ const ChartCard = ({ marketData, marketId }: ChartCardProps) => {
     width: number,
     height: number
   ) => {
-    ctx.strokeStyle = "rgba(255, 255, 255, 0.05)";
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.08)";
     ctx.lineWidth = 1;
 
-    // Horizontal lines
+    // Draw horizontal grid lines
     for (let i = 1; i < 5; i++) {
       const y = (height / 5) * i;
       ctx.beginPath();
@@ -236,7 +236,7 @@ const ChartCard = ({ marketData, marketId }: ChartCardProps) => {
       ctx.stroke();
     }
 
-    // Vertical lines
+    // Draw vertical grid lines
     for (let i = 1; i < 6; i++) {
       const x = (width / 6) * i;
       ctx.beginPath();
@@ -254,29 +254,29 @@ const ChartCard = ({ marketData, marketId }: ChartCardProps) => {
   ) => {
     if (!data || data.length === 0) return;
 
-    // Volume bars take up the bottom 15% of the chart
+    // Volume bars occupy the bottom 15% of the chart
     const volumeHeight = height * 0.15;
     const volumeTop = height * 0.85;
 
-    // Generate mock volume data
+    // Generate mock volume data for visualization
     const volumes = data.map(
       (_, i) => Math.random() * 100 * (1 + Math.sin(i / 10))
     );
 
     const maxVolume = Math.max(...volumes);
 
-    // Candle dimensions
+    // Define bar dimensions
     const barWidth = Math.min(10, (width / Math.max(1, data.length)) * 0.8);
     const barSpacing = width / Math.max(1, data.length);
 
-    // Draw volume bars
+    // Draw individual volume bars
     volumes.forEach((volume, i) => {
       const x = i * barSpacing + barSpacing / 2 - barWidth / 2;
       const barHeight = (volume / maxVolume) * volumeHeight;
 
-      // Color based on price movement
+      // Color bars based on price movement
       const isUp = i > 0 ? data[i].close >= data[i - 1].close : true;
-      const color = isUp ? "rgba(76, 175, 80, 0.3)" : "rgba(239, 83, 80, 0.3)";
+      const color = isUp ? "rgba(0, 200, 150, 0.4)" : "rgba(255, 80, 100, 0.4)";
 
       ctx.fillStyle = color;
       ctx.fillRect(
@@ -287,11 +287,11 @@ const ChartCard = ({ marketData, marketId }: ChartCardProps) => {
       );
     });
 
-    // Draw subtle volume label
-    ctx.fillStyle = "rgba(255, 255, 255, 0.4)";
-    ctx.font = "10px Arial";
+    // Add a subtle label for the volume section
+    ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
+    ctx.font = "11px sans-serif";
     ctx.textAlign = "left";
-    ctx.fillText("Volume", 5, volumeTop + 12);
+    ctx.fillText("Volume", 10, volumeTop + 15);
   };
 
   const drawCandlestickChart = (
@@ -302,26 +302,26 @@ const ChartCard = ({ marketData, marketId }: ChartCardProps) => {
   ) => {
     if (!data || data.length === 0) return;
 
-    // Price chart takes up the top 85% of chart area
+    // The price chart occupies the top 85% of the canvas
     const chartHeight = height * 0.85;
 
-    // Find min/max for scaling
+    // Determine min/max prices for scaling
     let minPrice = Math.min(...data.map((d) => d.low));
     let maxPrice = Math.max(...data.map((d) => d.high));
-    const padding = (maxPrice - minPrice) * 0.1;
+    const padding = (maxPrice - minPrice) * 0.15; // Increased padding
     minPrice = Math.max(0, minPrice - padding);
     maxPrice = Math.min(1, maxPrice + padding);
 
-    // Scale Y values
+    // Scale Y values to fit the chart area
     const scaleY = (value: number) =>
       chartHeight -
       ((value - minPrice) / (maxPrice - minPrice || 1)) * chartHeight;
 
-    // Candle dimensions
-    const candleWidth = Math.min(16, (width / Math.max(1, data.length)) * 0.8);
+    // Define candle dimensions
+    const candleWidth = Math.min(16, (width / Math.max(1, data.length)) * 0.7);
     const candleSpacing = width / Math.max(1, data.length);
 
-    // Draw area chart under the line for visual enhancement
+    // Create a visually appealing area chart beneath the line
     ctx.beginPath();
     ctx.moveTo(candleSpacing / 2, scaleY(data[0].close));
     data.forEach((candle, i) => {
@@ -332,14 +332,14 @@ const ChartCard = ({ marketData, marketId }: ChartCardProps) => {
     ctx.lineTo(0, chartHeight);
     ctx.closePath();
 
-    // Create gradient fill for area
+    // Apply a gradient fill to the area chart
     const gradient = ctx.createLinearGradient(0, 0, 0, chartHeight);
-    gradient.addColorStop(0, "rgba(255, 112, 67, 0.15)");
-    gradient.addColorStop(1, "rgba(255, 112, 67, 0)");
+    gradient.addColorStop(0, "rgba(0, 150, 255, 0.2)");
+    gradient.addColorStop(1, "rgba(0, 150, 255, 0)");
     ctx.fillStyle = gradient;
     ctx.fill();
 
-    // Draw line connecting closes with enhanced styling
+    // Draw the line connecting close prices with modern styling
     ctx.beginPath();
     ctx.moveTo(candleSpacing / 2, scaleY(data[0].close));
     data.forEach((candle, i) => {
@@ -347,33 +347,33 @@ const ChartCard = ({ marketData, marketId }: ChartCardProps) => {
         ctx.lineTo(i * candleSpacing + candleSpacing / 2, scaleY(candle.close));
     });
 
-    // Create gradient for the line
+    // Create a gradient for the line
     const lineGradient = ctx.createLinearGradient(0, 0, width, 0);
-    lineGradient.addColorStop(0, "rgba(255, 112, 67, 0.8)");
-    lineGradient.addColorStop(1, "rgba(255, 149, 0, 0.8)");
+    lineGradient.addColorStop(0, "rgba(0, 150, 255, 0.9)");
+    lineGradient.addColorStop(1, "rgba(0, 200, 255, 0.9)");
 
     ctx.strokeStyle = lineGradient;
-    ctx.lineWidth = 2;
+    ctx.lineWidth = 2.5; // Thicker line
     ctx.stroke();
 
-    // Draw candles
+    // Draw the candlesticks
     data.forEach((candle, i) => {
       const x = i * candleSpacing + candleSpacing / 2 - candleWidth / 2;
       const isUp = candle.close >= candle.open;
-      const color = isUp ? "#4CAF50" : "#EF5350";
+      const color = isUp ? "#00C896" : "#FF5064";
       const fillColor = isUp
-        ? "rgba(76, 175, 80, 0.3)"
-        : "rgba(239, 83, 80, 0.3)";
+        ? "rgba(0, 200, 150, 0.3)"
+        : "rgba(255, 80, 100, 0.3)";
 
-      // Draw wick
+      // Draw the candle wick
       ctx.beginPath();
       ctx.moveTo(x + candleWidth / 2, scaleY(candle.high));
       ctx.lineTo(x + candleWidth / 2, scaleY(candle.low));
       ctx.strokeStyle = color;
-      ctx.lineWidth = 1;
+      ctx.lineWidth = 1.5;
       ctx.stroke();
 
-      // Draw body
+      // Draw the candle body
       const openY = scaleY(candle.open);
       const closeY = scaleY(candle.close);
       const bodyHeight = Math.max(1, Math.abs(closeY - openY));
@@ -384,32 +384,32 @@ const ChartCard = ({ marketData, marketId }: ChartCardProps) => {
       ctx.fillRect(x, bodyY, candleWidth, bodyHeight);
       ctx.strokeRect(x, bodyY, candleWidth, bodyHeight);
 
-      // Highlight hovered candle
+      // Highlight the hovered candle
       if (hoveredPoint && hoveredPoint.index === i) {
         ctx.fillStyle = isUp
-          ? "rgba(76, 175, 80, 0.5)"
-          : "rgba(239, 83, 80, 0.5)";
+          ? "rgba(0, 200, 150, 0.6)"
+          : "rgba(255, 80, 100, 0.6)";
         ctx.fillRect(x, bodyY, candleWidth, bodyHeight);
-        ctx.strokeStyle = isUp ? "#4CAF50" : "#EF5350";
+        ctx.strokeStyle = isUp ? "#00C896" : "#FF5064";
         ctx.lineWidth = 2;
         ctx.strokeRect(x, bodyY, candleWidth, bodyHeight);
       }
     });
 
-    // Draw price labels
-    ctx.fillStyle = "rgba(255, 255, 255, 0.6)";
-    ctx.font = "12px Arial";
+    // Draw price labels on the Y-axis
+    ctx.fillStyle = "rgba(255, 255, 255, 0.7)";
+    ctx.font = "12px sans-serif";
     ctx.textAlign = "right";
     for (let i = 0; i <= 5; i++) {
       const price = minPrice + (maxPrice - minPrice) * (i / 5);
       ctx.fillText(
         `${Math.round(price * 100)}%`,
-        width - 10,
+        width - 15,
         scaleY(price) + 4
       );
     }
 
-    // Draw time labels
+    // Draw time labels on the X-axis
     ctx.textAlign = "center";
     const steps = Math.min(6, data.length);
     for (let i = 0; i < steps; i++) {
@@ -420,10 +420,10 @@ const ChartCard = ({ marketData, marketId }: ChartCardProps) => {
         activeTimeframe === "1H" || activeTimeframe === "6H"
           ? date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
           : date.toLocaleDateString([], { month: "short", day: "numeric" });
-      ctx.fillText(timeLabel, x, height - 10);
+      ctx.fillText(timeLabel, x, height - 15);
     }
 
-    // If there's a hovered point, draw the crosshair and tooltip
+    // If a point is hovered, draw a crosshair and tooltip
     if (hoveredPoint) {
       drawCrosshair(ctx, hoveredPoint.x, hoveredPoint.y, width, chartHeight);
       drawTooltip(ctx, hoveredPoint, width, chartHeight);
@@ -438,10 +438,10 @@ const ChartCard = ({ marketData, marketId }: ChartCardProps) => {
   ) => {
     if (!data || data.length < 10) return;
 
-    // Chart height is top 85% of total height
+    // The chart height is the top 85% of the total canvas height
     const chartHeight = height * 0.85;
 
-    // Calculate simple moving average (10 periods)
+    // Calculate the simple moving average (SMA) over 10 periods
     const period = 10;
     const sma: { time: number; value: number }[] = [];
 
@@ -456,22 +456,22 @@ const ChartCard = ({ marketData, marketId }: ChartCardProps) => {
       });
     }
 
-    // Find min/max for scaling
+    // Determine min/max prices for scaling
     let minPrice = Math.min(...data.map((d) => d.low));
     let maxPrice = Math.max(...data.map((d) => d.high));
-    const padding = (maxPrice - minPrice) * 0.1;
+    const padding = (maxPrice - minPrice) * 0.15;
     minPrice = Math.max(0, minPrice - padding);
     maxPrice = Math.min(1, maxPrice + padding);
 
-    // Scale Y values
+    // Scale Y values to fit the chart area
     const scaleY = (value: number) =>
       chartHeight -
       ((value - minPrice) / (maxPrice - minPrice || 1)) * chartHeight;
 
-    // Candle dimensions
+    // Define candle dimensions
     const candleSpacing = width / Math.max(1, data.length);
 
-    // Draw SMA line
+    // Draw the SMA line
     ctx.beginPath();
     const startIndex = period - 1;
     ctx.moveTo(
@@ -486,15 +486,15 @@ const ChartCard = ({ marketData, marketId }: ChartCardProps) => {
       }
     });
 
-    ctx.strokeStyle = "rgba(133, 196, 255, 0.8)";
-    ctx.lineWidth = 1.5;
+    ctx.strokeStyle = "rgba(255, 180, 50, 0.8)"; // Orange color for SMA
+    ctx.lineWidth = 1.8;
     ctx.stroke();
 
-    // Add SMA label
-    ctx.fillStyle = "rgba(133, 196, 255, 0.8)";
-    ctx.font = "11px Arial";
+    // Add a label for the SMA line
+    ctx.fillStyle = "rgba(255, 180, 50, 0.9)";
+    ctx.font = "12px sans-serif";
     ctx.textAlign = "left";
-    ctx.fillText("SMA (10)", 10, 20);
+    ctx.fillText("SMA (10)", 15, 25);
   };
 
   const drawCrosshair = (
@@ -504,20 +504,23 @@ const ChartCard = ({ marketData, marketId }: ChartCardProps) => {
     width: number,
     height: number
   ) => {
-    ctx.strokeStyle = "rgba(255, 255, 255, 0.3)";
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.4)";
     ctx.lineWidth = 1;
+    ctx.setLineDash([4, 4]);
 
-    // Vertical line
+    // Draw the vertical line of the crosshair
     ctx.beginPath();
     ctx.moveTo(x, 0);
     ctx.lineTo(x, height);
     ctx.stroke();
 
-    // Horizontal line
+    // Draw the horizontal line of the crosshair
     ctx.beginPath();
     ctx.moveTo(0, y);
     ctx.lineTo(width, y);
     ctx.stroke();
+
+    ctx.setLineDash([]); // Reset line dash
   };
 
   const drawTooltip = (
@@ -532,14 +535,14 @@ const ChartCard = ({ marketData, marketId }: ChartCardProps) => {
     width: number,
     height: number
   ) => {
-    const tooltipWidth = 120;
-    const tooltipHeight = 60;
-    const padding = 8;
+    const tooltipWidth = 140;
+    const tooltipHeight = 70;
+    const padding = 10;
 
-    // Determine tooltip position to keep it in bounds
-    let tooltipX = point.x + 15;
+    // Position the tooltip to stay within the canvas bounds
+    let tooltipX = point.x + 20;
     if (tooltipX + tooltipWidth > width) {
-      tooltipX = point.x - tooltipWidth - 15;
+      tooltipX = point.x - tooltipWidth - 20;
     }
 
     let tooltipY = point.y - tooltipHeight / 2;
@@ -549,16 +552,16 @@ const ChartCard = ({ marketData, marketId }: ChartCardProps) => {
       tooltipY = height - tooltipHeight;
     }
 
-    // Draw tooltip background
-    ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
-    ctx.strokeStyle = "rgba(255, 255, 255, 0.2)";
+    // Draw the tooltip background
+    ctx.fillStyle = "rgba(10, 15, 20, 0.85)";
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.3)";
     ctx.lineWidth = 1;
     ctx.beginPath();
-    ctx.roundRect(tooltipX, tooltipY, tooltipWidth, tooltipHeight, 4);
+    ctx.roundRect(tooltipX, tooltipY, tooltipWidth, tooltipHeight, 8);
     ctx.fill();
     ctx.stroke();
 
-    // Format time and price for display
+    // Format the time and price for display
     const formattedTime =
       activeTimeframe === "1H" || activeTimeframe === "6H"
         ? point.time.toLocaleTimeString([], {
@@ -577,24 +580,25 @@ const ChartCard = ({ marketData, marketId }: ChartCardProps) => {
 
     const formattedPrice = `${(point.price * 100).toFixed(2)}%`;
 
-    // Draw tooltip text
+    // Draw the text inside the tooltip
     ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
-    ctx.font = "bold 12px Arial";
+    ctx.font = "bold 13px sans-serif";
     ctx.textAlign = "left";
-    ctx.fillText("Price:", tooltipX + padding, tooltipY + padding + 14);
-    ctx.fillText("Time:", tooltipX + padding, tooltipY + padding + 34);
+    ctx.fillText("Price:", tooltipX + padding, tooltipY + padding + 18);
+    ctx.fillText("Time:", tooltipX + padding, tooltipY + padding + 42);
 
-    ctx.fillStyle = "rgba(255, 180, 100, 1)";
+    ctx.fillStyle = "rgba(0, 200, 255, 1)";
     ctx.textAlign = "right";
     ctx.fillText(
       formattedPrice,
       tooltipX + tooltipWidth - padding,
-      tooltipY + padding + 14
+      tooltipY + padding + 18
     );
+    ctx.fillStyle = "rgba(255, 255, 255, 0.8)";
     ctx.fillText(
       formattedTime,
       tooltipX + tooltipWidth - padding,
-      tooltipY + padding + 34
+      tooltipY + padding + 42
     );
   };
 
@@ -605,62 +609,62 @@ const ChartCard = ({ marketData, marketId }: ChartCardProps) => {
     height: number,
     data: ChartDataPoint[]
   ) => {
-    // Chart height is top 85% of total height
+    // The chart height is the top 85% of the total canvas height
     const chartHeight = height * 0.85;
 
-    // Find min/max for scaling
+    // Determine min/max prices for scaling
     let minPrice = Math.min(...data.map((d) => d.low));
     let maxPrice = Math.max(...data.map((d) => d.high));
-    const padding = (maxPrice - minPrice) * 0.1;
+    const padding = (maxPrice - minPrice) * 0.15;
     minPrice = Math.max(0, minPrice - padding);
     maxPrice = Math.min(1, maxPrice + padding);
 
-    // Scale Y values
+    // Scale Y values to fit the chart area
     const scaleY = (value: number) =>
       chartHeight -
       ((value - minPrice) / (maxPrice - minPrice || 1)) * chartHeight;
 
     const y = scaleY(price);
 
-    // Draw dashed line
+    // Draw a dashed line for the current price
     ctx.beginPath();
-    ctx.setLineDash([5, 3]);
+    ctx.setLineDash([6, 4]);
     ctx.moveTo(0, y);
     ctx.lineTo(width, y);
-    ctx.strokeStyle = "rgba(255, 112, 67, 0.7)";
-    ctx.lineWidth = 1;
+    ctx.strokeStyle = "rgba(0, 180, 255, 0.8)";
+    ctx.lineWidth = 1.5;
     ctx.stroke();
     ctx.setLineDash([]);
 
-    // Draw price label with background
+    // Draw a label with a background for the current price
     const labelText = `${(price * 100).toFixed(2)}%`;
-    const labelWidth = ctx.measureText(labelText).width + 16;
+    const labelWidth = ctx.measureText(labelText).width + 20;
 
-    ctx.fillStyle = "rgba(255, 112, 67, 0.9)";
+    ctx.fillStyle = "rgba(0, 180, 255, 1)";
     ctx.beginPath();
-    ctx.roundRect(width - labelWidth - 5, y - 10, labelWidth, 20, 4);
+    ctx.roundRect(width - labelWidth - 8, y - 12, labelWidth, 24, 6);
     ctx.fill();
 
     ctx.fillStyle = "white";
-    ctx.font = "bold 11px Arial";
+    ctx.font = "bold 12px sans-serif";
     ctx.textAlign = "center";
-    ctx.fillText(labelText, width - labelWidth / 2 - 5, y + 4);
+    ctx.fillText(labelText, width - labelWidth / 2 - 8, y + 5);
   };
 
-  // Custom timeframe selector component to avoid external dependencies
+  // A custom timeframe selector component to avoid external dependencies
   const TimeframeSelector = () => {
     const timeframes: TimeframeOption[] = ["1H", "6H", "1D", "1W", "1M", "6M"];
 
     return (
-      <div className="flex items-center gap-1 w-full sm:w-auto">
-        <div className="flex bg-[#171c21] rounded-md p-1 flex-1 sm:flex-auto">
+      <div className="flex items-center gap-2 w-full sm:w-auto">
+        <div className="flex bg-[#2a313a] rounded-lg p-1 flex-1 sm:flex-auto">
           {timeframes.map((tf) => (
             <button
               key={tf}
-              className={`px-3 py-1.5 text-sm rounded transition-all flex-1 ${
+              className={`px-4 py-2 text-sm font-medium rounded-md transition-all flex-1 ${
                 activeTimeframe === tf
-                  ? "bg-[#2c3136] text-white"
-                  : "text-[#888] hover:text-[#bbb] hover:bg-[#1f2429]"
+                  ? "bg-[#3b82f6] text-white shadow-md"
+                  : "text-[#a0aec0] hover:text-white hover:bg-[#343b45]"
               }`}
               onClick={() => handleTimeframeChange(tf)}
             >
@@ -671,210 +675,204 @@ const ChartCard = ({ marketData, marketId }: ChartCardProps) => {
         <button
           onClick={refreshChart}
           disabled={isLoading}
-          className="p-2 text-[#888] hover:text-white rounded-md hover:bg-[#1f2429] transition-colors"
+          className="p-2.5 text-[#a0aec0] hover:text-white rounded-lg hover:bg-[#343b45] transition-colors"
         >
-          <RefreshCw size={16} className={isLoading ? "animate-spin" : ""} />
+          <RefreshCw size={18} className={isLoading ? "animate-spin" : ""} />
         </button>
-        {/* <button className="p-2 text-[#888] hover:text-white rounded-md hover:bg-[#1f2429] transition-colors">
-          <Settings size={16} />
-        </button> */}
       </div>
     );
   };
 
-  return (
-    <div className="border border-[#222] rounded-lg overflow-hidden bg-gradient-to-b from-[#111] to-[#0a0a0a] shadow-lg">
-      {/* Header */}
-      <div className="px-5 py-4 border-b border-[#222] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <div className="h-10 w-10 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center">
-            <img src={marketData.image} alt={marketData.question} />
-          </div>
-          <div>
-            <div className="flex items-center">
-              <h1 className="text-xl font-bold text-white">
-                {marketData.question}
-              </h1>
-              <span className="ml-2 px-2 py-0.5 bg-green-500/20 text-green-400 text-xs rounded">
-                YES
-              </span>
-            </div>
-            <div className="text-[#888] text-sm flex items-center">
-              <span>Volume: 200K</span>
-              <span className="mx-2">•</span>
-              <span>
-                <span className="text-red-500">Ending:</span>{" "}
-                {getTimeLeft(marketData.expiry_date)}
-              </span>
-            </div>
-          </div>
+    return (
+  <div className="border border-zinc-800 rounded-2xl overflow-hidden bg-gradient-to-b from-[#111] to-[#0a0a0a] shadow-xl hover:shadow-2xl transition-all duration-300">
+    {/* Header Section */}
+    <div className="px-6 py-5 border-b border-zinc-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div className="flex items-center gap-4">
+        <div className="h-12 w-12 rounded-xl overflow-hidden bg-zinc-700 flex items-center justify-center ring-2 ring-orange-500 shadow-md">
+          <img src={marketData.image} alt={marketData.question} />
         </div>
-
-        {/* Timeframe selector */}
-        <TimeframeSelector />
-      </div>
-
-      {/* Price info */}
-      <div className="px-5 pt-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-        <div className="flex items-center">
-          <span className="text-2xl font-bold text-white">
-            {Math.round(currentPrice * 100)}%
-          </span>
-          <span
-            className={`ml-2 flex items-center ${
-              priceChange >= 0 ? "text-green-500" : "text-red-500"
-            }`}
-          >
-            {priceChange >= 0 ? (
-              <ArrowUp size={16} className="mr-1" />
-            ) : (
-              <ArrowDown size={16} className="mr-1" />
-            )}
-            {Math.abs(parseFloat(priceChange.toFixed(1)))}%
-          </span>
-          <span className="ml-3 text-[#888] text-sm px-2 py-1 bg-[#171c21] rounded-md">
-            Odds: {calculateOdds(marketData)}
-          </span>
-        </div>
-
-        {/* Chart metrics */}
-        {chartMetrics && (
-          <div className="flex items-center gap-3 text-sm">
-            <span className="flex items-center gap-1">
-              <span className="text-[#888]">High:</span>
-              <span className="text-green-500 font-medium">
-                {(chartMetrics.maxPrice * 100).toFixed(1)}%
-              </span>
-            </span>
-            <span className="flex items-center gap-1">
-              <span className="text-[#888]">Low:</span>
-              <span className="text-red-500 font-medium">
-                {(chartMetrics.minPrice * 100).toFixed(1)}%
-              </span>
-            </span>
-            <span className="flex items-center gap-1">
-              <span className="text-[#888]">Avg:</span>
-              <span className="text-blue-400 font-medium">
-                {(chartMetrics.avgPrice * 100).toFixed(1)}%
-              </span>
+        <div>
+          <div className="flex items-center">
+            <h1 className="text-2xl font-semibold text-white">{marketData.question}</h1>
+            <span className="ml-3 px-2.5 py-1 bg-orange-500/20 text-orange-400 text-xs font-medium rounded-full">
+              YES
             </span>
           </div>
-        )}
-      </div>
-
-      {/* Trading activity summary */}
-      <div className="px-5 pt-2 pb-2">
-        <div className="grid grid-cols-3 gap-3 text-xs">
-          <div className="bg-[#171c21] rounded p-2">
-            <div className="text-[#888] mb-1">24h Trades</div>
-            <div className="text-white font-bold">
-              {Math.floor(Math.random() * 1000) + 200}
-            </div>
-          </div>
-          <div className="bg-[#171c21] rounded p-2">
-            <div className="text-[#888] mb-1">Daily Volume</div>
-            <div className="text-white font-bold">
-              ${(Math.random() * 250000 + 50000).toFixed(0)}
-            </div>
-          </div>
-          <div className="bg-[#171c21] rounded p-2">
-            <div className="text-[#888] mb-1">Forecasters</div>
-            <div className="text-white font-bold">
-              {Math.floor(Math.random() * 500) + 100}
-            </div>
+          <div className="text-zinc-400 text-sm flex items-center mt-1">
+            <span>Volume: 200K</span>
+            <span className="mx-2.5">•</span>
+            <span>
+              <span className="text-red-400">Ending:</span>{" "}
+              {getTimeLeft(marketData.expiry_date)}
+            </span>
           </div>
         </div>
       </div>
 
-      {/* Chart */}
-      <div className="h-[360px] relative px-2 pb-4 pt-2">
-        {isLoading && (
-          <div className="absolute inset-0 bg-[#0d1117]/80 flex items-center justify-center z-10">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-orange-500"></div>
-          </div>
-        )}
-        <canvas ref={canvasRef} className="w-full h-full cursor-crosshair" />
+      <TimeframeSelector />
+    </div>
 
-        {/* Chart info tooltip */}
-        <div className="absolute top-2 right-2 group">
-          <button className="p-1 rounded-full bg-[#171c21] text-[#888] hover:text-white transition-colors">
-            <Info size={14} />
-          </button>
-          <div className="absolute right-0 top-full mt-2 w-64 bg-[#171c21] p-2 rounded shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 text-xs text-[#ccc] z-20">
-            <p className="mb-1">
-              Chart shows price probability over time. Hover for details.
-            </p>
-            <p>Blue line represents 10-period moving average.</p>
-          </div>
-        </div>
+    {/* Price Info Section */}
+    <div className="px-6 pt-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div className="flex items-center">
+        <span className="text-3xl font-bold text-white">
+          {Math.round(currentPrice * 100)}%
+        </span>
+        <span
+          className={`ml-3 flex items-center font-semibold ${
+            priceChange >= 0 ? "text-green-400" : "text-red-400"
+          }`}
+        >
+          {priceChange >= 0 ? (
+            <ArrowUp size={18} className="mr-1" />
+          ) : (
+            <ArrowDown size={18} className="mr-1" />
+          )}
+          {Math.abs(parseFloat(priceChange.toFixed(1)))}%
+        </span>
+        <span className="ml-4 text-zinc-400 text-sm px-3 py-1.5 bg-zinc-800 rounded-lg">
+          Odds: {calculateOdds(marketData)}
+        </span>
       </div>
 
-      {/* Data table */}
-      <div className="px-5 py-3 border-t border-[#222]">
-        <h3 className="text-sm font-medium text-white mb-2">Price History</h3>
-        <div className="overflow-x-auto">
-          <table className="w-full text-xs">
-            <thead>
-              <tr className="text-[#888] border-b border-[#222]">
-                <th className="text-left py-2">Date</th>
-                <th className="text-right py-2">Open</th>
-                <th className="text-right py-2">High</th>
-                <th className="text-right py-2">Low</th>
-                <th className="text-right py-2">Close</th>
-                <th className="text-right py-2">Change</th>
-              </tr>
-            </thead>
-            <tbody>
-              {chartData &&
-                chartData
-                  .slice(-5)
-                  .reverse()
-                  .map((point, i) => {
-                    const date = new Date(point.time);
-                    const prevPoint =
-                      i < 4 ? chartData[chartData.length - 5 + i + 1] : null;
-                    const change = prevPoint
-                      ? ((point.close - prevPoint.close) / prevPoint.close) *
-                        100
-                      : 0;
+      {chartMetrics && (
+        <div className="flex items-center gap-4 text-sm font-medium">
+          <span className="flex items-center gap-1.5">
+            <span className="text-zinc-400">High:</span>
+            <span className="text-green-400">
+              {(chartMetrics.maxPrice * 100).toFixed(1)}%
+            </span>
+          </span>
+          <span className="flex items-center gap-1.5">
+            <span className="text-zinc-400">Low:</span>
+            <span className="text-red-400">
+              {(chartMetrics.minPrice * 100).toFixed(1)}%
+            </span>
+          </span>
+          <span className="flex items-center gap-1.5">
+            <span className="text-zinc-400">Avg:</span>
+            <span className="text-orange-400">
+              {(chartMetrics.avgPrice * 100).toFixed(1)}%
+            </span>
+          </span>
+        </div>
+      )}
+    </div>
 
-                    return (
-                      <tr
-                        key={i}
-                        className="border-b border-[#222]/50 hover:bg-[#171c21]"
-                      >
-                        <td className="py-2 text-left">
-                          {date.toLocaleString()}
-                        </td>
-                        <td className="py-2 text-right">
-                          {(point.open * 100).toFixed(2)}%
-                        </td>
-                        <td className="py-2 text-right">
-                          {(point.high * 100).toFixed(2)}%
-                        </td>
-                        <td className="py-2 text-right">
-                          {(point.low * 100).toFixed(2)}%
-                        </td>
-                        <td className="py-2 text-right font-medium">
-                          {(point.close * 100).toFixed(2)}%
-                        </td>
-                        <td
-                          className={`py-2 text-right ${
-                            change >= 0 ? "text-green-500" : "text-red-500"
-                          }`}
-                        >
-                          {change >= 0 ? "+" : ""}
-                          {change.toFixed(2)}%
-                        </td>
-                      </tr>
-                    );
-                  })}
-            </tbody>
-          </table>
+    {/* Trading Activity Summary */}
+    <div className="px-6 pt-3 pb-3">
+      <div className="grid grid-cols-3 gap-4 text-sm">
+        <div className="bg-zinc-800 rounded-lg p-3">
+          <div className="text-zinc-400 mb-1.5">24h Trades</div>
+          <div className="text-white font-bold text-lg">
+            {Math.floor(Math.random() * 1000) + 200}
+          </div>
+        </div>
+        <div className="bg-zinc-800 rounded-lg p-3">
+          <div className="text-zinc-400 mb-1.5">Daily Volume</div>
+          <div className="text-white font-bold text-lg">
+            ${(Math.random() * 250000 + 50000).toFixed(0)}
+          </div>
+        </div>
+        <div className="bg-zinc-800 rounded-lg p-3">
+          <div className="text-zinc-400 mb-1.5">Forecasters</div>
+          <div className="text-white font-bold text-lg">
+            {Math.floor(Math.random() * 500) + 100}
+          </div>
         </div>
       </div>
     </div>
-  );
+
+    {/* Chart Section */}
+    <div className="h-[400px] relative px-4 pb-5 pt-3">
+      {isLoading && (
+        <div className="absolute inset-0 bg-[#0a0a0a]/80 flex items-center justify-center z-10">
+          <div className="animate-spin rounded-full h-14 w-14 border-t-2 border-b-2 border-orange-500"></div>
+        </div>
+      )}
+      <canvas ref={canvasRef} className="w-full h-full cursor-crosshair" />
+
+      {/* Chart Info Tooltip */}
+      <div className="absolute top-4 right-4 group">
+        <button className="p-1.5 rounded-full bg-zinc-800 text-zinc-400 hover:text-white transition-colors">
+          <Info size={16} />
+        </button>
+        <div className="absolute right-0 top-full mt-2 w-64 bg-zinc-800 p-3 rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 text-sm text-zinc-300 z-20">
+          <p className="mb-1.5">
+            This chart displays the price probability over time. Hover for more details.
+          </p>
+          <p>The orange line indicates the 10-period moving average.</p>
+        </div>
+      </div>
+    </div>
+
+    {/* Data Table Section */}
+    <div className="px-6 py-4 border-t border-zinc-800">
+      <h3 className="text-lg font-semibold text-white mb-3">Price History</h3>
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="text-zinc-400 border-b-2 border-zinc-800">
+              <th className="text-left py-3 px-2">Date</th>
+              <th className="text-right py-3 px-2">Open</th>
+              <th className="text-right py-3 px-2">High</th>
+              <th className="text-right py-3 px-2">Low</th>
+              <th className="text-right py-3 px-2">Close</th>
+              <th className="text-right py-3 px-2">Change</th>
+            </tr>
+          </thead>
+          <tbody>
+            {chartData &&
+              chartData
+                .slice(-5)
+                .reverse()
+                .map((point, i) => {
+                  const date = new Date(point.time);
+                  const prevPoint =
+                    i < 4 ? chartData[chartData.length - 5 + i + 1] : null;
+                  const change = prevPoint
+                    ? ((point.close - prevPoint.close) / prevPoint.close) * 100
+                    : 0;
+
+                  return (
+                    <tr
+                      key={i}
+                      className="border-b border-zinc-800/60 hover:bg-zinc-800"
+                    >
+                      <td className="py-3 px-2 text-left text-white">
+                        {date.toLocaleString()}
+                      </td>
+                      <td className="py-3 px-2 text-right text-zinc-400">
+                        {(point.open * 100).toFixed(2)}%
+                      </td>
+                      <td className="py-3 px-2 text-right text-zinc-400">
+                        {(point.high * 100).toFixed(2)}%
+                      </td>
+                      <td className="py-3 px-2 text-right text-zinc-400">
+                        {(point.low * 100).toFixed(2)}%
+                      </td>
+                      <td className="py-3 px-2 text-right font-semibold text-white">
+                        {(point.close * 100).toFixed(2)}%
+                      </td>
+                      <td
+                        className={`py-3 px-2 text-right font-semibold ${
+                          change >= 0 ? "text-green-400" : "text-red-400"
+                        }`}
+                      >
+                        {change >= 0 ? "+" : ""}
+                        {change.toFixed(2)}%
+                      </td>
+                    </tr>
+                  );
+                })}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+);
+
+  
 };
 
 export default ChartCard;
