@@ -405,7 +405,29 @@
 .animate-pulse-subtle { animation: pulse-subtle 4s ease-in-out infinite; }
 .animate-shimmer { animation: shimmer 2s ease-in-out infinite; }
 
+/* Custom scrollbar for dropdown */
+.category-dropdown-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
 
+.category-dropdown-scrollbar::-webkit-scrollbar-track {
+  background: rgba(55, 65, 81, 0.5);
+  border-radius: 3px;
+}
+
+.category-dropdown-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(249, 115, 22, 0.5);
+  border-radius: 3px;
+}
+
+.category-dropdown-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(249, 115, 22, 0.8);
+}
+
+/* Dropdown arrow animation */
+#category-dropdown.opacity-100 ~ button .dropdown-arrow {
+  transform: rotate(180deg);
+}
 
 
 
