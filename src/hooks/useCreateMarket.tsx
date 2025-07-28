@@ -2,9 +2,10 @@ import { useWriteContract, useWaitForTransactionReceipt } from "wagmi";
 import { MARKET_ABI } from "../abi/MarketABI";
 import { FACTORY_ABI } from "../abi/FactoryABI";
 import { CONTRACT_ADDRESSES } from "../utils/wagmiConfig";
-import { type Address, decodeEventLog, parseUnits } from "viem";
+import { type Address, decodeEventLog, formatUnits, parseUnits } from "viem";
 import { usePublicClient } from "wagmi";
 import { useState, useEffect } from "react";
+import { useUsdtToken } from "./useToken";
 
 export function useCreateMarket() {
   const { writeContract, data: hash, isPending } = useWriteContract();
@@ -15,10 +16,12 @@ export function useCreateMarket() {
   } = useWaitForTransactionReceipt({
     hash,
   });
-  
+
   const [marketAddress, setMarketAddress] = useState<Address | null>(null);
   const [marketId, setMarketId] = useState<string | null>(null);
   const publicClient = usePublicClient();
+  const { approve } = useUsdtToken();
+
 
   useEffect(() => {
     const extractMarketData = async () => {
@@ -37,7 +40,7 @@ export function useCreateMarket() {
               // marketId (bytes32), marketContract (address), owner (address)
               if (decodedLog.eventName === "MarketCreated") {
                 const args = decodedLog.args as any;
-                
+
                 // Extract marketId (bytes32) and marketContract (address)
                 if (args.marketId) {
                   setMarketId(args.marketId);
@@ -81,13 +84,23 @@ export function useCreateMarket() {
       functionName: "getMarketCreationFee",
     });
 
-    return await writeContract({
+    console.log("Market creation fee:", fee);
+
+    await approve({
+      tokenAddress: CONTRACT_ADDRESSES.token as `0x${string}`,
+      spender: factoryAddress as `0x${string}`,
+      usdAmount: parseInt(formatUnits(BigInt(fee as string), 6)),
+      decimals: 6,
+    });
+
+    await writeContract({
       address: factoryAddress,
       abi: FACTORY_ABI,
       functionName: "createMarket",
       args: [question, optionA, optionB, endTime],
-      value: fee as bigint, // Pay the market creation fee
     });
+
+    return
   };
 
   return {
@@ -136,7 +149,7 @@ export function useInitializeMarket() {
 export function useCreateAndInitializeMarket() {
   const { createMarket, isPending: isCreating, isSuccess: isCreated, marketAddress } = useCreateMarket();
   const { initializeMarket, isPending: isInitializing, isSuccess: isInitialized } = useInitializeMarket();
-  
+
   const [isComplete, setIsComplete] = useState(false);
 
   // Auto-initialize market after creation if initialLiquidity is provided
@@ -157,7 +170,7 @@ export function useCreateAndInitializeMarket() {
     try {
       // Step 1: Create market
       await createMarket(question, optionA, optionB, endTime);
-      
+
       // Step 2: Initialize market (if initial liquidity provided)
       if (initialLiquidity && marketAddress) {
         await initializeMarket(marketAddress, initialLiquidity);
