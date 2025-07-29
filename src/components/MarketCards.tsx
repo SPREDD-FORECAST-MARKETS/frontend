@@ -126,256 +126,187 @@ const EnhancedCard = ({
         onMouseLeave={() => setIsHovered(false)}
         className={`
           relative group
-          bg-gradient-to-br from-zinc-900/90 via-zinc-800/80 to-black/90
-          backdrop-blur-xl border border-zinc-700/50
-          rounded-3xl shadow-2xl shadow-black/50
-          transition-all duration-500 ease-out
+          bg-black border border-gray-800
+          rounded-xl shadow-lg
+          transition-all duration-300 ease-out
           overflow-hidden
-          h-[520px]
-          flex flex-col p-0
+          flex flex-col
           ${isMarketClosed || needsResolution
-            ? "opacity-70 cursor-default scale-98"
-            : "hover:shadow-orange-500/20 hover:shadow-2xl hover:border-orange-500/30 hover:scale-[1.02] cursor-pointer"
+            ? "opacity-70 cursor-default"
+            : "hover:shadow-xl hover:border-orange-500/30 hover:shadow-orange-500/10 cursor-pointer"
           }
           ${isVisible
             ? "animate-reveal opacity-100"
             : "opacity-0 translate-y-10 scale-95"
           }
-          ${!isInView && isVisible ? "scale-98" : ""}
-          before:absolute before:inset-0 
-          before:bg-gradient-to-br before:from-white/5 before:via-transparent before:to-transparent
-          before:opacity-0 before:group-hover:opacity-100 before:transition-opacity before:duration-700
-          after:absolute after:inset-0 
-          after:bg-gradient-to-t after:from-orange-500/5 after:via-transparent after:to-transparent
-          after:opacity-0 after:group-hover:opacity-100 after:transition-opacity after:duration-500
         `}
         style={{ 
-          transition: "all 0.5s cubic-bezier(0.4, 0, 0.2, 1)", 
-          animationDelay: `${index * 150}ms`,
-          backdropFilter: 'blur(20px)',
-          background: `
-            linear-gradient(135deg, 
-              rgba(39, 39, 42, 0.9) 0%, 
-              rgba(24, 24, 27, 0.8) 50%, 
-              rgba(0, 0, 0, 0.9) 100%
-            )
-          `
+          transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)", 
+          animationDelay: `${index * 150}ms`
         }}
       >
-        {/* Enhanced Glassmorphism Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-br from-orange-500/10 via-transparent to-purple-500/5 opacity-60 group-hover:opacity-100 transition-opacity duration-700"></div>
-        
-        {/* Animated Glow Effects */}
-        <div className="absolute -top-24 -right-24 w-48 h-48 bg-gradient-radial from-orange-500/20 to-transparent rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-all duration-1000 animate-pulse-slow"></div>
-        <div className="absolute -bottom-12 -left-12 w-32 h-32 bg-gradient-radial from-orange-400/15 to-transparent rounded-full blur-2xl opacity-0 group-hover:opacity-80 transition-all duration-1000 delay-200"></div>
-
-        {/* Status Overlays - Enhanced */}
+        {/* Status Overlays */}
         {isMarketClosed && data.isResolved && (
-          <div className="absolute inset-0 backdrop-blur-2xl bg-black/60 z-20 flex flex-col items-center justify-center">
-            <div className="relative bg-gradient-to-br from-zinc-800/90 to-zinc-900/90 backdrop-blur-xl rounded-2xl p-8 text-center border border-zinc-600/30 shadow-2xl">
-              <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent rounded-2xl"></div>
-              <div className="relative z-10">
-                <Lock size={40} className="text-zinc-300 mx-auto mb-4 drop-shadow-lg" />
-                <h3 className="text-zinc-100 text-xl font-bold mb-2 tracking-wide">
-                  Market Resolved
-                </h3>
-                <p className="text-zinc-400 text-sm mb-4">
-                  This market has been resolved
-                </p>
-                {data.outcomeWon && (
-                  <div className="inline-flex items-center gap-2 bg-orange-500/20 border border-orange-500/30 rounded-full px-4 py-2">
-                    <div className="w-2 h-2 bg-orange-500 rounded-full animate-pulse"></div>
-                    <span className="text-orange-300 text-sm font-semibold">
-                      Winner: {data.winningOutcome}
-                    </span>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Needs Resolution Overlay for Creator - ADDED BACK */}
-        
-        {needsResolution && (
-          <div className="absolute inset-0 backdrop-blur-2xl bg-black/60 z-20 flex flex-col items-center justify-center">
-            <div className="relative bg-gradient-to-br from-orange-900/90 to-orange-800/90 backdrop-blur-xl rounded-2xl p-8 text-center border border-orange-500/30 shadow-2xl shadow-orange-500/20">
-              <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent rounded-2xl"></div>
-              <div className="relative z-10">
-                <div className="w-16 h-16 bg-gradient-to-br from-orange-400 to-orange-600 rounded-full mx-auto mb-4 flex items-center justify-center shadow-lg shadow-orange-500/30">
-                  <span className="text-white text-2xl font-bold">!</span>
-                </div>
-                <h3 className="text-orange-100 text-xl font-bold mb-2 tracking-wide">
-                  Needs Resolution
-                </h3>
-                <p className="text-orange-200/80 text-sm mb-6 leading-relaxed">
-                  This market has ended and needs to be resolved
-                </p>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setShowResolutionModal(true);
-                  }}
-                  className="group/resolve relative bg-gradient-to-br from-orange-500 to-orange-600 hover:from-orange-400 hover:to-orange-500 text-white font-bold px-6 py-3 rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-lg hover:shadow-orange-500/30 border border-orange-400/30"
-                >
-                  <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover/resolve:opacity-100 transition-opacity duration-300 rounded-xl"></div>
-                  <span className="relative z-10 flex items-center gap-2">
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    Resolve Market
-                  </span>
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Regular Market Closed Overlay - Enhanced */}
-        {isMarketClosed && !data.isResolved && !isUserCreator && (
-          <div className="absolute inset-0 backdrop-blur-2xl bg-black/60 z-20 flex flex-col items-center justify-center">
-            <div className="relative bg-gradient-to-br from-zinc-800/90 to-zinc-900/90 backdrop-blur-xl rounded-2xl p-8 text-center border border-zinc-600/30 shadow-2xl">
-              <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent rounded-2xl"></div>
-              <div className="relative z-10">
-                <Lock size={40} className="text-zinc-300 mx-auto mb-4 drop-shadow-lg" />
-                <h3 className="text-zinc-100 text-xl font-bold mb-2 tracking-wide">
-                  Market Closed
-                </h3>
-                <p className="text-zinc-400 text-sm">
-                  Trading has ended, awaiting resolution
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Enhanced Header Section - Fixed Height */}
-        <div className="relative p-6 pb-4 flex items-center gap-4 border-b border-zinc-700/50 h-[120px] bg-gradient-to-r from-zinc-800/30 to-transparent">
-          {/* Enhanced Image Container */}
-          <div className="relative group/image flex-shrink-0">
-            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl overflow-hidden bg-gradient-to-br from-zinc-600 via-zinc-700 to-black p-0.5 shadow-xl shadow-black/40 group-hover:shadow-orange-900/30 transition-all duration-700">
-              <div className="w-full h-full rounded-[14px] overflow-hidden relative">
-                <img
-                  src={data.image}
-                  alt={data.question}
-                  className={`w-full h-full object-cover transition-all duration-700 ${
-                    !isMarketClosed ? "group-hover:scale-110 group-hover:brightness-110" : ""
-                  }`}
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-              </div>
-            </div>
-            {!isMarketClosed && (
-              <div className="absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-br from-orange-400 to-orange-600 rounded-full border-2 border-zinc-800 shadow-lg opacity-0 group-hover:opacity-100 transition-all duration-500 animate-pulse"></div>
-            )}
-          </div>
-
-          {/* Enhanced Title - Fixed to 2 lines max */}
-          <div className="flex-1 min-w-0">
-            <h3 className={`text-white font-bold text-base sm:text-lg leading-tight tracking-wide transition-all duration-500 line-clamp-2 h-[3rem] flex items-center ${
-              !isMarketClosed ? "group-hover:text-orange-50 group-hover:drop-shadow-lg" : ""
-            }`}>
-              {data.question}
-            </h3>
-            
-            {/* Enhanced Status Badge */}
-            <div className="flex items-center gap-2 mt-2">
-              <div className="flex items-center gap-2 bg-zinc-800/60 backdrop-blur-sm rounded-full px-3 py-1 border border-zinc-700/50">
-                <div className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                  data.isResolved
-                    ? "bg-orange-500 shadow-lg shadow-orange-500/50"
-                    : isMarketClosed
-                    ? "bg-zinc-500"
-                    : isEndingSoon
-                    ? "bg-orange-500 animate-pulse shadow-lg shadow-orange-500/50"
-                    : "bg-emerald-500 shadow-lg shadow-emerald-500/50"
-                }`}></div>
-                <span className="text-zinc-300 text-xs font-semibold uppercase tracking-wider">
-                  {data.isResolved ? "Resolved" : isMarketClosed ? "Closed" : "Live"}
-                </span>
-              </div>
-              
-              {!isMarketClosed && timeDifference > 0 && (
-                <div className="bg-gradient-to-r from-orange-500/20 to-orange-600/20 backdrop-blur-sm border border-orange-500/30 rounded-full px-3 py-1">
-                  <span className="text-orange-300 text-xs font-bold">
-                    {timeInfo.relative}
+          <div className="absolute inset-0 bg-black/90 z-20 flex flex-col items-center justify-center">
+            <div className="bg-gray-900 border border-gray-700 rounded-xl p-6 text-center">
+              <Lock size={32} className="text-gray-400 mx-auto mb-3" />
+              <h3 className="text-white text-lg font-semibold mb-2">
+                Market Resolved
+              </h3>
+              <p className="text-gray-400 text-sm mb-3">
+                This market has been resolved
+              </p>
+              {data.outcomeWon && (
+                <div className="inline-flex items-center gap-2 bg-orange-500/20 border border-orange-500/50 rounded-full px-3 py-1">
+                  <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
+                  <span className="text-orange-400 text-sm font-medium">
+                    Winner: {data.winningOutcome}
                   </span>
                 </div>
               )}
             </div>
           </div>
-        </div>
+        )}
 
-        {/* Enhanced Content Section - Consistent Layout */}
-        <div className="flex-1 flex flex-col px-6 pt-5">
-          {/* Description - Fixed height with exactly 4 lines */}
-          <div className="h-[6rem] mb-4">
-            <p className="text-zinc-300 font-medium text-sm sm:text-base leading-6 tracking-wide line-clamp-4 group-hover:text-zinc-200 transition-colors duration-300">
-              {data.description}
-            </p>
-          </div>
-
-          {/* Enhanced Time Information - Fixed positioning */}
-          <div className="mb-4">
-            <div className="bg-gradient-to-br from-zinc-800/60 via-zinc-800/40 to-zinc-900/60 backdrop-blur-xl rounded-2xl p-4 border border-zinc-700/30 shadow-inner">
-              <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent rounded-2xl"></div>
-              
-              <div className="relative space-y-3">
-                <div className="flex justify-between items-center">
-                  <span className="text-zinc-400 text-xs font-medium uppercase tracking-wider">
-                    {data.isResolved ? "Resolved" : isMarketClosed ? "Closed" : "Closes"}
-                  </span>
-                  <span className="text-zinc-200 text-xs font-bold">
-                    {timeInfo.relative}
-                  </span>
-                </div>
-                
-                <div className="text-zinc-300 text-xs font-mono bg-zinc-900/40 rounded-lg p-2 border border-zinc-700/20">
-                  {timeInfo.local}
-                </div>
-                
-                {!isMarketClosed && timeDifference > 0 && timeDifference < 3600000 && (
-                  <div className="text-orange-400 text-xs font-mono text-center bg-orange-500/10 rounded-lg p-2 border border-orange-500/20 animate-pulse">
-                    ⏰ {getPreciseCountdown(data.expiry_date)}
-                  </div>
-                )}
+        {/* Needs Resolution Overlay for Creator */}
+        {needsResolution && (
+          <div className="absolute inset-0 bg-black/90 z-20 flex flex-col items-center justify-center">
+            <div className="bg-gray-900 border border-orange-500/50 rounded-xl p-6 text-center">
+              <div className="w-12 h-12 bg-orange-500 rounded-full mx-auto mb-3 flex items-center justify-center">
+                <span className="text-white text-xl font-bold">!</span>
               </div>
-            </div>
-          </div>
-
-          {/* Flexible spacer */}
-          <div className="flex-1"></div>
-
-          {/* Enhanced Creator Section - Always visible with proper spacing */}
-          <div className="mb-4">
-            <div className="flex justify-between items-center pt-3 border-t border-zinc-700/30">
-              <div className="flex items-center gap-2 group/creator min-w-0 flex-1">
-                <div className="w-2 h-2 bg-orange-500 rounded-full flex-shrink-0"></div>
-                <span className={`text-orange-400 font-bold text-xs sm:text-sm transition-colors duration-300 underline decoration-orange-500/30 underline-offset-2 decoration-1 truncate ${
-                  !isMarketClosed ? "group-hover/creator:text-orange-300" : ""
-                }`}>
-                  {data.creator.username}
-                </span>
-                {isUserCreator && (
-                  <span className="bg-gradient-to-r from-orange-500/20 to-orange-600/20 border border-orange-500/30 rounded-full px-2 py-0.5 text-xs text-orange-300 font-semibold flex-shrink-0">
-                    Creator
-                  </span>
-                )}
-              </div>
-              <span className="text-zinc-500 font-medium text-xs flex-shrink-0 ml-2">
-                {TimeUtils.getRelativeTime(data.createdAt)}
-              </span>
-            </div>
-          </div>
-        </div>
-
-        {/* Enhanced Glass-like Action Buttons - Fixed positioning */}
-        {hasBuyOptions && !isMarketClosed && !data.isResolved && (
-          <div className="p-6 pt-0 bg-gradient-to-t from-black/20 to-transparent">
-            <div className="grid grid-cols-2 gap-4">
-              {/* Glass-like YES Button */}
+              <h3 className="text-white text-lg font-semibold mb-2">
+                Needs Resolution
+              </h3>
+              <p className="text-gray-300 text-sm mb-4">
+                This market has ended and needs to be resolved
+              </p>
               <button
-                className="group/btn relative backdrop-blur-xl bg-gradient-to-br from-emerald-400/20 via-emerald-500/15 to-emerald-600/20 hover:from-emerald-400/30 hover:via-emerald-500/25 hover:to-emerald-600/30 py-4 rounded-2xl text-sm font-bold text-emerald-100 flex items-center justify-center gap-3 transition-all duration-500 shadow-lg shadow-emerald-500/10 hover:shadow-emerald-400/20 hover:shadow-xl transform hover:translate-y-[-2px] hover:scale-[1.02] border border-emerald-400/30 hover:border-emerald-300/50 overflow-hidden"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowResolutionModal(true);
+                }}
+                className="bg-orange-500 hover:bg-orange-600 text-white font-medium px-4 py-2 rounded-lg transition-colors duration-200"
+              >
+                Resolve Market
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Regular Market Closed Overlay */}
+        {isMarketClosed && !data.isResolved && !isUserCreator && (
+          <div className="absolute inset-0 bg-black/90 z-20 flex flex-col items-center justify-center">
+            <div className="bg-gray-900 border border-gray-700 rounded-xl p-6 text-center">
+              <Lock size={32} className="text-gray-400 mx-auto mb-3" />
+              <h3 className="text-white text-lg font-semibold mb-2">
+                Market Closed
+              </h3>
+              <p className="text-gray-400 text-sm">
+                Trading has ended, awaiting resolution
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Header Section with Image and Title */}
+        <div className="p-4 flex items-start gap-3">
+          {/* Image Container */}
+          <div className="flex-shrink-0">
+            <div className="w-12 h-12 rounded-lg overflow-hidden bg-gray-800 border border-gray-700">
+              <img
+                src={data.image}
+                alt={data.question}
+                className="w-full h-full object-cover"
+              />
+            </div>
+          </div>
+
+          {/* Title and Status */}
+          <div className="flex-1 min-w-0">
+            <h3 className="text-white font-medium text-sm leading-tight line-clamp-3 mb-2">
+              {data.question}
+            </h3>
+            
+            {/* Status Badge */}
+            <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5">
+                <div className={`w-2 h-2 rounded-full ${
+                  data.isResolved
+                    ? "bg-orange-500"
+                    : isMarketClosed
+                    ? "bg-gray-500"
+                    : isEndingSoon
+                    ? "bg-orange-500"
+                    : "bg-green-500"
+                }`}></div>
+                <span className="text-white text-xs font-medium">
+                  {data.isResolved ? "RESOLVED" : isMarketClosed ? "CLOSED" : "ACTIVE"}
+                </span>
+              </div>
+              
+              {!isMarketClosed && timeDifference > 0 && (
+                <span className="text-orange-400 text-xs font-medium">
+                  {timeInfo.relative}
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Description */}
+        <div className="px-4 pb-3">
+          <p className="text-gray-400 text-sm line-clamp-2">
+            {data.description}
+          </p>
+        </div>
+
+        {/* Time Information */}
+        <div className="px-4 pb-3">
+          <div className="bg-gray-900 border border-gray-800 rounded-lg p-3">
+            <div className="flex justify-between items-center mb-1">
+              <span className="text-gray-400 text-xs">
+                {data.isResolved ? "Resolved:" : isMarketClosed ? "Closed:" : "Closes:"}
+              </span>
+              <span className="text-orange-400 text-xs font-medium">{timeInfo.relative}</span>
+            </div>
+            <div className="text-gray-500 text-xs">
+              {timeInfo.local}
+            </div>
+          </div>
+          
+          {!isMarketClosed && timeDifference > 0 && timeDifference < 3600000 && (
+            <div className="text-orange-400 text-xs font-mono text-center mt-2 bg-orange-500/10 border border-orange-500/20 rounded px-2 py-1">
+              ⏰ {getPreciseCountdown(data.expiry_date)}
+            </div>
+          )}
+        </div>
+
+        {/* Creator Section */}
+        <div className="px-4 pb-3">
+          <div className="flex justify-between items-center text-xs">
+            <div className="flex items-center gap-1.5">
+              <span className="text-orange-400 font-medium">
+                {data.creator.username}
+              </span>
+              {isUserCreator && (
+                <span className="bg-orange-500/20 border border-orange-500/50 rounded px-1.5 py-0.5 text-orange-400 text-xs">
+                  Creator
+                </span>
+              )}
+            </div>
+            <span className="text-gray-500">
+              {TimeUtils.getRelativeTime(data.createdAt)}
+            </span>
+          </div>
+        </div>
+
+        {/* Action Buttons */}
+        {hasBuyOptions && !isMarketClosed && !data.isResolved && (
+          <div className="p-4 pt-0 mt-auto">
+            <div className="grid grid-cols-2 gap-3">
+              <button
+                className="bg-green-600 hover:bg-green-700 text-white font-medium py-2.5 px-4 rounded-lg text-sm transition-colors duration-200 flex items-center justify-center gap-2 border border-green-500/30"
                 onClick={(e) => {
                   e.stopPropagation();
                   navigate(`/trade/${data.id}`, {
@@ -396,19 +327,14 @@ const EnhancedCard = ({
                   });
                 }}
               >
-                <div className="absolute inset-0 bg-gradient-to-r from-white/10 via-white/5 to-transparent opacity-0 group-hover/btn:opacity-100 transition-opacity duration-500"></div>
-                <div className="absolute inset-0 bg-gradient-to-t from-emerald-500/10 to-transparent"></div>
-                <span className="relative z-10 flex items-center gap-2">
-                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.707l-3-3a1 1 0 00-1.414 1.414L10.586 9H7a1 1 0 100 2h3.586l-1.293 1.293a1 1 0 101.414 1.414l3-3a1 1 0 000-1.414z" clipRule="evenodd" />
-                  </svg>
-                  <span className="font-black">BUY YES</span>
-                </span>
+                <span>Buy Yes</span>
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
               </button>
               
-              {/* Glass-like NO Button */}
               <button
-                className="group/btn relative backdrop-blur-xl bg-gradient-to-br from-red-400/20 via-red-500/15 to-red-600/20 hover:from-red-400/30 hover:via-red-500/25 hover:to-red-600/30 py-4 rounded-2xl text-sm font-bold text-red-100 flex items-center justify-center gap-3 transition-all duration-500 shadow-lg shadow-red-500/10 hover:shadow-red-400/20 hover:shadow-xl transform hover:translate-y-[-2px] hover:scale-[1.02] border border-red-400/30 hover:border-red-300/50 overflow-hidden"
+                className="bg-red-600 hover:bg-red-700 text-white font-medium py-2.5 px-4 rounded-lg text-sm transition-colors duration-200 flex items-center justify-center gap-2 border border-red-500/30"
                 onClick={(e) => {
                   e.stopPropagation();
                   navigate(`/trade/${data.id}`, {
@@ -429,35 +355,27 @@ const EnhancedCard = ({
                   });
                 }}
               >
-                <div className="absolute inset-0 bg-gradient-to-r from-white/10 via-white/5 to-transparent opacity-0 group-hover/btn:opacity-100 transition-opacity duration-500"></div>
-                <div className="absolute inset-0 bg-gradient-to-t from-red-500/10 to-transparent"></div>
-                <span className="relative z-10 flex items-center gap-2">
-                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.707l-3-3a1 1 0 00-1.414 1.414L10.586 9H7a1 1 0 100 2h3.586l-1.293 1.293a1 1 0 101.414 1.414l3-3a1 1 0 000-1.414z" clipRule="evenodd" />
-                  </svg>
-                  <span className="font-black">BUY NO</span>
-                </span>
+                <span>Buy No</span>
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
               </button>
             </div>
           </div>
         )}
 
-        {/* Enhanced Closed State */}
+        {/* Closed State */}
         {hasBuyOptions && (isMarketClosed || data.isResolved) && !needsResolution && (
-          <div className="p-6 pt-0 bg-gradient-to-t from-zinc-900/40 to-transparent">
-            <div className="bg-gradient-to-br from-zinc-800/80 to-zinc-900/80 backdrop-blur-xl rounded-2xl p-4 text-center border border-zinc-600/30 shadow-inner">
-              <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent rounded-2xl"></div>
-              <div className="relative">
-                <span className="text-zinc-300 text-sm font-bold block mb-2">
-                  {data.isResolved ? "🏁 Market Resolved" : "⏰ Trading Ended"}
-                </span>
-                <div className="text-xs text-zinc-500 space-y-1">
-                  <div>{timeInfo.local}</div>
-                  <div className="font-mono">UTC: {timeInfo.utc}</div>
-                </div>
+          <div className="p-4 pt-0 mt-auto">
+            <div className="bg-gray-900 border border-gray-800 rounded-lg p-3 text-center">
+              <span className="text-gray-300 text-sm font-medium block mb-1">
+                {data.isResolved ? "🏁 Market Resolved" : "⏰ Trading Ended"}
+              </span>
+              <div className="text-xs text-gray-500">
+                <div>{timeInfo.local}</div>
                 {data.isResolved && data.outcomeWon && (
-                  <div className="mt-3 inline-flex items-center gap-2 bg-orange-500/20 border border-orange-500/30 rounded-full px-3 py-1">
-                    <span className="text-orange-300 text-xs font-bold">
+                  <div className="mt-2 inline-flex items-center gap-1 bg-orange-500/20 border border-orange-500/50 rounded-full px-2 py-1">
+                    <span className="text-orange-400 text-xs font-medium">
                       🏆 Winner: {data.outcomeWon === 1 ? "YES" : "NO"}
                     </span>
                   </div>
