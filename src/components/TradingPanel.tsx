@@ -65,7 +65,7 @@ const TradingPanel = ({
   }) as { data: readonly [bigint, bigint, boolean, bigint] | undefined; refetch: () => void };
 
   // Calculate potential winnings
-  const { data: potentialWinningsData, refetch: refetchWinnings } = useReadContract({
+  const { data: potentialWinningsData } = useReadContract({
     address: marketData.contract_address as `0x${string}`,
     abi: MARKET_ABI,
     functionName: "calculatePotentialWinnings",

@@ -46,7 +46,7 @@ const EnhancedCard = ({
   const { user } = usePrivy();
   const cardRef = useRef<HTMLDivElement>(null);
   const [isVisible, setIsVisible] = useState(false);
-  const [isInView, setIsInView] = useState(false);
+  const [, setIsInView] = useState(false);
 
   const timeInfo = formatMarketTime(data.expiry_date);
   const userTimezone = TimeUtils.getUserTimezone();
