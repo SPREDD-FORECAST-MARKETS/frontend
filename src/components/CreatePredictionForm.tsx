@@ -14,6 +14,36 @@ import { UTCTimeHelpers } from "../utils/helpers";
 
 const MAX_IMAGE_SIZE = 1024 * 1024;
 
+// Predefined categories
+const AVAILABLE_CATEGORIES = [
+  "NBA",
+  "Technology",
+  "Science Breakthroughs",
+  "Bitcoin",
+  "Sports",
+  "AI",
+  "Crypto",
+  "Business",
+  "Economy",
+  "Entertainment",
+  "Health",
+  "Environment",
+  "Science",
+  "Travel",
+  "Food",
+  "Fashion",
+  "Lifestyle",
+  "Finance",
+  "Real Estate",
+  "Automotive",
+  "Gaming",
+  "Music",
+  "Art",
+  "Photography",
+  "Forecasting",
+  "E-sports",
+];
+
 const CreatePredictionForm = () => {
   const { error, success } = useToast();
 
@@ -30,35 +60,82 @@ const CreatePredictionForm = () => {
 
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [uploadedImageUrl, setUploadedImageUrl] = useState<string>("");
-  const [marketContractAddress, setMarketContractAddress] = useState<string | null>(null);
+  const [marketContractAddress, setMarketContractAddress] = useState<
+    string | null
+  >(null);
   const [marketId, setMarketId] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [confirmedEndTimeUTC, setConfirmedEndTimeUTC] = useState<number | null>(
+    null
+  );
 
-  const [confirmedEndTimeUTC, setConfirmedEndTimeUTC] = useState<number | null>(null);
+  // Dropdown and search state
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
 
   const { switchChain } = useSwitchChain();
-
-  const { createMarket: createSmartContractMarket, hash: contractHash } = useCreateMarket();
+  const { createMarket: createSmartContractMarket, hash: contractHash } =
+    useCreateMarket();
 
   const { data: receipt } = useWaitForTransactionReceipt({
     hash: contractHash,
   });
-  
+
   const marketCreatedEvent = parseAbiItem(
     "event MarketCreated(bytes32 indexed marketId, address indexed marketContract, address indexed owner, address token, string question, string optionA, string optionB, uint256 endTime)"
   );
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
+  // Filter categories based on search term
+  const filteredCategories = AVAILABLE_CATEGORIES.filter((category) =>
+    category.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
-    if (name === "tags") {
-      setFormData((prev) => ({
-        ...prev,
-        tags: value.split(",").map((cat) => cat.trim()),
-      }));
-    } else {
-      setFormData((prev) => ({ ...prev, [name]: value }));
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  // Handle category selection
+  const handleCategorySelect = (category: string) => {
+    setFormData((prev) => {
+      const currentTags = prev.tags || [];
+      if (currentTags.includes(category)) {
+        // Remove if already selected
+        return {
+          ...prev,
+          tags: currentTags.filter((tag) => tag !== category),
+        };
+      } else {
+        // Add if not selected
+        return {
+          ...prev,
+          tags: [...currentTags, category],
+        };
+      }
+    });
+  };
+
+  // Remove individual category
+  const handleRemoveCategory = (category: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      tags: (prev.tags || []).filter((tag) => tag !== category),
+    }));
+  };
+
+  // Handle search input change
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value);
+  };
+
+  // Clear search when dropdown closes
+  const handleDropdownToggle = () => {
+    if (isDropdownOpen) {
+      setSearchTerm(""); // Clear search when closing
     }
+    setIsDropdownOpen(!isDropdownOpen);
   };
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -100,14 +177,20 @@ const CreatePredictionForm = () => {
 
     try {
       // Validate the input time
-      const validation = UTCTimeHelpers.validateFutureTime(formData.endDate, formData.endTime);
+      const validation = UTCTimeHelpers.validateFutureTime(
+        formData.endDate,
+        formData.endTime
+      );
       if (!validation.isValid) {
         error(validation.error!);
         return;
       }
 
-      const endTimeUTC = UTCTimeHelpers.toUTCTimestamp(formData.endDate, formData.endTime);
-      
+      const endTimeUTC = UTCTimeHelpers.toUTCTimestamp(
+        formData.endDate,
+        formData.endTime
+      );
+
       setConfirmedEndTimeUTC(endTimeUTC);
 
       console.log("Creating market with endTimeUTC:", endTimeUTC);
@@ -135,9 +218,9 @@ const CreatePredictionForm = () => {
       try {
         const dbDateString = new Date(confirmedEndTimeUTC * 1000).toISOString();
 
-        console.log('Storing in database:');
-        console.log('UTC timestamp from contract:', confirmedEndTimeUTC);
-        console.log('ISO string for DB:', dbDateString);
+        console.log("Storing in database:");
+        console.log("UTC timestamp from contract:", confirmedEndTimeUTC);
+        console.log("ISO string for DB:", dbDateString);
 
         const authToken = await getAccessToken();
         const [, status] = await createMarket(
@@ -159,25 +242,24 @@ const CreatePredictionForm = () => {
         }
 
         success("Prediction created successfully!");
-        
+
         // Reset form state
         setImagePreview(null);
         setMarketContractAddress(null);
         setMarketId(null);
         setConfirmedEndTimeUTC(null);
-        
+
         // Optionally reset form data
         setFormData({
           title: "",
           options: ["Yes", "No"],
           description: "",
           resolutionCriteria: "",
-          tags: [""],
+          tags: [],
           endDate: "",
           endTime: "",
           createOnChain: true,
         });
-
       } catch (err) {
         console.error("Error storing market in database:", err);
         error("Market created on blockchain but failed to store in database");
@@ -202,16 +284,19 @@ const CreatePredictionForm = () => {
         if (parsed.eventName === "MarketCreated") {
           const marketContract = parsed.args.marketContract;
           const marketId = parsed.args.marketId;
-          const contractEndTime = parsed.args.endTime; 
+          const contractEndTime = parsed.args.endTime;
 
           setMarketContractAddress(marketContract);
           setMarketId(marketId);
-          
+
           // Verify timestamp consistency
-          if (confirmedEndTimeUTC && Number(contractEndTime) !== confirmedEndTimeUTC) {
-            console.warn('Timestamp mismatch!', {
+          if (
+            confirmedEndTimeUTC &&
+            Number(contractEndTime) !== confirmedEndTimeUTC
+          ) {
+            console.warn("Timestamp mismatch!", {
               stored: confirmedEndTimeUTC,
-              contract: Number(contractEndTime)
+              contract: Number(contractEndTime),
             });
           }
 
@@ -223,6 +308,20 @@ const CreatePredictionForm = () => {
       }
     }
   }, [receipt, confirmedEndTimeUTC]);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const dropdown = document.getElementById("category-dropdown");
+      if (dropdown && !dropdown.contains(event.target as Node)) {
+        setIsDropdownOpen(false);
+        setSearchTerm(""); // Clear search when clicking outside
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   return (
     <div className="w-full max-w-6xl mx-auto py-12 px-6 lg:px-12 text-white min-h-screen">
@@ -240,11 +339,17 @@ const CreatePredictionForm = () => {
           Create Prediction
         </h2>
 
-        <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-10">
+        <form
+          onSubmit={handleSubmit}
+          className="grid grid-cols-1 md:grid-cols-2 gap-10"
+        >
           {/* LEFT COLUMN */}
           <div className="space-y-8">
             <div>
-              <label htmlFor="title" className="block text-gray-400 font-medium mb-3 text-xs uppercase tracking-wider">
+              <label
+                htmlFor="title"
+                className="block text-gray-400 font-medium mb-3 text-xs uppercase tracking-wider"
+              >
                 Event Title
               </label>
               <input
@@ -260,7 +365,10 @@ const CreatePredictionForm = () => {
             </div>
 
             <div>
-              <label htmlFor="description" className="block text-gray-400 font-medium mb-3 text-xs uppercase tracking-wider">
+              <label
+                htmlFor="description"
+                className="block text-gray-400 font-medium mb-3 text-xs uppercase tracking-wider"
+              >
                 Description
               </label>
               <textarea
@@ -275,7 +383,10 @@ const CreatePredictionForm = () => {
             </div>
 
             <div>
-              <label htmlFor="resolutionCriteria" className="block text-gray-400 font-medium mb-3 text-xs uppercase tracking-wider">
+              <label
+                htmlFor="resolutionCriteria"
+                className="block text-gray-400 font-medium mb-3 text-xs uppercase tracking-wider"
+              >
                 Resolution Criteria
               </label>
               <textarea
@@ -289,19 +400,137 @@ const CreatePredictionForm = () => {
               />
             </div>
 
+            {/* Enhanced Category Selection with Search */}
             <div>
-              <label htmlFor="tags" className="block text-gray-400 font-medium mb-3 text-xs uppercase tracking-wider">
-                Market Category
+              <label className="block text-gray-400 font-medium mb-3 text-xs uppercase tracking-wider">
+                Market Categories
               </label>
-              <input
-                type="text"
-                id="tags"
-                name="tags"
-                value={(formData.tags ?? []).join(", ")}
-                onChange={handleInputChange}
-                placeholder="e.g. Crypto, Sports"
-                className="w-full bg-[#111] border border-zinc-800 rounded-xl px-5 py-4 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-600/50 transition-all duration-300 shadow-inner"
-              />
+
+              {/* Selected Categories Display */}
+              {formData.tags && formData.tags.length > 0 && (
+                <div className="mb-4 flex flex-wrap gap-2">
+                  {formData.tags.map((tag, index) => (
+                    <span
+                      key={index}
+                      className="inline-flex items-center gap-2 bg-gradient-to-r from-orange-600/20 to-orange-700/20 border border-orange-600/30 text-orange-300 px-3 py-1.5 rounded-lg text-sm font-medium"
+                    >
+                      {tag}
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveCategory(tag)}
+                        className="ml-1 text-orange-400 hover:text-orange-200 transition-colors"
+                      >
+                        ×
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              )}
+
+              {/* Dropdown */}
+              <div className="relative" id="category-dropdown">
+                <button
+                  type="button"
+                  onClick={handleDropdownToggle}
+                  className="w-full bg-[#111] border border-zinc-800 rounded-xl px-5 py-4 text-left text-white focus:outline-none focus:ring-2 focus:ring-orange-600/50 transition-all duration-300 shadow-inner flex items-center justify-between hover:border-orange-600/50"
+                >
+                  <span
+                    className={
+                      formData.tags?.length ? "text-white" : "text-gray-500"
+                    }
+                  >
+                    {formData.tags?.length
+                      ? `${formData.tags.length} categories selected`
+                      : "Select categories"}
+                  </span>
+                  <svg
+                    className={`w-5 h-5 transition-transform duration-200 ${
+                      isDropdownOpen ? "rotate-180" : ""
+                    }`}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M19 9l-7 7-7-7"
+                    />
+                  </svg>
+                </button>
+
+                {isDropdownOpen && (
+                  <div className="absolute z-10 w-full mt-2 bg-[#111] border border-zinc-800 rounded-xl shadow-xl max-h-72 overflow-hidden">
+                    {/* Search Input */}
+                    <div className="p-3 border-b border-zinc-800 bg-[#0a0a0a]">
+                      <div className="relative">
+                        <svg
+                          className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                          />
+                        </svg>
+                        <input
+                          type="text"
+                          placeholder="Search categories..."
+                          value={searchTerm}
+                          onChange={handleSearchChange}
+                          className="w-full bg-[#111] border border-zinc-700 rounded-lg pl-10 pr-4 py-2 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-600/50 focus:border-orange-600/50 transition-all duration-200"
+                          onClick={(e) => e.stopPropagation()} // Prevent dropdown from closing
+                        />
+                      </div>
+                    </div>
+
+                    {/* Categories List */}
+                    <div className="max-h-48 overflow-y-auto">
+                      {filteredCategories.length > 0 ? (
+                        filteredCategories.map((category) => {
+                          const isSelected = formData.tags?.includes(category);
+                          return (
+                            <button
+                              key={category}
+                              type="button"
+                              onClick={() => handleCategorySelect(category)}
+                              className={`w-full px-5 py-3 text-left transition-all duration-200 flex items-center justify-between hover:bg-zinc-800/50 ${
+                                isSelected
+                                  ? "bg-orange-600/10 text-orange-300 border-r-2 border-orange-600"
+                                  : "text-gray-300 hover:text-white"
+                              }`}
+                            >
+                              <span>{category}</span>
+                              {isSelected && (
+                                <svg
+                                  className="w-4 h-4 text-orange-500"
+                                  fill="currentColor"
+                                  viewBox="0 0 20 20"
+                                >
+                                  <path
+                                    fillRule="evenodd"
+                                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                    clipRule="evenodd"
+                                  />
+                                </svg>
+                              )}
+                            </button>
+                          );
+                        })
+                      ) : (
+                        <div className="px-5 py-3 text-gray-400 text-center">
+                          No categories found for "{searchTerm}"
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 
@@ -312,13 +541,21 @@ const CreatePredictionForm = () => {
                 Upload Image
               </label>
               <div
-                className={`border-2 border-dashed ${imagePreview ? "border-green-500" : "border-zinc-800"} rounded-2xl p-8 text-center cursor-pointer hover:border-orange-600 transition-all duration-300 bg-[#111]`}
+                className={`border-2 border-dashed ${
+                  imagePreview ? "border-green-500" : "border-zinc-800"
+                } rounded-2xl p-8 text-center cursor-pointer hover:border-orange-600 transition-all duration-300 bg-[#111]`}
                 onClick={() => document.getElementById("image-upload")?.click()}
               >
                 {imagePreview ? (
-                  <img src={imagePreview} alt="Preview" className="max-h-56 mx-auto rounded-2xl object-cover ring-2 ring-orange-600/20" />
+                  <img
+                    src={imagePreview}
+                    alt="Preview"
+                    className="max-h-56 mx-auto rounded-2xl object-cover ring-2 ring-orange-600/20"
+                  />
                 ) : (
-                  <p className="text-gray-400 text-base">Drag & drop or click (max 1MB)</p>
+                  <p className="text-gray-400 text-base">
+                    Drag & drop or click (max 1MB)
+                  </p>
                 )}
                 <input
                   type="file"
