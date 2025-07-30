@@ -1,8 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import { ArrowUp, ArrowDown, Info, RefreshCw } from "lucide-react";
+import { ArrowUp, ArrowDown, Info } from "lucide-react";
 import type { Market, ChartDataPoint, TimeframeOption } from "../lib/interface";
 import { calculateOdds, generateChartData } from "../utils/calculations";
-import { getTimeLeft } from "../utils/helpers";
 
 interface ChartCardProps {
   marketData: Market;
@@ -19,7 +18,7 @@ interface ChartCardProps {
 // A self-contained component that manages its own chart data
 const ChartCard = ({ marketData, marketId }: ChartCardProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [activeTimeframe, setActiveTimeframe] = useState<TimeframeOption>("1D");
+  const [activeTimeframe,] = useState<TimeframeOption>("1D");
   const [chartData, setChartData] = useState<ChartDataPoint[] | null>(null);
   const [currentPrice, setCurrentPrice] = useState<number>(1);
   const [priceChange, setPriceChange] = useState<number>(0);
@@ -83,15 +82,6 @@ const ChartCard = ({ marketData, marketId }: ChartCardProps) => {
     }
   }, [activeTimeframe, marketId]);
 
-  // Handle changes in the timeframe selection
-  const handleTimeframeChange = (timeframe: TimeframeOption) => {
-    setActiveTimeframe(timeframe);
-  };
-
-  // Refresh the chart data
-  const refreshChart = () => {
-    fetchChartData();
-  };
 
   // Initialize and update chart data when the component mounts or timeframe changes
   useEffect(() => {
@@ -651,228 +641,126 @@ const ChartCard = ({ marketData, marketId }: ChartCardProps) => {
     ctx.fillText(labelText, width - labelWidth / 2 - 8, y + 5);
   };
 
-  // A custom timeframe selector component to avoid external dependencies
-  const TimeframeSelector = () => {
-    const timeframes: TimeframeOption[] = ["1H", "6H", "1D", "1W", "1M", "6M"];
 
-    return (
-      <div className="flex items-center gap-2 w-full sm:w-auto">
-        <div className="flex bg-[#2a313a] rounded-lg p-1 flex-1 sm:flex-auto">
-          {timeframes.map((tf) => (
-            <button
-              key={tf}
-              className={`px-4 py-2 text-sm font-medium rounded-md transition-all flex-1 ${
-                activeTimeframe === tf
-                  ? "bg-[#3b82f6] text-white shadow-md"
-                  : "text-[#a0aec0] hover:text-white hover:bg-[#343b45]"
-              }`}
-              onClick={() => handleTimeframeChange(tf)}
-            >
-              {tf}
-            </button>
-          ))}
-        </div>
-        <button
-          onClick={refreshChart}
-          disabled={isLoading}
-          className="p-2.5 text-[#a0aec0] hover:text-white rounded-lg hover:bg-[#343b45] transition-colors"
-        >
-          <RefreshCw size={18} className={isLoading ? "animate-spin" : ""} />
-        </button>
-      </div>
-    );
-  };
 
-    return (
-  <div className="border border-zinc-800 rounded-2xl overflow-hidden bg-gradient-to-b from-[#111] to-[#0a0a0a] shadow-xl hover:shadow-2xl transition-all duration-300">
-    {/* Header Section */}
-    <div className="px-6 py-5 border-b border-zinc-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-      <div className="flex items-center gap-4">
-        <div className="h-12 w-12 rounded-xl overflow-hidden bg-zinc-700 flex items-center justify-center ring-2 ring-orange-500 shadow-md">
-          <img src={marketData.image} alt={marketData.question} />
-        </div>
-        <div>
-          <div className="flex items-center">
-            <h1 className="text-2xl font-semibold text-white">{marketData.question}</h1>
-            <span className="ml-3 px-2.5 py-1 bg-orange-500/20 text-orange-400 text-xs font-medium rounded-full">
-              YES
-            </span>
-          </div>
-          <div className="text-zinc-400 text-sm flex items-center mt-1">
-            <span>Volume: 200K</span>
-            <span className="mx-2.5">•</span>
-            <span>
-              <span className="text-red-400">Ending:</span>{" "}
-              {getTimeLeft(marketData.expiry_date)}
-            </span>
-          </div>
-        </div>
-      </div>
+  return (
+    <div 
+      className="bg-[#131314f2] backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl shadow-black/40 overflow-hidden relative"
+      style={{ 
+        fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+      }}
+    >
+      {/* Glass overlay effect */}
+      <div className="absolute inset-0 backdrop-blur-sm" />
+      
+      {/* Subtle gradient overlay for depth */}
+      <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-black/20" />
 
-      <TimeframeSelector />
-    </div>
-
-    {/* Price Info Section */}
-    <div className="px-6 pt-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-      <div className="flex items-center">
-        <span className="text-3xl font-bold text-white">
-          {Math.round(currentPrice * 100)}%
-        </span>
-        <span
-          className={`ml-3 flex items-center font-semibold ${
-            priceChange >= 0 ? "text-green-400" : "text-red-400"
-          }`}
-        >
-          {priceChange >= 0 ? (
-            <ArrowUp size={18} className="mr-1" />
-          ) : (
-            <ArrowDown size={18} className="mr-1" />
-          )}
-          {Math.abs(parseFloat(priceChange.toFixed(1)))}%
-        </span>
-        <span className="ml-4 text-zinc-400 text-sm px-3 py-1.5 bg-zinc-800 rounded-lg">
-          Odds: {calculateOdds(marketData)}
-        </span>
-      </div>
-
-      {chartMetrics && (
-        <div className="flex items-center gap-4 text-sm font-medium">
-          <span className="flex items-center gap-1.5">
-            <span className="text-zinc-400">High:</span>
-            <span className="text-green-400">
-              {(chartMetrics.maxPrice * 100).toFixed(1)}%
-            </span>
-          </span>
-          <span className="flex items-center gap-1.5">
-            <span className="text-zinc-400">Low:</span>
-            <span className="text-red-400">
-              {(chartMetrics.minPrice * 100).toFixed(1)}%
-            </span>
-          </span>
-          <span className="flex items-center gap-1.5">
-            <span className="text-zinc-400">Avg:</span>
-            <span className="text-orange-400">
-              {(chartMetrics.avgPrice * 100).toFixed(1)}%
-            </span>
-          </span>
-        </div>
-      )}
-    </div>
-
-    {/* Trading Activity Summary */}
-    <div className="px-6 pt-3 pb-3">
-      <div className="grid grid-cols-3 gap-4 text-sm">
-        <div className="bg-zinc-800 rounded-lg p-3">
-          <div className="text-zinc-400 mb-1.5">24h Trades</div>
-          <div className="text-white font-bold text-lg">
-            {Math.floor(Math.random() * 1000) + 200}
-          </div>
-        </div>
-        <div className="bg-zinc-800 rounded-lg p-3">
-          <div className="text-zinc-400 mb-1.5">Daily Volume</div>
-          <div className="text-white font-bold text-lg">
-            ${(Math.random() * 250000 + 50000).toFixed(0)}
-          </div>
-        </div>
-        <div className="bg-zinc-800 rounded-lg p-3">
-          <div className="text-zinc-400 mb-1.5">Forecasters</div>
-          <div className="text-white font-bold text-lg">
-            {Math.floor(Math.random() * 500) + 100}
-          </div>
-        </div>
-      </div>
-    </div>
-
-    {/* Chart Section */}
-    <div className="h-[400px] relative px-4 pb-5 pt-3">
-      {isLoading && (
-        <div className="absolute inset-0 bg-[#0a0a0a]/80 flex items-center justify-center z-10">
-          <div className="animate-spin rounded-full h-14 w-14 border-t-2 border-b-2 border-orange-500"></div>
-        </div>
-      )}
-      <canvas ref={canvasRef} className="w-full h-full cursor-crosshair" />
-
-      {/* Chart Info Tooltip */}
-      <div className="absolute top-4 right-4 group">
-        <button className="p-1.5 rounded-full bg-zinc-800 text-zinc-400 hover:text-white transition-colors">
-          <Info size={16} />
-        </button>
-        <div className="absolute right-0 top-full mt-2 w-64 bg-zinc-800 p-3 rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 text-sm text-zinc-300 z-20">
-          <p className="mb-1.5">
-            This chart displays the price probability over time. Hover for more details.
-          </p>
-          <p>The orange line indicates the 10-period moving average.</p>
-        </div>
-      </div>
-    </div>
-
-    {/* Data Table Section */}
-    <div className="px-6 py-4 border-t border-zinc-800">
-      <h3 className="text-lg font-semibold text-white mb-3">Price History</h3>
-      <div className="overflow-x-auto">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="text-zinc-400 border-b-2 border-zinc-800">
-              <th className="text-left py-3 px-2">Date</th>
-              <th className="text-right py-3 px-2">Open</th>
-              <th className="text-right py-3 px-2">High</th>
-              <th className="text-right py-3 px-2">Low</th>
-              <th className="text-right py-3 px-2">Close</th>
-              <th className="text-right py-3 px-2">Change</th>
-            </tr>
-          </thead>
-          <tbody>
-            {chartData &&
-              chartData
-                .slice(-5)
-                .reverse()
-                .map((point, i) => {
-                  const date = new Date(point.time);
-                  const prevPoint =
-                    i < 4 ? chartData[chartData.length - 5 + i + 1] : null;
-                  const change = prevPoint
-                    ? ((point.close - prevPoint.close) / prevPoint.close) * 100
-                    : 0;
-
-                  return (
-                    <tr
-                      key={i}
-                      className="border-b border-zinc-800/60 hover:bg-zinc-800"
-                    >
-                      <td className="py-3 px-2 text-left text-white">
-                        {date.toLocaleString()}
-                      </td>
-                      <td className="py-3 px-2 text-right text-zinc-400">
-                        {(point.open * 100).toFixed(2)}%
-                      </td>
-                      <td className="py-3 px-2 text-right text-zinc-400">
-                        {(point.high * 100).toFixed(2)}%
-                      </td>
-                      <td className="py-3 px-2 text-right text-zinc-400">
-                        {(point.low * 100).toFixed(2)}%
-                      </td>
-                      <td className="py-3 px-2 text-right font-semibold text-white">
-                        {(point.close * 100).toFixed(2)}%
-                      </td>
-                      <td
-                        className={`py-3 px-2 text-right font-semibold ${
-                          change >= 0 ? "text-green-400" : "text-red-400"
-                        }`}
-                      >
-                        {change >= 0 ? "+" : ""}
-                        {change.toFixed(2)}%
-                      </td>
-                    </tr>
-                  );
-                })}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-);
-
+      {/* Content with higher z-index */}
+      <div className="relative z-10">
+        {/* Header Section */}
   
+
+
+        {/* Price Info Section */}
+        <div className="px-6 pt-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="flex items-center">
+            <span className="text-3xl font-bold text-white drop-shadow-sm">
+              {Math.round(currentPrice * 100)}%
+            </span>
+            <span
+              className={`ml-3 flex items-center font-bold ${
+                priceChange >= 0 ? "text-green-400" : "text-red-400"
+              }`}
+            >
+              {priceChange >= 0 ? (
+                <ArrowUp size={18} className="mr-1" />
+              ) : (
+                <ArrowDown size={18} className="mr-1" />
+              )}
+              {Math.abs(parseFloat(priceChange.toFixed(1)))}%
+            </span>
+            <span className="ml-4 text-slate-300 text-sm px-3 py-1.5 bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg font-medium">
+              Odds: {calculateOdds(marketData)}
+            </span>
+          </div>
+
+          {chartMetrics && (
+            <div className="flex items-center gap-4 text-sm font-semibold">
+              <span className="flex items-center gap-1.5">
+                <span className="text-slate-400">High:</span>
+                <span className="text-green-400">
+                  {(chartMetrics.maxPrice * 100).toFixed(1)}%
+                </span>
+              </span>
+              <span className="flex items-center gap-1.5">
+                <span className="text-slate-400">Low:</span>
+                <span className="text-red-400">
+                  {(chartMetrics.minPrice * 100).toFixed(1)}%
+                </span>
+              </span>
+              <span className="flex items-center gap-1.5">
+                <span className="text-slate-400">Avg:</span>
+                <span className="text-amber-400">
+                  {(chartMetrics.avgPrice * 100).toFixed(1)}%
+                </span>
+              </span>
+            </div>
+          )}
+        </div>
+
+        {/* Trading Activity Summary */}
+        <div className="px-6 pt-3 pb-3">
+          <div className="grid grid-cols-3 gap-4 text-sm">
+            <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg p-3 shadow-lg">
+              <div className="text-slate-400 mb-1.5 font-medium">24h Trades</div>
+              <div className="text-white font-bold text-lg drop-shadow-sm">
+                {Math.floor(Math.random() * 1000) + 200}
+              </div>
+            </div>
+            <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg p-3 shadow-lg">
+              <div className="text-slate-400 mb-1.5 font-medium">Daily Volume</div>
+              <div className="text-white font-bold text-lg drop-shadow-sm">
+                ${(Math.random() * 250000 + 50000).toFixed(0)}
+              </div>
+            </div>
+            <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg p-3 shadow-lg">
+              <div className="text-slate-400 mb-1.5 font-medium">Forecasters</div>
+              <div className="text-white font-bold text-lg drop-shadow-sm">
+                {Math.floor(Math.random() * 500) + 100}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Chart Section */}
+        <div className="h-[400px] relative px-4 pb-5 pt-3">
+          {isLoading && (
+            <div className="absolute inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-10 rounded-lg">
+              <div className="animate-spin rounded-full h-14 w-14 border-t-2 border-b-2 border-amber-500"></div>
+            </div>
+          )}
+          <canvas ref={canvasRef} className="w-full h-full cursor-crosshair rounded-lg" />
+
+          {/* Chart Info Tooltip */}
+          <div className="absolute top-4 right-4 group">
+            <button className="p-1.5 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-slate-400 hover:text-white transition-colors shadow-lg">
+              <Info size={16} />
+            </button>
+            <div className="absolute right-0 top-full mt-2 w-64 bg-white/10 backdrop-blur-xl border border-white/20 p-3 rounded-lg shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 text-sm text-slate-300 z-20">
+              <p className="mb-1.5 font-medium">
+                This chart displays the price probability over time. Hover for more details.
+              </p>
+              <p className="text-amber-400 font-medium">The orange line indicates the 10-period moving average.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Enhanced glass effects */}
+      <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-transparent opacity-0 hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-2xl" />
+    </div>
+  );
 };
 
 export default ChartCard;

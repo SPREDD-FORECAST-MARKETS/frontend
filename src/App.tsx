@@ -28,7 +28,7 @@ const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
   // Show loading while checking auth status
   if (!ready) {
     return (
-      <div className="flex items-center justify-center h-screen bg-black">
+      <div className="flex items-center justify-center h-screen bg-gradient-to-br from-white/5 via-transparent to-black/20">
         <div className="flex flex-col items-center gap-4">
           <div className="w-12 h-12 border-4 border-orange-500/20 border-t-orange-500 rounded-full animate-spin"></div>
           <div className="text-white text-xl">Loading...</div>
@@ -58,7 +58,7 @@ function AppContent() {
       <BrowserRouter>
         <ScrollToTop />
 
-        <main className="flex-grow pt-20">
+        <main className="flex-grow pt-[63px]">
           <Routes>
             {/* Public route - Explore page accessible to everyone */}
             <Route

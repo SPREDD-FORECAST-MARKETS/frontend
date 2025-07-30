@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useResolveMarket } from "../hooks/useMarketResolve";
 import { MarketOutcomeValues, type Market } from "../lib/interface";
 import { useSwitchChain } from "wagmi";
@@ -31,28 +30,22 @@ export const MarketResolutionModal = ({
     onSuccess: async () => {
       if (pendingOutcome) {
         try {
-          setCurrentStep("Updating market status on backend...");
-
+          setCurrentStep("Updating market status...");
           if (!market) {
             throw new Error("Market data is missing");
           }
-
           await resolveMarket(market.id, pendingOutcome);
-
           setCurrentStep("Market resolved successfully!");
           setSuccess(true);
           setIsProcessing(false);
         } catch (backendError: any) {
-          setError(
-            `Backend resolution failed: ${backendError.message || "Unknown error"
-            }`
-          );
+          setError(`Failed to update market status: ${backendError.message || "Unknown error"}`);
           setIsProcessing(false);
         }
       }
     },
     onError: (error) => {
-      setError(`Blockchain resolution failed: ${error}`);
+      setError(`Blockchain resolution failed: ${error || "Unknown error"}`);
       setIsProcessing(false);
       setCurrentStep("");
       setPendingOutcome(null);
@@ -63,9 +56,9 @@ export const MarketResolutionModal = ({
 
   useEffect(() => {
     if (isResolving) {
-      setCurrentStep("Resolving market on blockchain...");
+      setCurrentStep("Submitting to blockchain...");
     } else if (isConfirming) {
-      setCurrentStep("Waiting for transaction confirmation...");
+      setCurrentStep("Awaiting confirmation...");
     }
   }, [isResolving, isConfirming]);
 
@@ -79,23 +72,20 @@ export const MarketResolutionModal = ({
       setCurrentStep("Switching to Base Sepolia...");
       await switchChain({ chainId: baseSepolia.id });
 
-      const outcomeTitle =
-        outcome === MarketOutcomeValues.OPTION_A ? "YES" : "NO";
+      const outcomeTitle = outcome === MarketOutcomeValues.OPTION_A ? "YES" : "NO";
       setPendingOutcome(outcomeTitle);
 
-      setCurrentStep("Preparing blockchain transaction...");
-
+      setCurrentStep("Preparing transaction...");
       await resolveOnChain(outcome);
     } catch (error: any) {
-      // Handle specific error cases
-      if (error.message?.includes("User rejected")) {
+      const errorMessage = error.message?.toLowerCase() || "unknown error";
+      if (errorMessage.includes("user rejected")) {
         setError("Transaction was rejected by user");
-      } else if (error.message?.includes("insufficient funds")) {
+      } else if (errorMessage.includes("insufficient funds")) {
         setError("Insufficient funds for transaction");
       } else {
-        setError(error.message || "Failed to resolve market");
+        setError(errorMessage || "Failed to resolve market");
       }
-
       setCurrentStep("");
       setIsProcessing(false);
       setPendingOutcome(null);
@@ -105,203 +95,158 @@ export const MarketResolutionModal = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-transparent backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-gradient-to-b from-[#111] to-[#0a0a0a] rounded-2xl border border-zinc-800 shadow-2xl relative max-w-md w-full p-6">
-        <div className="absolute inset-0 bg-gradient-to-br from-orange-900/10 via-transparent to-transparent rounded-2xl pointer-events-none"></div>
+    <div
+      className=""
+      role="dialog"
+      aria-label="Market Resolution Modal"
+    >
+      <div
+        className="bg-[#131314f2] backdrop-blur-xl border border-white/10 rounded-xl p-6 max-w-md w-full animate-fade-in"
+        style={{
+          fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+        }}
+      >
 
-        <button
-          onClick={onClose}
-          disabled={isProcessing || isResolving || isConfirming}
-          className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full hover:bg-zinc-800 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          <svg
-            className="w-4 h-4 text-zinc-400"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M6 18L18 6M6 6l12 12"
-            />
-          </svg>
-        </button>
 
+        {/* Header */}
         <div className="text-center mb-6">
-          <div className="w-12 h-12 bg-orange-500 rounded-xl flex items-center justify-center mx-auto mb-4">
-            <svg
-              className="w-6 h-6 text-white"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
+          <div className="w-12 h-12 bg-orange-500/20 rounded-full flex items-center justify-center mx-auto mb-3">
+            <svg className="w-6 h-6 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </div>
-          <h2 className="text-xl font-medium text-white mb-2">
-            Resolve Market
-          </h2>
-          <p className="text-zinc-400 text-sm">
-            Select the correct outcome for this prediction market
-          </p>
+          <h2 className="text-lg font-semibold text-white">Resolve Market</h2>
+          <p className="text-sm text-slate-300">Select the outcome for this market</p>
         </div>
 
-        <div className="bg-zinc-800 rounded-xl p-4 mb-6">
-          <div className="flex items-start gap-3">
-            <div className="w-10 h-10 bg-zinc-700 rounded-lg overflow-hidden flex-shrink-0">
-              <img
-                src={market.image || "/api/placeholder/40/40"}
-                alt=""
-                className="w-full h-full object-cover"
-              />
+        {/* Market Info */}
+        <div className="bg-[#131314f2] backdrop-blur-xl border border-white/10 rounded-lg p-4 mb-6">
+          <div className="flex items-start gap-3 mb-4">
+            <img
+              src={market.image || "/api/placeholder/40/40"}
+              alt="Market image"
+              className="w-10 h-10 rounded-lg object-cover border border-orange-500/20"
+            />
+            <div>
+              <h3 className="text-white text-sm font-medium line-clamp-2">{market.question}</h3>
+              <p className="text-xs text-slate-400 mt-1">Ended {parseMarketExpiryDate(market.expiry_date).toLocaleDateString()}</p>
+              <p className="text-xs text-slate-400">By {market.creator?.username || "Unknown"}</p>
             </div>
-            <div className="flex-1 min-w-0">
-              <h3 className="text-white font-medium text-sm mb-1 line-clamp-2">
-                {market.question}
-              </h3>
-              <div className="flex items-center gap-1 text-xs text-zinc-400">
-                <svg
-                  className="w-3 h-3"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-                <span>
-                  Ended{" "}
-                  {parseMarketExpiryDate(
-                    market.expiry_date
-                  ).toLocaleDateString()}
-                </span>
-              </div>
+          </div>
+          {market.description && (
+            <div className="mt-3">
+              <h4 className="text-xs text-slate-400 font-medium uppercase">Description</h4>
+              <p className="text-sm text-slate-300 line-clamp-2">{market.description}</p>
+            </div>
+          )}
+          {market.resolution_criteria && (
+            <div className="mt-3">
+              <h4 className="text-xs text-slate-400 font-medium uppercase">Resolution Criteria</h4>
+              <p className="text-sm text-slate-300 line-clamp-2">{market.resolution_criteria}</p>
+            </div>
+          )}
+          <div className="grid grid-cols-2 gap-3 mt-4">
+            <div>
+              <p className="text-xs text-slate-400 font-medium uppercase">Market ID</p>
+              <p className="text-sm text-white font-medium">#{market.id}</p>
+            </div>
+            <div>
+              <p className="text-xs text-slate-400 font-medium uppercase">Category</p>
+              <p className="text-sm text-orange-400 font-medium">{market.tags?.[0] || "General"}</p>
             </div>
           </div>
         </div>
 
+        {/* Warning */}
+        <div className="bg-orange-500/10 border border-orange-500/50 rounded-lg p-3 mb-6">
+          <div className="flex items-start gap-2">
+            <svg className="w-4 h-4 text-orange-400 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+            </svg>
+            <p className="text-xs text-orange-400">This action is irreversible. Ensure the outcome matches the resolution criteria.</p>
+          </div>
+        </div>
+
+        {/* Processing Status */}
         {isProcessing && currentStep && (
-          <div className="bg-orange-500/10 border border-orange-500/20 rounded-xl p-3 mb-4">
-            <div className="flex items-center gap-3">
-              <div className="w-4 h-4 border-2 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
-              <span className="text-orange-400 text-sm font-medium">
-                {currentStep}
-              </span>
+          <div className="bg-orange-500/10 border border-orange-500/50 rounded-lg p-3 mb-4">
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 border-2 border-orange-400 border-t-transparent rounded-full animate-spin"></div>
+              <p className="text-sm text-orange-400">{currentStep}</p>
             </div>
           </div>
         )}
 
+        {/* Error Message */}
         {error && (
-          <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-3 mb-4">
-            <div className="flex items-start gap-3">
-              <div className="w-4 h-4 bg-red-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                <svg
-                  className="w-2.5 h-2.5 text-white"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M18 10a8 8 0 11-18 0 8 8 0 0118 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-              </div>
+          <div className="bg-red-500/10 border border-red-500/50 rounded-lg p-3 mb-4">
+            <div className="flex items-start gap-2">
+              <svg className="w-4 h-4 text-red-400 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M18 10a8 8 0 11-18 0 8 8 0 0118 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+              </svg>
               <div>
-                <div className="text-red-400 font-medium text-sm mb-1">
-                  Resolution Failed
-                </div>
-                <div className="text-red-300 text-xs">{error}</div>
+                <p className="text-sm text-red-400 font-medium">Resolution Failed</p>
+                <p className="text-xs text-red-300">{error}</p>
               </div>
             </div>
           </div>
         )}
 
+        {/* Success Message */}
         {success && (
-          <div className="bg-green-500/10 border border-green-500/20 rounded-xl p-3 mb-4">
-            <div className="flex items-center gap-3">
-              <div className="w-4 h-4 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
-                <svg
-                  className="w-2.5 h-2.5 text-white"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-              </div>
+          <div className="bg-green-500/10 border border-green-500/50 rounded-lg p-3 mb-4">
+            <div className="flex items-start gap-2">
+              <svg className="w-4 h-4 text-green-400 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+              </svg>
               <div>
-                <div className="text-green-400 font-medium text-sm">
-                  Market Resolved Successfully!
-                </div>
-                <div className="text-green-300 text-xs mt-1">
-                  The market has been resolved on both blockchain and backend
-                </div>
+                <p className="text-sm text-green-400 font-medium">Market Resolved</p>
+                <p className="text-xs text-green-300">Successfully resolved on blockchain and backend</p>
               </div>
             </div>
           </div>
         )}
 
-        <div className="grid grid-cols-2 gap-3 mb-6">
+        {/* Resolution Buttons */}
+        <div className="grid grid-cols-2 gap-3 mb-4">
           <button
             onClick={() => handleResolve(MarketOutcomeValues.OPTION_A)}
             disabled={isProcessing || isResolving || isConfirming}
-            className="bg-zinc-800 hover:bg-zinc-700 text-white font-medium py-3 px-4 rounded-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            className={`
+              py-3 rounded-lg text-sm font-medium text-orange-400 bg-orange-500/20 border border-orange-500/50
+              hover:bg-orange-500/30 hover:shadow-orange-500/20 transition-all duration-200
+              disabled:opacity-50 disabled:cursor-not-allowed
+              focus:outline-none focus:ring-2 focus:ring-orange-500
+            `}
           >
-            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-              <path
-                fillRule="evenodd"
-                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                clipRule="evenodd"
-              />
-            </svg>
-            <span className="text-green-400">
-              {isProcessing || isResolving || isConfirming
-                ? "Processing..."
-                : "Yes"}
-            </span>
+            Yes
           </button>
-
           <button
             onClick={() => handleResolve(MarketOutcomeValues.OPTION_B)}
             disabled={isProcessing || isResolving || isConfirming}
-            className="bg-zinc-800 hover:bg-zinc-700 text-white font-medium py-3 px-4 rounded-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            className={`
+              py-3 rounded-lg text-sm font-medium text-orange-400 bg-orange-500/20 border border-orange-500/50
+              hover:bg-orange-500/30 hover:shadow-orange-500/20 transition-all duration-200
+              disabled:opacity-50 disabled:cursor-not-allowed
+              focus:outline-none focus:ring-2 focus:ring-orange-500
+            `}
           >
-            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-              <path
-                fillRule="evenodd"
-                d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                clipRule="evenodd"
-              />
-            </svg>
-            <span className="text-red-400">
-              {isProcessing || isResolving || isConfirming
-                ? "Processing..."
-                : "No"}
-            </span>
+            No
           </button>
         </div>
 
+        {/* Cancel Button */}
         <button
           onClick={onClose}
           disabled={isProcessing || isResolving || isConfirming}
-          className="w-full bg-zinc-800 hover:bg-zinc-700 text-white font-medium py-3 px-4 rounded-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed border border-zinc-700"
+          className={`
+            w-full py-3 rounded-lg text-sm font-medium text-white bg-orange-500 border border-slate-600/50
+            hover:bg-slate-700/70 hover:shadow-slate-500/20 transition-all duration-200
+            disabled:opacity-50 disabled:cursor-not-allowed
+            focus:outline-none focus:ring-2 focus:ring-orange-500
+          `}
         >
-          {isProcessing || isResolving || isConfirming
-            ? "Processing..."
-            : "Cancel"}
+          Cancel
         </button>
       </div>
     </div>

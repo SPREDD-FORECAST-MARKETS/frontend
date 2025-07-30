@@ -1,6 +1,5 @@
 import axios from 'axios';
 
-// Types for dashboard API responses
 export interface LeaderboardEntry {
   id: number;
   userID: number;
@@ -18,6 +17,7 @@ export interface MostTradedMarket {
   id: number;
   question: string;
   tradeCount: number;
+  marketId:string;
   image: string;
   creator: {
     username: string;
