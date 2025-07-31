@@ -240,7 +240,7 @@ const RaizeStyleCard = ({ data, index }: { data: Market; index: number }) => {
                 <div className="flex items-center gap-2 backdrop-blur-sm px-3 py-1.5 rounded-lg shadow-sm">
                   <span className="text-slate-400">Pool</span>
                   <span className="text-white font-semibold">${(marketDetails.totalVolume / 1e6).toFixed(2)}</span>
-                  <img src="/public/usdc.svg" alt="USDC" className="w-5 h-5" />
+                  <img src="usdc.svg" alt="USDC" className="w-5 h-5" />
                 </div>
               </div>
             )}

@@ -63,7 +63,7 @@ const MarketStats = ({
   <div className="flex justify-between">
     {/* Trade Count Badge */}
     <div className="inline-flex items-center gap-1.5 bg-black/60 backdrop-blur-sm border border-orange-500/40 rounded-full px-3 py-1 self-start">
-      <img src="/public/usdc.svg" className="w-4 h-4" alt="USDC" />
+      <img src="usdc.svg" className="w-4 h-4" alt="USDC" />
       <span className="text-orange-400 text-xs font-medium">
         {market.tradeCount} Trades
       </span>
