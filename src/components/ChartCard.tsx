@@ -67,7 +67,7 @@ const ChartCard: React.FC<ChartCardProps> = ({ marketData, marketId }) => {
       setError(null);
 
       const response: Response = await fetch(
-        `http://localhost:3000/market/chart?marketId=${marketId}&interval=${activeTimeframe}`
+        `${import.meta.env.VITE_BACKEND_URL}/market/chart?marketId=${marketId}&interval=${activeTimeframe}`
       );
 
       if (!response.ok) {
