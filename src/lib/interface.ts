@@ -41,14 +41,14 @@ export interface TrendingTagsData {
   id: number;
   name: string;
   icon?:
-    | string
-    | {
-        component: React.ForwardRefExoticComponent<
-          Omit<LucideProps, "ref"> & React.RefAttributes<SVGSVGElement>
-        >;
-        size: number;
-      }
-    | null;
+  | string
+  | {
+    component: React.ForwardRefExoticComponent<
+      Omit<LucideProps, "ref"> & React.RefAttributes<SVGSVGElement>
+    >;
+    size: number;
+  }
+  | null;
 }
 
 export interface UserProfile {
@@ -70,7 +70,7 @@ export interface Transaction {
 }
 
 
-export interface LeaderBoardTableData{
+export interface LeaderBoardTableData {
 
   id: number;
   name: string;
@@ -106,8 +106,8 @@ export type Market = {
   marketId: string;
   isResolved: boolean;
   status: "ACTIVE" | "RESOLVED" | "CANCELLED"; // expand as needed
-  outcomeWonTitle:string,
-  winningOutcome:string,
+  outcomeWonTitle: string,
+  winningOutcome: string,
   outcomeWon: number | null;
   creatorId: number;
   createdAt: string;
@@ -117,12 +117,12 @@ export type Market = {
 };
 
 export interface ChartDataPoint {
-  time: number;
-  open: number;
-  high: number;
-  low: number;
-  close: number;
+  time: string;
+  yesOdds: number;
+  noOdds: number;
+  totalVolume: number;
 }
+
 
 export type TimeframeOption = '1H' | '6H' | '1D' | '1W' | '1M' | '6M';
 
@@ -186,7 +186,7 @@ export interface FormData {
   options: string[];
   resolutionCriteria: string;
   tags?: string[] | null;
-  endDate:  string;
+  endDate: string;
   endTime: string;
   image?: File;
   description: string;

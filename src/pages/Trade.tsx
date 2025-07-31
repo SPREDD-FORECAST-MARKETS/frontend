@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useParams, Link, useLocation } from "react-router-dom";
-import type { TradeState, TimeframeOption, Market } from "../lib/interface";
-import { generateChartData } from "../utils/calculations";
+import type { TradeState, Market } from "../lib/interface";
 import ChartCard from "../components/ChartCard";
 import TradingPanel from "../components/TradingPanel";
 import { fetchMarket } from "../apis/market";
@@ -34,11 +33,8 @@ const Trade = () => {
   });
 
   const {
-    activeTimeframe,
     quantity,
     isBuy,
-    currentPrice,
-    priceChange,
     status,
     chartData,
   } = state;
@@ -55,40 +51,6 @@ const Trade = () => {
     setMarketData(data);
   };
 
-  const fetchChartData = useCallback(() => {
-    try {
-      const data = generateChartData(activeTimeframe, marketId);
-
-      updateState({
-        chartData: data,
-        currentPrice: data[data.length - 1].close,
-        status: "success",
-      });
-    } catch (err) {
-      console.error("Error generating chart data:", err);
-      updateState({
-        error: err instanceof Error ? err.message : "Failed to load chart data",
-      });
-    }
-  }, [activeTimeframe, marketId, updateState]);
-
-  const handleTimeframeChange = (timeframe: TimeframeOption) => {
-    updateState({ activeTimeframe: timeframe });
-  };
-
-  const refreshChart = () => {
-    updateState({ status: "loading" });
-    setTimeout(() => {
-      const data = generateChartData(activeTimeframe, marketId);
-      updateState({
-        chartData: data,
-        status: "success",
-        currentPrice: data[data.length - 1].close,
-        priceChange: Math.random() * 4 - 2,
-      });
-    }, 500);
-  };
-
   const handleQuantityChange = (quantity: number) => {
     updateState({ quantity });
   };
@@ -97,18 +59,6 @@ const Trade = () => {
     if (!marketData || quantity <= 0) return;
     // Submit logic here
   };
-
-  useEffect(() => {
-    if (status === "success" && marketData && !chartData) {
-      fetchChartData();
-    }
-  }, [fetchChartData, status, marketData, chartData]);
-
-  useEffect(() => {
-    if (status === "success" && chartData) {
-      fetchChartData();
-    }
-  }, [activeTimeframe, fetchChartData, status, chartData]);
 
   useEffect(() => {
     fetchMarketData();
@@ -162,13 +112,6 @@ const Trade = () => {
           <div className="">
             <ChartCard
               marketData={marketData}
-              chartData={chartData}
-              currentPrice={currentPrice}
-              priceChange={priceChange}
-              activeTimeframe={activeTimeframe}
-              isLoading={status === "loading"}
-              onTimeframeChange={handleTimeframeChange}
-              onRefresh={refreshChart}
               marketId={marketId!}
             />
             </div>
