@@ -40,7 +40,9 @@ const Loader = () => {
 const Explore = () => {
   // State Management
   const [markets, setMarkets] = useState<Market[]>([]);
-  const [marketFilterTag, setMarketFilterTag] = useState<string | undefined>(undefined);
+  const [marketFilterTag, setMarketFilterTag] = useState<string | undefined>(
+    undefined
+  );
   const [isLoading, setIsLoading] = useState(false);
 
   // Memoized Market IDs
@@ -50,7 +52,8 @@ const Explore = () => {
   );
 
   // Fetch Market Odds
-  const { data: allMarketOdds, isLoading: oddsLoading } = useMultipleMarketOdds(marketIds);
+  const { data: allMarketOdds, isLoading: oddsLoading } =
+    useMultipleMarketOdds(marketIds);
 
   // Fetch Markets Effect
   useEffect(() => {
@@ -101,30 +104,44 @@ const Explore = () => {
   }, [markets, allMarketOdds]);
 
   // Market Separation
-  const liveMarkets = enhancedMarkets.filter((market) => !isMarketClosed(market));
-  const closedMarkets = enhancedMarkets.filter((market) => isMarketClosed(market));
+  const liveMarkets = enhancedMarkets.filter(
+    (market) => !isMarketClosed(market)
+  );
+  const closedMarkets = enhancedMarkets.filter((market) =>
+    isMarketClosed(market)
+  );
 
   // Render
   return (
     <div className="w-full bg-gradient-to-br from-white/5 via-transparent to-black/20 text-white min-h-screen">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-10">
         {/* Trending Markets Section */}
-        <section role="region" aria-label="Trending Markets" className="mb-8 animate-fade-in">
-          <h2 className="text-2xl sm:text-3xl font-semibold text-orange-500 mb-4 underline">
-            Trending Markets
+        <section
+          role="region"
+          aria-label="Trending Markets"
+          className="mb-8 animate-fade-in"
+        >
+          <h2 className="text-2xl sm:text-3xl font-semibold  text-orange-400 mb-4 ">
+            HOT MARKETS
           </h2>
           <TrendingMarket />
+
         </section>
 
 
+
         {/* Market Listings Section */}
-        <section role="region" aria-label="Market Listings" className="animate-fade-in">
-          <h2 className="text-2xl sm:text-3xl font-semibold text-orange-500 mb-4 underline">
-            Market Listings
+        <section
+          role="region"
+          aria-label="Market Listings"
+          className="animate-fade-in"
+        >
+          <h2 className="text-2xl sm:text-3xl font-semibold text-orange-400 mb-4 ">
+            MARKET LISTINGS
           </h2>
 
-        {/* Market Filters Section */}
-        <TrendingBar data={tags} onChangeTag={setMarketFilterTag} />
+          {/* Market Filters Section */}
+          <TrendingBar data={tags} onChangeTag={setMarketFilterTag} />
           {/* Loading State */}
           {(isLoading || oddsLoading) && <Loader />}
 

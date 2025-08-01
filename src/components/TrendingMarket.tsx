@@ -32,6 +32,12 @@ const getCardsPerView = () => {
   return 4; // xl+: 4 cards
 };
 
+const isMarketClosed = (market: MostTradedMarket) => {
+  const expiryDate = market.expiry_date; // Adjust field name if different
+  const currentDate = new Date();
+  return new Date(expiryDate).getTime() <= currentDate.getTime();
+};
+
 
 const NavigationDot = ({
   active,
@@ -397,9 +403,17 @@ const TrendingMarketBanner: React.FC = () => {
             <LoadingSkeleton count={cardsPerView} />
           ) : (
             <>
-              {currentSlideMarkets.map((market) => (
-                <MarketCard key={market.id} market={market} />
-              ))}
+              {currentSlideMarkets.map((market) =>
+                // Skip rendering MarketCard for closed markets
+                !isMarketClosed(market) ? (
+                  <MarketCard key={market.id} market={market} />
+                ) : (
+                  <div
+                    key={`empty-closed-${market.id}`}
+                    className="aspect-square opacity-0 hidden sm:block"
+                  />
+                )
+              )}
               
               {/* Fill empty grid spots for consistent layout */}
               {cardsPerView > 1 &&

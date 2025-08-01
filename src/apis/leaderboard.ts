@@ -16,6 +16,7 @@ export interface LeaderboardEntry {
 export interface MostTradedMarket {
   id: number;
   question: string;
+  expiry_date:string
   tradeCount: number;
   marketId:string;
   image: string;
