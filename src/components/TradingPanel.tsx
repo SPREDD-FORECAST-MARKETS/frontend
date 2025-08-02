@@ -4,7 +4,7 @@ import { MARKET_ABI } from "../abi/MarketABI";
 import { formatUnits, parseUnits } from "viem";
 import { useEffect, useState } from "react";
 import { useAtom } from "jotai";
-import { balanceAtom } from "../atoms/user";
+import { balanceAtom } from "../atoms/global";
 import { usePrivy } from "@privy-io/react-auth";
 import { useUsdtToken } from "../hooks/useToken";
 import { CONTRACT_ADDRESSES } from "../utils/wagmiConfig";

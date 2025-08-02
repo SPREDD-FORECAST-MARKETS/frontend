@@ -10,43 +10,44 @@ import { useMarketDetails } from "../hooks/useMarketDetails";
 const SLIDE_DURATION_MS = 4000;
 const MAX_SLIDES = 12;
 
-const prefersReducedMotion = () =>
+const prefersReducedMotion = (): boolean =>
   typeof window !== "undefined" &&
   window.matchMedia &&
   window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-const preloadImages = (urls: string[]) => {
-  urls.forEach((url) => {
+const preloadImages = (urls: string[]): void => {
+  urls.forEach((url: string) => {
     if (!url) return;
     const img = new Image();
     img.src = url;
   });
 };
 
-const getCardsPerView = () => {
+const getCardsPerView = (): number => {
   if (typeof window === "undefined") return 4;
-  const width = window.innerWidth;
+  const width: number = window.innerWidth;
   if (width < 640) return 1; // sm: 1 card
   if (width < 768) return 2; // md: 2 cards
   if (width < 1024) return 3; // lg: 3 cards
   return 4; // xl+: 4 cards
 };
 
-const isMarketClosed = (market: MostTradedMarket) => {
-  const expiryDate = market.expiry_date; // Adjust field name if different
-  const currentDate = new Date();
+const isMarketClosed = (market: MostTradedMarket): boolean => {
+  const expiryDate: string = market.expiry_date; // Adjust field name if different
+  const currentDate: Date = new Date();
   return new Date(expiryDate).getTime() <= currentDate.getTime();
 };
 
-
-const NavigationDot = ({
-  active,
-  onClick,
-  label,
-}: {
+interface NavigationDotProps {
   active: boolean;
   onClick: () => void;
   label: string;
+}
+
+const NavigationDot: React.FC<NavigationDotProps> = ({
+  active,
+  onClick,
+  label,
 }) => (
   <button
     aria-label={label}
@@ -59,12 +60,14 @@ const NavigationDot = ({
   />
 );
 
-const MarketStats = ({ 
-  market, 
-  marketDetails 
-}: { 
-  market: MostTradedMarket; 
-  marketDetails: any; 
+interface MarketStatsProps {
+  market: MostTradedMarket;
+  marketDetails: any;
+}
+
+const MarketStats: React.FC<MarketStatsProps> = ({
+  market,
+  marketDetails
 }) => (
   <div className="flex justify-between">
     {/* Trade Count Badge */}
@@ -86,17 +89,19 @@ const MarketStats = ({
   </div>
 );
 
-const ActionButtons = ({ 
-  marketDetails, 
-  onBuyClick 
-}: { 
-  market: MostTradedMarket; 
-  marketDetails: any; 
-  onBuyClick: (e: React.MouseEvent, outcome: "yes" | "no") => void; 
+interface ActionButtonsProps {
+  market: MostTradedMarket;
+  marketDetails: any;
+  onBuyClick: (e: React.MouseEvent, outcome: "yes" | "no") => void;
+}
+
+const ActionButtons: React.FC<ActionButtonsProps> = ({
+  marketDetails,
+  onBuyClick
 }) => (
   <div className="grid grid-cols-2 gap-2">
     <button
-      onClick={(e) => onBuyClick(e, "yes")}
+      onClick={(e: React.MouseEvent) => onBuyClick(e, "yes")}
       className="
         bg-orange-500 hover:bg-orange-600 backdrop-blur-sm border border-orange-400/50 
         text-white font-medium py-2 px-3 rounded-lg transition-all duration-200 
@@ -110,9 +115,9 @@ const ActionButtons = ({
         <span className="text-xs opacity-90">{marketDetails.probabilityA.toFixed(1)}%</span>
       )}
     </button>
-    
+
     <button
-      onClick={(e) => onBuyClick(e, "no")}
+      onClick={(e: React.MouseEvent) => onBuyClick(e, "no")}
       className="
         bg-slate-700 hover:bg-slate-600 backdrop-blur-sm border border-slate-600/50 
         text-white font-medium py-2 px-3 rounded-lg transition-all duration-200 
@@ -129,10 +134,14 @@ const ActionButtons = ({
   </div>
 );
 
+interface LoadingSkeletonProps {
+  count: number;
+}
+
 // Loading Skeleton Component
-const LoadingSkeleton = ({ count }: { count: number }) => (
+const LoadingSkeleton: React.FC<LoadingSkeletonProps> = ({ count }) => (
   <>
-    {Array.from({ length: count }).map((_, i) => (
+    {Array.from({ length: count }).map((_, i: number) => (
       <div
         key={`skeleton-${i}`}
         className="
@@ -145,12 +154,16 @@ const LoadingSkeleton = ({ count }: { count: number }) => (
   </>
 );
 
-const MarketCard = ({ market }: { market: MostTradedMarket }) => {
-  const [isHovered, setIsHovered] = useState(false);
+interface MarketCardProps {
+  market: MostTradedMarket;
+}
+
+const MarketCard: React.FC<MarketCardProps> = ({ market }) => {
+  const [isHovered, setIsHovered] = useState<boolean>(false);
   const navigate = useNavigate();
   const { data: marketDetails } = useMarketDetails(market.marketId);
 
-  const handleBuyClick = useCallback((e: React.MouseEvent, outcome: "yes" | "no") => {
+  const handleBuyClick = useCallback((e: React.MouseEvent, outcome: "yes" | "no"): void => {
     e.preventDefault();
     e.stopPropagation();
 
@@ -187,13 +200,13 @@ const MarketCard = ({ market }: { market: MostTradedMarket }) => {
           backgroundImage: market.image ? `url(${market.image})` : undefined,
           backgroundSize: "cover",
           backgroundPosition: "center",
-          opacity:0.5
+          opacity: 0.5
         }}
       >
         <div
           className={`
             absolute inset-0 bg-gradient-to-t transition-opacity duration-300
-            ${isHovered ? "from-black/90 via-black/60 to-black/30"  : "from-black/85 via-black/50 to-black/20"}
+            ${isHovered ? "from-black/90 via-black/60 to-black/30" : "from-black/85 via-black/50 to-black/20"}
           `}
         />
       </div>
@@ -230,10 +243,10 @@ const MarketCard = ({ market }: { market: MostTradedMarket }) => {
             ${isHovered ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4 pointer-events-none"}
           `}
         >
-          <ActionButtons 
-            market={market} 
-            marketDetails={marketDetails} 
-            onBuyClick={handleBuyClick} 
+          <ActionButtons
+            market={market}
+            marketDetails={marketDetails}
+            onBuyClick={handleBuyClick}
           />
         </div>
       </div>
@@ -241,15 +254,21 @@ const MarketCard = ({ market }: { market: MostTradedMarket }) => {
   );
 };
 
-const useSlideNavigation = (totalSlides: number, cardsPerView: number) => {
-  const [slideIndex, setSlideIndex] = useState(0);
+interface UseSlideNavigationReturn {
+  slideIndex: number;
+  goToSlide: (i: number) => void;
+  nextSlide: () => void;
+}
+
+const useSlideNavigation = (totalSlides: number, cardsPerView: number): UseSlideNavigationReturn => {
+  const [slideIndex, setSlideIndex] = useState<number>(0);
 
   const goToSlide = useCallback(
-    (i: number) => setSlideIndex(() => ((i % totalSlides) + totalSlides) % totalSlides),
+    (i: number): void => setSlideIndex(() => ((i % totalSlides) + totalSlides) % totalSlides),
     [totalSlides]
   );
 
-  const nextSlide = useCallback(() => {
+  const nextSlide = useCallback((): void => {
     if (totalSlides > 0) goToSlide(slideIndex + 1);
   }, [goToSlide, slideIndex, totalSlides]);
 
@@ -261,21 +280,27 @@ const useSlideNavigation = (totalSlides: number, cardsPerView: number) => {
   return { slideIndex, goToSlide, nextSlide };
 };
 
-const useMarketData = (maxSlides: number) => {
+interface UseMarketDataReturn {
+  trendingMarkets: MostTradedMarket[];
+  loading: boolean;
+  error: string | null;
+}
+
+const useMarketData = (maxSlides: number): UseMarketDataReturn => {
   const [trendingMarkets, setTrendingMarkets] = useState<MostTradedMarket[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchMarkets = useCallback(async (isRefresh = false) => {
+  const fetchMarkets = useCallback(async (isRefresh: boolean = false): Promise<void> => {
     try {
       if (!isRefresh) setLoading(true);
       setError(null);
-      
+
       const [data, status] = await fetchMostTradedMarkets(maxSlides);
-      
+
       if (status === 200 && data) {
         setTrendingMarkets(data);
-        preloadImages(data.slice(0, maxSlides).map((m) => m.image));
+        preloadImages(data.slice(0, maxSlides).map((m: MostTradedMarket) => m.image));
       } else {
         throw new Error("Failed to fetch trending markets");
       }
@@ -292,19 +317,19 @@ const useMarketData = (maxSlides: number) => {
     fetchMarkets();
 
     // Auto-refresh every 30 seconds
-    const refreshInterval = setInterval(() => fetchMarkets(true), 30000);
-    
+    const refreshInterval: NodeJS.Timeout = setInterval(() => fetchMarkets(true), 30000);
+
     return () => clearInterval(refreshInterval);
   }, [fetchMarkets]);
 
   return { trendingMarkets, loading, error };
 };
 
-const useResponsiveView = () => {
-  const [cardsPerView, setCardsPerView] = useState(getCardsPerView());
+const useResponsiveView = (): number => {
+  const [cardsPerView, setCardsPerView] = useState<number>(getCardsPerView());
 
   useEffect(() => {
-    const handleResize = () => {
+    const handleResize = (): void => {
       setCardsPerView(getCardsPerView());
     };
 
@@ -315,7 +340,7 @@ const useResponsiveView = () => {
   return cardsPerView;
 };
 
-const useAutoSlide = (nextSlide: () => void, totalSlides: number, hovered: boolean) => {
+const useAutoSlide = (nextSlide: () => void, totalSlides: number, hovered: boolean): void => {
   const timerRef = useRef<number | null>(null);
 
   useEffect(() => {
@@ -327,12 +352,12 @@ const useAutoSlide = (nextSlide: () => void, totalSlides: number, hovered: boole
       return;
     }
 
-    const startTimer = () => {
+    const startTimer = (): void => {
       if (timerRef.current) clearInterval(timerRef.current);
       timerRef.current = window.setInterval(nextSlide, SLIDE_DURATION_MS);
     };
 
-    const handleVisibilityChange = () => {
+    const handleVisibilityChange = (): void => {
       if (document.hidden) {
         if (timerRef.current) clearInterval(timerRef.current);
         timerRef.current = null;
@@ -352,102 +377,112 @@ const useAutoSlide = (nextSlide: () => void, totalSlides: number, hovered: boole
 };
 
 const TrendingMarketBanner: React.FC = () => {
-  const [hovered, setHovered] = useState(false);
-  
+  const [hovered, setHovered] = useState<boolean>(false);
+
   // Custom hooks for better organization
-  const cardsPerView = useResponsiveView();
-  const { trendingMarkets, loading, error } = useMarketData(MAX_SLIDES);
-  
+  const cardsPerView: number = useResponsiveView();
+  const { trendingMarkets, loading, error }: UseMarketDataReturn = useMarketData(MAX_SLIDES);
+
   // Memoized calculations
-  const displayMarkets = useMemo(
+  const displayMarkets: MostTradedMarket[] = useMemo(
     () => trendingMarkets.slice(0, Math.min(trendingMarkets.length, MAX_SLIDES)),
     [trendingMarkets]
   );
 
-  const totalSlides = Math.ceil(displayMarkets.length / cardsPerView);
-  
-  const { slideIndex, goToSlide, nextSlide } = useSlideNavigation(totalSlides, cardsPerView);
-  
-  const currentSlideMarkets = useMemo(() => {
-    const startIdx = slideIndex * cardsPerView;
+  const totalSlides: number = Math.ceil(displayMarkets.length / cardsPerView);
+
+  const { slideIndex, goToSlide, nextSlide }: UseSlideNavigationReturn = useSlideNavigation(totalSlides, cardsPerView);
+
+  const currentSlideMarkets: MostTradedMarket[] = useMemo(() => {
+    const startIdx: number = slideIndex * cardsPerView;
     return displayMarkets.slice(startIdx, startIdx + cardsPerView);
   }, [displayMarkets, slideIndex, cardsPerView]);
 
   // Auto-slide functionality
   useAutoSlide(nextSlide, totalSlides, hovered);
 
-  // Early returns for edge cases
-  if (error || displayMarkets.length === 0) return null;
+  // Early returns for edge cases - return empty div if no markets or error
+  if (trendingMarkets.length === 0) return <div></div>;
 
   return (
-    <div
-      className="relative w-full py-6 sm:py-8 lg:py-10"
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
+    <section
       role="region"
-      aria-label="Trending markets banner"
-      style={{
-        fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif',
-      }}
+      aria-label="Trending Markets"
+      className="mb-8 animate-fade-in"
     >
-      {/* Main Content Grid */}
-      <div className="px-4 sm:px-6 md:px-8 mx-auto">
-        <div
-          className={`
+      <h2 className="text-2xl sm:text-3xl font-semibold  text-orange-400 mb-4 ">
+        HOT MARKETS {trendingMarkets.length}
+      </h2>
+
+      <div
+        className="relative w-full py-6 sm:py-8 lg:py-10"
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
+        role="region"
+        aria-label="Trending markets banner"
+        style={{
+          fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif',
+        }}
+      >
+        {/* Main Content Grid */}
+        <div className="px-4 sm:px-6 md:px-8 mx-auto">
+          <div
+            className={`
             grid gap-4 sm:gap-5 lg:gap-6
             grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4
             ${cardsPerView === 1 ? "max-w-md mx-auto" : ""}
           `}
-        >
-          {loading ? (
-            <LoadingSkeleton count={cardsPerView} />
-          ) : (
-            <>
-              {currentSlideMarkets.map((market) =>
-                // Skip rendering MarketCard for closed markets
-                !isMarketClosed(market) ? (
-                  <MarketCard key={market.id} market={market} />
-                ) : (
-                  <div
-                    key={`empty-closed-${market.id}`}
-                    className="aspect-square opacity-0 hidden sm:block"
-                  />
-                )
-              )}
-              
-              {/* Fill empty grid spots for consistent layout */}
-              {cardsPerView > 1 &&
-                Array.from({
-                  length: Math.max(0, cardsPerView - currentSlideMarkets.length),
-                }).map((_, i) => (
-                  <div key={`empty-${i}`} className="aspect-square opacity-0 hidden sm:block" />
-                ))}
-            </>
-          )}
+          >
+            {loading ? (
+              <LoadingSkeleton count={cardsPerView} />
+            ) : (
+              <>
+                {currentSlideMarkets.map((market: MostTradedMarket) =>
+                  // Skip rendering MarketCard for closed markets
+                  !isMarketClosed(market) ? (
+                    <MarketCard key={market.id} market={market} />
+                  ) : (
+                    <div
+                      key={`empty-closed-${market.id}`}
+                      className="aspect-square opacity-0 hidden sm:block"
+                    />
+                  )
+                )}
+
+                {/* Fill empty grid spots for consistent layout */}
+                {cardsPerView > 1 &&
+                  Array.from({
+                    length: Math.max(0, cardsPerView - currentSlideMarkets.length),
+                  }).map((_, i: number) => (
+                    <div key={`empty-${i}`} className="aspect-square opacity-0 hidden sm:block" />
+                  ))}
+              </>
+            )}
+          </div>
         </div>
+
+        {/* Navigation Dots */}
+        {totalSlides > 1 && (
+          <div className="flex items-center justify-center gap-2 mt-6 sm:mt-8 px-4">
+            {Array.from({ length: totalSlides }).map((_, i: number) => (
+              <NavigationDot
+                key={i}
+                active={i === slideIndex}
+                onClick={() => goToSlide(i)}
+                label={`Go to slide ${i + 1}`}
+              />
+            ))}
+          </div>
+        )}
+
+        {/* Mobile Touch Instructions */}
+        {totalSlides > 1 && (
+          <div className="sm:hidden text-center mt-4 px-4">
+            <p className="text-white/60 text-xs">Swipe or wait for auto-advance</p>
+          </div>
+        )}
       </div>
-
-      {/* Navigation Dots */}
-      {totalSlides > 1 && (
-        <div className="flex items-center justify-center gap-2 mt-6 sm:mt-8 px-4">
-          {Array.from({ length: totalSlides }).map((_, i) => (
-            <NavigationDot
-              key={i}
-              active={i === slideIndex}
-              onClick={() => goToSlide(i)}
-              label={`Go to slide ${i + 1}`}
-            />
-          ))}
-        </div>
-      )}
-
-      {/* Mobile Touch Instructions */}
-      {totalSlides > 1 && (
-        <div className="sm:hidden text-center mt-4 px-4">
-          <p className="text-white/60 text-xs">Swipe or wait for auto-advance</p>
-        </div>
-      )}
-    </div>
+    </section>
   );
 };
 

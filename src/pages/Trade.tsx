@@ -19,6 +19,7 @@ const initialState: TradeState = {
 
 const Trade = () => {
   const { marketId } = useParams<{ marketId: string }>();
+  const [loading, setLoading] = useState(false);
   const location = useLocation();
 
   const [marketData, setMarketData] = useState<Market | null>(null);
@@ -47,8 +48,10 @@ const Trade = () => {
   const [isBuyState,] = useState(isBuy);
 
   const fetchMarketData = async () => {
+    setLoading(true);
     const data = await fetchMarket(marketId!);
     setMarketData(data);
+    setLoading(false);
   };
 
   const handleQuantityChange = (quantity: number) => {
@@ -72,6 +75,14 @@ const Trade = () => {
     );
   }
 
+  if (loading) {
+    return (
+      <div className="bg-black min-h-screen flex items-center justify-center text-white">
+        Loading Data ...
+      </div>
+    );
+  }
+
   if (!marketData) {
     return (
       <div className="bg-black min-h-screen flex items-center justify-center text-white">
@@ -83,37 +94,15 @@ const Trade = () => {
   return (
     <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-10  bg-gradient-to-br from-white/5 via-transparent to-black/20">
       <div className="max-w-8xl mx-auto p-6 sm:p-8">
-        {/* Back link */}
-        <div className="mb-6 flex" >
-          <Link
-            to="/"
-            className="text-gray-400 hover:text-orange-500 flex items-center gap-2 group lg:pl-[242px]"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="20"
-              height="20"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="m15 18-6-6 6-6" />
-            </svg>
-            <span className="group-hover:underline">Back to Markets</span>
-          </Link> 
-        </div>
-
         {/* Layout - Optimized for laptop screen symmetry */}
         <div className="flex flex-col lg:flex-row gap-6 max-w-7xl mx-auto ">
           <div className="flex flex-col lg:w-[60%] lg:h-full gap-y-4">
-          <MarketHeaderDemo marketData={marketData} />{" "}
-          <div className="">
-            <ChartCard
-              marketData={marketData}
-              marketId={marketId!}
-            />
+            <MarketHeaderDemo marketData={marketData} />{" "}
+            <div className="">
+              <ChartCard
+                marketData={marketData}
+                marketId={marketId!}
+              />
             </div>
           </div>
           {/* Right side - Trading panel and market info stacked to match chart height */}

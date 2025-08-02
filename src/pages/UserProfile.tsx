@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAtom } from "jotai";
-import { userAtom } from "../atoms/user";
+import { userAtom } from "../atoms/global";
 import { usePrivy, useWallets } from "@privy-io/react-auth";
 import EditProfileModal from "./EditProfile";
 import { fetchTradesByUser, handleTradeError } from "../apis/trade"; // Import trade API

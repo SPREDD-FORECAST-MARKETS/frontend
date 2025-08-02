@@ -1,12 +1,12 @@
-import { useEffect, useState, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { TrendingUp } from "lucide-react";
 import type { Market } from "../lib/interface";
-import { fetchMarkets } from "../apis/market";
 import { useMultipleMarketOdds } from "../hooks/useMarketDetails";
 import { tags } from "../lib/data";
 import TrendingMarket from "../components/TrendingMarket";
 import MarketCards from "../components/MarketCards";
 import TrendingBar from "../components/TrendingBar";
+import { useMarketFetcher } from "../hooks/useMarketFetcher";
 
 // Interfaces
 interface EnhancedMarket extends Market {
@@ -39,11 +39,10 @@ const Loader = () => {
 // Main Explore Component
 const Explore = () => {
   // State Management
-  const [markets, setMarkets] = useState<Market[]>([]);
   const [marketFilterTag, setMarketFilterTag] = useState<string | undefined>(
     undefined
   );
-  const [isLoading, setIsLoading] = useState(false);
+  const { markets, isLoading } = useMarketFetcher(marketFilterTag);
 
   // Memoized Market IDs
   const marketIds = useMemo(
@@ -54,27 +53,6 @@ const Explore = () => {
   // Fetch Market Odds
   const { data: allMarketOdds, isLoading: oddsLoading } =
     useMultipleMarketOdds(marketIds);
-
-  // Fetch Markets Effect
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setIsLoading(true);
-        let filteredTags = undefined;
-        if (marketFilterTag !== undefined && marketFilterTag !== "Top") {
-          filteredTags = [marketFilterTag];
-        }
-        const response = await fetchMarkets({ tags: filteredTags });
-        console.log("Fetched markets:", response.data);
-        setMarkets(response.data);
-      } catch (error) {
-        console.error("Error fetching markets:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchData();
-  }, [marketFilterTag]);
 
   // Market Status Check
   const isMarketClosed = (market: Market) => {
@@ -116,17 +94,7 @@ const Explore = () => {
     <div className="w-full bg-gradient-to-br from-white/5 via-transparent to-black/20 text-white min-h-screen">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-10">
         {/* Trending Markets Section */}
-        <section
-          role="region"
-          aria-label="Trending Markets"
-          className="mb-8 animate-fade-in"
-        >
-          <h2 className="text-2xl sm:text-3xl font-semibold  text-orange-400 mb-4 ">
-            HOT MARKETS
-          </h2>
-          <TrendingMarket />
-
-        </section>
+        <TrendingMarket />
 
 
 

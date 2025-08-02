@@ -6,7 +6,7 @@ import { usePrivy } from '@privy-io/react-auth';
 import { updateMe } from '../apis/user';
 import { uploadFile } from '../apis/files';
 import { useAtom } from 'jotai';
-import { refreshUserAtom } from '../atoms/user';
+import { refreshUserAtom } from '../atoms/global';
 
 interface EditProfileModalProps {
   isOpen: boolean;

@@ -8,7 +8,7 @@ import { UserRound, Wallet, LogOut, Copy, ExternalLink } from "lucide-react";
 import { loginApi } from "../apis/auth";
 import { useToast } from "../hooks/useToast";
 import { useAtom } from "jotai";
-import { balanceAtom, refreshUserAtom, userAtom } from "../atoms/user";
+import { balanceAtom, refreshUserAtom, userAtom } from "../atoms/global";
 import { CONTRACT_ADDRESSES, wagmiConfig } from "../utils/wagmiConfig";
 import { baseSepolia } from "viem/chains";
 import { useSwitchChain } from "wagmi";
