@@ -381,7 +381,7 @@ const TrendingMarketBanner: React.FC = () => {
 
   // Custom hooks for better organization
   const cardsPerView: number = useResponsiveView();
-  const { trendingMarkets, loading, error }: UseMarketDataReturn = useMarketData(MAX_SLIDES);
+  const { trendingMarkets, loading, }: UseMarketDataReturn = useMarketData(MAX_SLIDES);
 
   // Memoized calculations
   const displayMarkets: MostTradedMarket[] = useMemo(

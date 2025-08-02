@@ -1,10 +1,11 @@
 import { useState, useEffect, useCallback } from "react";
-import { useParams, Link, useLocation } from "react-router-dom";
+import { useParams, useLocation } from "react-router-dom";
 import type { TradeState, Market } from "../lib/interface";
 import ChartCard from "../components/ChartCard";
 import TradingPanel from "../components/TradingPanel";
 import { fetchMarket } from "../apis/market";
 import MarketHeaderDemo from "../components/MarketHeader";
+import LatestOrders from "../components/LatestOrders";
 
 const initialState: TradeState = {
   activeTimeframe: "1D",
@@ -117,6 +118,10 @@ const Trade = () => {
                 onQuantityChange={handleQuantityChange}
                 onSubmit={handleSubmitForecast}
               />
+            </div>
+            {/* Latest Orders Component */}
+            <div className="">
+              <LatestOrders marketId={marketId!} />
             </div>
           </div>
         </div>

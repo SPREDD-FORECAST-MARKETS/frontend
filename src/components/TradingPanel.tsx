@@ -32,13 +32,13 @@ const TradingPanel = ({
 }: TradingPanelProps) => {
   const [oddsA, setOddsA] = useState(50);
   const [oddsB, setOddsB] = useState(50);
-  const [totalVolume, setTotalVolume] = useState(0);
+  const [, setTotalVolume] = useState(0);
   const [userBetA, setUserBetA] = useState(0);
   const [userBetB, setUserBetB] = useState(0);
   const [balanceLow, setBalanceLow] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [transactionHash, setTransactionHash] = useState<string | null>(null);
-  const [potentialWinnings, setPotentialWinnings] = useState(0);
+  const [, setPotentialWinnings] = useState(0);
 
   const [userBalance] = useAtom(balanceAtom);
   const { user, getAccessToken } = usePrivy();
@@ -257,16 +257,6 @@ const TradingPanel = ({
           </div>
         </div>
 
-        {/* Bet Summary */}
-        <div className="mb-3 p-3 bg-white/5 rounded-lg border border-white/10 shadow-md">
-          <div className="text-xs text-slate-400 mb-2 font-medium">Summary</div>
-          <div className="space-y-2 text-sm">
-            <div className="flex justify-between"><span className="text-slate-400">Potential Winnings:</span><span className="text-white font-semibold">${potentialWinnings.toFixed(2)}</span></div>
-            <div className="flex justify-between"><span className="text-slate-400">Betting on:</span><span className={isYes ? 'text-green-400 font-semibold' : 'text-red-400 font-semibold'}>{isYes ? "YES" : "NO"}</span></div>
-            <div className="flex justify-between"><span className="text-slate-400">Current Odds:</span><span className="text-white font-semibold">{isYes ? oddsA : oddsB}%</span></div>
-            <div className="flex justify-between"><span className="text-slate-400">Total Volume:</span><span className="text-white font-semibold">${totalVolume.toFixed(2)}</span></div>
-          </div>
-        </div>
 
         {/* Submit Button */}
         <button

@@ -1,26 +1,26 @@
 import axios from 'axios';
 
 export interface Trade {
-  id: number;
-  unique_id: string;
-  order_type: 'BUY' | 'SELL';
-  order_size: number;
-  amount: number;
-  afterPrice: number;
-  marketID: number;
-  outcomeId: number;
-  userID: number;
-  createdAt: string;
-  updatedAt: string;
+    id: number;
+    unique_id: string;
+    order_type: 'BUY' | 'SELL';
+    order_size: number;
+    amount: number;
+    afterPrice: number;
+    marketID: number;
+    outcomeId: number;
+    userID: number;
+    createdAt: string;
+    updatedAt: string;
 }
 
 export interface TokenAllocation {
-  id: number;
-  amount: number;
-  userId: number;
-  outcomeId: number;
-  createdAt: string;
-  updatedAt: string;
+    id: number;
+    amount: number;
+    userId: number;
+    outcomeId: number;
+    createdAt: string;
+    updatedAt: string;
 }
 
 
@@ -107,85 +107,99 @@ export interface TradeQueryParams {
 }
 
 
+export interface Order {
+  id: string;
+  marketId: string;
+  userId: string;
+  username: string;
+  outcome: "YES" | "NO";
+  type: "BUY" | "SELL";
+  amount: number;
+  price: number;
+  timestamp: string;
+  shares: number;
+}
+
+
 export const createTrade = async (
-  authToken: string,
-  {
-    order_type,
-    order_size,
-    amount,
-    afterPrice,
-    marketID,
-    outcomeId,
-  }: {
-    order_type: 'BUY' | 'SELL';
-    order_size: number;
-    amount: number;
-    afterPrice: number;
-    marketID: number;
-    outcomeId: number;
-  }
-): Promise<[Trade, number]> => {
-  try {
-    const response = await axios.post(
-      `${import.meta.env.VITE_BACKEND_URL}/trade/create`,
-      {
+    authToken: string,
+    {
         order_type,
         order_size,
         amount,
         afterPrice,
         marketID,
         outcomeId,
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${authToken}`,
-          'Content-Type': 'application/json',
-          Accept: '*/*',
-        },
-      }
-    );
+    }: {
+        order_type: 'BUY' | 'SELL';
+        order_size: number;
+        amount: number;
+        afterPrice: number;
+        marketID: number;
+        outcomeId: number;
+    }
+): Promise<[Trade, number]> => {
+    try {
+        const response = await axios.post(
+            `${import.meta.env.VITE_BACKEND_URL}/trade/create`,
+            {
+                order_type,
+                order_size,
+                amount,
+                afterPrice,
+                marketID,
+                outcomeId,
+            },
+            {
+                headers: {
+                    Authorization: `Bearer ${authToken}`,
+                    'Content-Type': 'application/json',
+                    Accept: '*/*',
+                },
+            }
+        );
 
-    return [response.data, response.status];
-  } catch (error: any) {
-    console.error('Failed to create trade:', error.response?.data || error.message);
-    throw [null, -1];
-  }
+        return [response.data, response.status];
+    } catch (error: any) {
+        console.error('Failed to create trade:', error.response?.data || error.message);
+        throw [null, -1];
+    }
 };
 
 /**
  * Create or update a token allocation
  */
 export const createOrUpdateTokenAllocation = async (
-  authToken: string,
-  {
-    amount,
-    outcomeId,
-  }: {
-    amount: number;
-    outcomeId: number;
-  }
-): Promise<[TokenAllocation, number]> => {
-  try {
-    const response = await axios.post(
-      `${import.meta.env.VITE_BACKEND_URL}/trade/allocate`,
-      {
+    authToken: string,
+    {
         amount,
         outcomeId,
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${authToken}`,
-          'Content-Type': 'application/json',
-          Accept: '*/*',
-        },
-      }
-    );
+    }: {
+        amount: number;
+        outcomeId: number;
+    }
+): Promise<[TokenAllocation, number]> => {
+    try {
+        const response = await axios.post(
+            `${import.meta.env.VITE_BACKEND_URL}/trade/allocate`,
+            {
+                amount,
+                outcomeId,
+            },
+            {
+                headers: {
+                    Authorization: `Bearer ${authToken}`,
+                    'Content-Type': 'application/json',
+                    Accept: '*/*',
+                },
+            }
+        );
 
-    return [response.data, response.status];
-  } catch (error: any) {
-    console.error('Failed to allocate tokens:', error.response?.data || error.message);
-    throw [null, -1];
-  }
+        return [response.data, response.status];
+    } catch (error: any) {
+        console.error('Failed to allocate tokens:', error.response?.data || error.message);
+        throw [null, -1];
+    }
 };
 
 
@@ -435,6 +449,40 @@ export const fetchTopTradesByVolume = async (
     });
 };
 
+
+/**
+ * Get all trades with filtering and pagination
+ */
+export const fetchLatestTrades = async (
+    marketId: string
+): Promise<[Order[] | null, number]> => {
+    try {
+        const response = await axios.get<Order[]>(
+            `${import.meta.env.VITE_BACKEND_URL}/trade/market/${marketId}/trades?limit=10`,
+            {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': '*/*',
+                },
+            }
+        );
+
+        return [response.data, response.status];
+    } catch (error: any) {
+        console.error('Failed to fetch trades:', error.response?.data || error.message);
+
+        if (error.response?.status === 400) {
+            throw new Error('Invalid query parameters');
+        }
+        if (error.response?.status === 500) {
+            throw new Error('Server error while fetching trades');
+        }
+
+        return [null, error.response?.status || -1];
+    }
+};
+
+
 // Utility function to handle trade API errors consistently
 export const handleTradeError = (error: any, operation: string) => {
     const errorMessage = error.response?.data?.message || error.message || 'Unknown error occurred';
@@ -462,3 +510,6 @@ export const handleTradeError = (error: any, operation: string) => {
             return 'Network error occurred';
     }
 };
+
+
+
