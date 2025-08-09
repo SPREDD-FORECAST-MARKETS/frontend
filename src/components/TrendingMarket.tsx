@@ -411,7 +411,7 @@ const TrendingMarketBanner: React.FC = () => {
       className="mb-8 animate-fade-in"
     >
       <h2 className="text-2xl sm:text-3xl font-semibold  text-orange-400 mb-4 ">
-        HOT MARKETS {trendingMarkets.length}
+        HOT MARKETS
       </h2>
 
       <div
