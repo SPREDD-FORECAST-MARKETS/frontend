@@ -19,6 +19,7 @@ import type { JSX } from "react";
 import PrivacyPage from "./pages/PrivacyPage";
 import TermsConditions from "./pages/TermsConditions";
 import ScrollToTop from "./utils/scrolltop";
+import { MiniAppProvider } from '@neynar/react';
 
 const queryClient = new QueryClient();
 
@@ -209,7 +210,9 @@ function App() {
       >
         <QueryClientProvider client={queryClient}>
           <WagmiProvider config={wagmiConfig}>
+          <MiniAppProvider analyticsEnabled={true}>
             <AppContent />
+            </MiniAppProvider>
           </WagmiProvider>
         </QueryClientProvider>
       </PrivyProvider>
