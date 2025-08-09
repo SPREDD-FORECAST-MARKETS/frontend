@@ -11,11 +11,6 @@
         "subtitle": "Next Gen Prediction Market",
         "description": "Next Gen Prediction Market",
         "primaryCategory": "finance"
-    },
-    "accountAssociation": {
-        "header": "eyJmaWQiOjExNDc4MTAsInR5cGUiOiJhdXRoIiwia2V5IjoiMHg4MzFiMTFlOEM0RUZDMEM3ZDY3OTFlNEM1NjI5M2U5NzM2MzM0RTgzIn0",
-        "payload": "eyJkb21haW4iOiJzcHJlZGQubWFya2V0cyJ9",
-        "signature": "+H1r0Pl7+Z7L5zwn8YmJFSdpe/DrzSTS+S9yc2jK8e5oB7ZCqmFURX618NOBmDVZEu5xlkiRAZ/AbO8YrNxGiRs="
-      }
+    }
   }
   
