@@ -15,11 +15,12 @@ import { WagmiProvider } from "@privy-io/wagmi";
 import { wagmiConfig } from "./utils/wagmiConfig";
 import Faucet from "./pages/Faucet";
 import LogOut from "./pages/Logout"; // Use LoginPage instead of LogOut
-import type { JSX } from "react";
+import { useEffect, type JSX } from "react";
 import PrivacyPage from "./pages/PrivacyPage";
 import TermsConditions from "./pages/TermsConditions";
 import ScrollToTop from "./utils/scrolltop";
 import { MiniAppProvider } from '@neynar/react';
+import { sdk } from '@farcaster/miniapp-sdk';
 
 const queryClient = new QueryClient();
 
@@ -54,8 +55,17 @@ const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
 };
 
 function AppContent() {
+  useEffect(() => {
+    const initialize = async () => {
+      await sdk.actions.ready();
+    };
+    initialize();
+  }, []);
+
   return (
-    <div className="flex flex-col min-h-screen bg-black">
+<div className="flex flex-col min-h-screen bg-black">
+
+
       <BrowserRouter>
         <ScrollToTop />
 
@@ -188,6 +198,7 @@ function AppContent() {
           </Routes>
         </main>
       </BrowserRouter>
+
     </div>
   );
 }

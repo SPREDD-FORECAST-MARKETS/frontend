@@ -35,7 +35,6 @@ export function useMarketFetcher(marketFilterTag: string | undefined) {
           tags: filteredTags
         });
 
-        console.log("Fetched markets:", response.data);
         setMarkets(response.data);
         initialFetchedTags.current.set(marketFilterTag, true);
       } catch (err: any) {

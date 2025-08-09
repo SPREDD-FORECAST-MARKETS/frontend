@@ -1,16 +1,21 @@
 {
-    "miniapp": {
-      "name": "Spredd Markets",
-      "version": "1",
-      "iconUrl": "https://spredd.markets/icon.png",
-      "homeUrl": "https://spredd.markets",
-      "imageUrl": "https://spredd.markets/image.png",
-      "splashImageUrl": "https://spredd.markets/splash.png",
-      "splashBackgroundColor": "#eb4034",
-      "webhookUrl": "https://spredd.markets/api/webhook",
-      "subtitle": "Next Gen Prediction Market",
-      "description": "Next Gen Prediction Market",
-      "primaryCategory": "Games"
-    }
+  "miniapp": {
+    "name": "Spredd Markets",
+    "version": "1",
+    "iconUrl": "https://spredd.markets/logo.jpg",
+    "homeUrl": "https://spredd.markets",
+    "imageUrl": "https://spredd.markets/logo.jpg",
+    "buttonTitle": "Forecast",
+    "splashImageUrl": "https://spredd.markets/logo.jpg",
+    "splashBackgroundColor": "#6200EA",
+    "webhookUrl": "https://backend.spredd.markets/api/webhook",
+    "subtitle": "Forecast and win",
+    "description": "Spredd offers a skill-based forecasting experience that blends elements of trading, sports betting, and social competition—all while preserving users’ principal SPRDD tokens through an innovative bonding mechanism. Users forecast with USDC while optionally bonding SPRDD, which is always returned, creating an engaging, no-loss environment.",
+    "primaryCategory": "games"
+  },
+  "accountAssociation": {
+    "header": "eyJmaWQiOjExNDc4MTAsInR5cGUiOiJhdXRoIiwia2V5IjoiMHg4MzFiMTFlOEM0RUZDMEM3ZDY3OTFlNEM1NjI5M2U5NzM2MzM0RTgzIn0",
+    "payload": "eyJkb21haW4iOiJzcHJlZGQubWFya2V0cyJ9",
+    "signature": "+H1r0Pl7+Z7L5zwn8YmJFSdpe/DrzSTS+S9yc2jK8e5oB7ZCqmFURX618NOBmDVZEu5xlkiRAZ/AbO8YrNxGiRs="
   }
-  
+}
