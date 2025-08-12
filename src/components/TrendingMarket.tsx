@@ -298,7 +298,7 @@ const useMarketData = (maxSlides: number): UseMarketDataReturn => {
 
       const [data, status] = await fetchMostTradedMarkets(maxSlides);
 
-      if (status === 200 && data) {
+      if (status === 200 && data && Array.isArray(data)) {
         setTrendingMarkets(data);
         preloadImages(data.slice(0, maxSlides).map((m: MostTradedMarket) => m.image));
       } else {

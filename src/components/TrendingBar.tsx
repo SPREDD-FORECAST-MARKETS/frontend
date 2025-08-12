@@ -75,7 +75,7 @@ const TrendingTags = ({ data, onChangeTag }: TrendingTagsProps) => {
             ref={scrollContainerRef}
             className="flex items-center space-x-4 overflow-x-auto scrollbar-hide py-2"
           >
-            {data.slice(0, 10).map((tag, index) => (
+            {Array.isArray(data) ? data.slice(0, 10).map((tag, index) => (
               <button
                 key={tag.id}
                 onClick={() => handleTagSelect(index, tag.name)}
@@ -107,7 +107,7 @@ const TrendingTags = ({ data, onChangeTag }: TrendingTagsProps) => {
                 )}
                 <span className="font-semibold tracking-wide relative z-10">{tag.name}</span>
               </button>
-            ))}
+            )) : []}
           </div>
         </div>
 
@@ -120,7 +120,7 @@ const TrendingTags = ({ data, onChangeTag }: TrendingTagsProps) => {
             ref={scrollContainerRef}
             className="flex items-center space-x-2 overflow-x-auto scrollbar-hide py-2 px-1 w-full"
           >
-            {data.slice(0, 10).map((tag, index) => (
+            {Array.isArray(data) ? data.slice(0, 10).map((tag, index) => (
               <button
                 key={tag.id}
                 onClick={() => handleTagSelect(index, tag.name)}
@@ -152,7 +152,7 @@ const TrendingTags = ({ data, onChangeTag }: TrendingTagsProps) => {
                 )}
                 <span className="font-semibold tracking-wide relative z-10">{tag.name}</span>
               </button>
-            ))}
+            )) : []}
           </div>
         </div>
         <div className="flex justify-center">
