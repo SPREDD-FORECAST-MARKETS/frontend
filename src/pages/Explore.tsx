@@ -2,10 +2,9 @@ import { useState, useMemo } from "react";
 import { TrendingUp } from "lucide-react";
 import type { Market } from "../lib/interface";
 import { useMultipleMarketOdds } from "../hooks/useMarketDetails";
-import { tags } from "../lib/data";
 import TrendingMarket from "../components/TrendingMarket";
 import MarketCards from "../components/MarketCards";
-import TrendingBar from "../components/TrendingBar";
+import { CategoryTabs } from "../components/CategoryTabs";
 import { useMarketFetcher } from "../hooks/useMarketFetcher";
 
 // Interfaces
@@ -92,7 +91,7 @@ const Explore = () => {
   // Render
   return (
     <div className="w-full bg-gradient-to-br from-white/5 via-transparent to-black/20 text-white min-h-screen">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-10">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16 pt-8 pb-6 sm:pb-8 lg:pb-10 max-w-[1600px]">
         {/* Trending Markets Section */}
         <TrendingMarket />
 
@@ -104,12 +103,17 @@ const Explore = () => {
           aria-label="Market Listings"
           className="animate-fade-in"
         >
-          <h2 className="text-2xl sm:text-3xl font-semibold text-orange-400 mb-4 ">
-            MARKET LISTINGS
-          </h2>
+          <div className="mb-6">
+            <h2 className="text-2xl sm:text-3xl font-semibold text-orange-400 mb-6">
+              MARKET LISTINGS
+            </h2>
 
-          {/* Market Filters Section */}
-          <TrendingBar data={tags} onChangeTag={setMarketFilterTag} />
+            {/* Market Filters Section */}
+            <CategoryTabs 
+              onCategoryChange={setMarketFilterTag}
+              activeCategory={marketFilterTag}
+            />
+          </div>
           {/* Loading State */}
           {(isLoading || oddsLoading) && <Loader />}
 
@@ -137,9 +141,7 @@ const Explore = () => {
 
           {/* Market Cards */}
           {!isLoading && !oddsLoading && markets.length > 0 && (
-            <div className="px-2 sm:px-4">
-              <MarketCards data={[...liveMarkets, ...closedMarkets]} />
-            </div>
+            <MarketCards data={[...liveMarkets, ...closedMarkets]} />
           )}
         </section>
       </div>

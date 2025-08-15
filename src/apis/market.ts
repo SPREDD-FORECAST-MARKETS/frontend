@@ -65,40 +65,68 @@ export const fetchMarkets = async ({
   page?: number;
   size?: number;
 }) => {
-  const response = await axios.post(
-    `${import.meta.env.VITE_BACKEND_URL}/market/markets`,
-    {
-      tags,
-      sortBy,
-      orderBy,
-      page,
-      size,
-    },
-    {
-      headers: {
-        'Content-Type': 'application/json',
-        accept: '*/*',
+  try {
+    const response = await axios.post(
+      `${import.meta.env.VITE_BACKEND_URL}/market/markets`,
+      {
+        tags,
+        sortBy,
+        orderBy,
+        page,
+        size,
       },
-    }
-  );
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          accept: '*/*',
+        },
+      }
+    );
 
-  return response.data;
+    return response.data;
+  } catch (error: any) {
+    console.error('Failed to fetch markets:', error.response?.data || error.message);
+    
+    if (error.response?.status === 400) {
+      throw new Error('Invalid parameters for fetching markets');
+    }
+    if (error.response?.status === 500) {
+      throw new Error('Server error while fetching markets');
+    }
+    
+    throw error;
+  }
 };
 
 
 export const fetchMarket = async (marketId: string) => {
-
+  try {
     const response = await axios.get<Market>(
-    `${import.meta.env.VITE_BACKEND_URL}/market/${marketId}`,
-    {
-      headers: {
-        'Content-Type': 'application/json',
-        accept: '*/*',
-      },
-    }
-  );
+      `${import.meta.env.VITE_BACKEND_URL}/market/${marketId}`,
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          accept: '*/*',
+        },
+      }
+    );
 
-  return response.data
+    return response.data;
+  } catch (error: any) {
+    console.error('Failed to fetch market:', marketId, error.response?.data || error.message);
+    
+    if (error.response?.status === 404) {
+      throw new Error('Market not found');
+    }
+    if (error.response?.status === 400) {
+      throw new Error('Invalid market ID');
+    }
+    if (error.response?.status === 500) {
+      throw new Error('Server error while fetching market');
+    }
+    
+    throw error;
+  }
 }
 
 

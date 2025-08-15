@@ -35,7 +35,9 @@ export function useMarketFetcher(marketFilterTag: string | undefined) {
           tags: filteredTags
         });
 
-        setMarkets(response.data);
+        // Handle both response formats
+        const marketsData = response.markets || response.data || response;
+        setMarkets(Array.isArray(marketsData) ? marketsData : []);
         initialFetchedTags.current.set(marketFilterTag, true);
       } catch (err: any) {
         if (err.name === "AbortError") {

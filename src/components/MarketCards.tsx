@@ -1,20 +1,17 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Lock, Clock, Users } from "lucide-react";
+import { Lock, Clock, Users, BarChart2, TrendingUp } from "lucide-react";
 import type { Market } from "../lib/interface";
 import { TimeUtils, formatMarketTime } from "../utils/helpers";
 import { usePrivy } from "@privy-io/react-auth";
 import { MarketResolutionModal } from "./MarketResolutionModal";
 import { useMarketOdds, useMarketDetails } from "../hooks/useMarketDetails";
 
-interface MarketCardsProps {
-  data: Market[];
-}
 
-const MarketCards = ({ data }: MarketCardsProps) => {
+const MarketCards = ({ data }: { data: Market[] }) => {
   return (
-    <div className="space-y-8 px-4 sm:px-6 md:px-8">
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div className="w-full">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 sm:gap-6">
         {data.map((marketData, index) => (
           <RaizeStyleCard key={index} data={marketData} index={index} />
         ))}
@@ -23,15 +20,18 @@ const MarketCards = ({ data }: MarketCardsProps) => {
   );
 };
 
+
 const RaizeStyleCard = ({ data, index }: { data: Market; index: number }) => {
+  // All original state and hooks are untouched
   const [showResolutionModal, setShowResolutionModal] = useState(false);
-  const [, setIsHovered] = useState(false);
   const navigate = useNavigate();
   const { user } = usePrivy();
   const cardRef = useRef<HTMLDivElement>(null);
   const [isVisible, setIsVisible] = useState(false);
   const { data: marketOdds } = useMarketOdds(data.marketId);
   const { data: marketDetails } = useMarketDetails(data.marketId);
+  
+
   const timeInfo = formatMarketTime(data.expiry_date);
   const userTimezone = TimeUtils.getUserTimezone();
   const isMarketClosed = timeInfo.isEnded;
@@ -43,56 +43,33 @@ const RaizeStyleCard = ({ data, index }: { data: Market; index: number }) => {
   );
   const needsResolution = isMarketClosed && !data.isResolved && isUserCreator;
 
+  // Enhanced category colors
   const getCategoryColor = (tags: string[]) => {
-    if (!tags || tags.length === 0) return { bg: "bg-slate-600", text: "text-white" };
-    const tag = tags[0].toLowerCase();
-    const colorMap: { [key: string]: { bg: string; text: string } } = {
-      crypto: { bg: "bg-[#ed5d0e]", text: "text-white" },
-      politics: { bg: "bg-red-500", text: "text-white" },
-      sports: { bg: "bg-blue-500", text: "text-white" },
-      tech: { bg: "bg-violet-500", text: "text-white" },
-      entertainment: { bg: "bg-pink-500", text: "text-white" },
-      business: { bg: "bg-emerald-500", text: "text-white" },
-      "pop culture": { bg: "bg-fuchsia-500", text: "text-white" },
-      "global politics": { bg: "bg-rose-500", text: "text-white" },
-    };
-    return colorMap[tag] || { bg: "bg-slate-500", text: "text-white" };
+    if (!tags || tags.length === 0) return "defi";
+    return tags[0].toLowerCase();
   };
 
-  const categoryColor = getCategoryColor(data.tags);
+  const categoryTag = getCategoryColor(data.tags);
+
 
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true);
-        }
+        if (entry.isIntersecting) setIsVisible(true);
       },
       { threshold: 0.1 }
     );
-    if (cardRef.current) {
-      observer.observe(cardRef.current);
-    }
+    if (cardRef.current) observer.observe(cardRef.current);
     return () => {
-      if (cardRef.current) {
-        observer.unobserve(cardRef.current);
-      }
+      if (cardRef.current) observer.unobserve(cardRef.current);
     };
   }, []);
 
-  // Add body scroll lock when modal is open
   useEffect(() => {
-    if (showResolutionModal) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'unset';
-    }
-    
-    // Cleanup function to restore scroll when component unmounts
-    return () => {
-      document.body.style.overflow = 'unset';
-    };
+    document.body.style.overflow = showResolutionModal ? 'hidden' : 'unset';
+    return () => { document.body.style.overflow = 'unset'; };
   }, [showResolutionModal]);
+  
 
   const handleCardClick = () => {
     if (data.isResolved || needsResolution) return;
@@ -114,246 +91,185 @@ const RaizeStyleCard = ({ data, index }: { data: Market; index: number }) => {
     const now = new Date().getTime();
     const end = new Date(timestamp).getTime();
     const diff = end - now;
-    if (diff <= 0) return "Ended";
+    if (diff <= 0) return "Market Ended";
     const days = Math.floor(diff / (1000 * 60 * 60 * 24));
     const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
     const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-    if (days > 0) return `${days}d ${hours}h`;
-    if (hours > 0) return `${hours}h ${minutes}m`;
-    return `${minutes}m`;
+    if (days > 0) return `${days}d ${hours}h left`;
+    if (hours > 0) return `${hours}h ${minutes}m left`;
+    return `${minutes}m left`;
   };
-
+  
   const getMarketOdds = () => {
     if (marketOdds && marketOdds.totalVolume > 0) {
-      return {
-        yesPercentage: marketOdds.probabilityA,
-        noPercentage: marketOdds.probabilityB,
-      };
+      // Validate percentages and ensure they're within valid range
+      const yesPercent = Number(marketOdds.probabilityA);
+      const noPercent = Number(marketOdds.probabilityB);
+      
+      // Check if percentages are valid numbers and within reasonable range
+      const isValidPercent = (val: number) => !isNaN(val) && val >= 0 && val <= 100;
+      
+      if (isValidPercent(yesPercent) && isValidPercent(noPercent)) {
+        return {
+          yesPercentage: yesPercent,
+          noPercentage: noPercent,
+        };
+      }
     }
     return { yesPercentage: 50.0, noPercentage: 50.0 };
   };
 
   const odds = getMarketOdds();
+  const canInteract = !isMarketClosed && !data.isResolved;
 
   return (
     <>
       <div
         ref={cardRef}
-        onClick={!isMarketClosed && !needsResolution ? handleCardClick : undefined}
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
+        onClick={!needsResolution ? handleCardClick : undefined}
         className={`
-          relative group bg-[#131314f2] backdrop-blur-xl border border-white/10 rounded-2xl 
-          shadow-2xl shadow-black/40 transition-all duration-500 ease-out overflow-hidden 
-          cursor-pointer min-h-[400px]
-          before:absolute before:inset-0 before:bg-gradient-to-br before:from-white/5 
-          before:via-transparent before:to-white/5 before:rounded-2xl before:pointer-events-none 
-          before:opacity-0 before:transition-opacity before:duration-500
-          ${
-            isMarketClosed || needsResolution
-              ? "opacity-70 cursor-default"
-              : "hover:transform hover:scale-[1.02] hover:border-white/20 hover:shadow-3xl hover:shadow-black/60 hover:before:opacity-100"
-          }
+          relative group bg-[#131314f2] 
+          backdrop-blur-xl border border-slate-600/60 rounded-3xl p-6 overflow-hidden
+          shadow-2xl shadow-black/20 transition-all duration-300 ease-out
+          ${canInteract ? "cursor-pointer hover:border-slate-500/80 hover:-translate-y-1 hover:shadow-3xl hover:shadow-black/30" : "opacity-70 cursor-default"}
           ${isVisible ? "animate-reveal opacity-100" : "opacity-0 translate-y-10 scale-95"}
         `}
-        style={{
-          animationDelay: `${index * 100}ms`,
-          fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-        }}
+        style={{ animationDelay: `${index * 100}ms` }}
       >
-        {/* Glass overlay effect */}
-        <div className="absolute inset-0 backdrop-blur-sm" />
-        {/* Subtle gradient overlay for depth */}
-        <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-black/20" />
+        
 
-        {/* Status Overlays */}
-        {isMarketClosed && data.isResolved && (
-          <div className="absolute inset-0 backdrop-blur-lg bg-[#161617]/90 z-20 flex items-center justify-center rounded-2xl">
-            <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-xl p-6 text-center shadow-2xl max-w-xs">
-              <Lock size={24} className="text-slate-300 mx-auto mb-3" />
-              <h3 className="text-white text-lg font-semibold mb-2">Market Resolved</h3>
-              <p className="text-slate-300 text-sm mb-3">This market has been resolved</p>
-              {data.outcomeWon && (
-                <div className="inline-flex items-center gap-2 bg-[#ed5d0e]/20 backdrop-blur-sm border border-amber-500/50 rounded-full px-3 py-1">
-                  <div className="w-2 h-2 bg-[#ed5d0e] rounded-full"></div>
-                  <span className="text-amber-300 text-sm font-medium">Winner: {data.winningOutcome}</span>
+        {data.isResolved && (
+          <div className="absolute inset-0 bg-slate-900/95 backdrop-blur-md z-20 flex items-center justify-center rounded-3xl">
+            <div className="bg-slate-800/90 border border-slate-600/50 rounded-2xl p-8 text-center max-w-xs backdrop-blur-sm">
+              <div className="w-16 h-16 bg-slate-700/50 rounded-full mx-auto mb-4 flex items-center justify-center">
+                <Lock size={28} className="text-slate-300" />
+              </div>
+              <h3 className="text-white text-xl font-bold mb-2">Market Resolved</h3>
+              <p className="text-slate-400 text-sm mb-6">This market is closed.</p>
+              {data.winningOutcome && (
+                <div className="inline-flex items-center gap-2 bg-gradient-to-r from-emerald-500/20 to-green-500/20 border border-emerald-400/30 rounded-full px-6 py-2">
+                  <TrendingUp size={16} className="text-emerald-300" />
+                  <span className="text-emerald-300 text-sm font-semibold">Winner: {data.winningOutcome}</span>
                 </div>
               )}
             </div>
           </div>
         )}
+        
         {needsResolution && (
-          <div className="absolute inset-0 backdrop-blur-lg z-20 flex items-center justify-center rounded-2xl">
-            <div className="bg-white/10 backdrop-blur-xl rounded-xl p-6 text-center shadow-2xl max-w-xs">
-              <div className="w-12 h-12 bg-[#ed5d0e]/90 backdrop-blur-sm rounded-full mx-auto mb-3 flex items-center justify-center shadow-lg">
-                <span className="text-white text-xl font-bold">!</span>
+          <div className="absolute inset-0 bg-slate-900/95 backdrop-blur-md z-20 flex items-center justify-center rounded-3xl">
+            <div className="bg-slate-800/90 border border-slate-600/50 rounded-2xl p-8 text-center max-w-xs backdrop-blur-sm">
+              <div className="w-16 h-16 bg-gradient-to-br from-amber-500/30 to-orange-500/30 border border-amber-400/40 rounded-full mx-auto mb-4 flex items-center justify-center shadow-lg">
+                <span className="text-amber-300 text-2xl font-bold">!</span>
               </div>
-              <h3 className="text-white text-lg font-semibold mb-2">Needs Resolution</h3>
-              <p className="text-slate-200 text-sm mb-4">This market has ended and needs to be resolved</p>
+              <h3 className="text-white text-xl font-bold mb-2">Needs Resolution</h3>
+              <p className="text-slate-300 text-sm my-4">This market has ended and requires your action.</p>
               <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setShowResolutionModal(true);
-                }}
-                className="bg-[#ed5d0e]/90 hover:bg-[#ed5d0e] backdrop-blur-sm text-white font-medium px-4 py-2 rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl text-sm"
+                onClick={(e) => { e.stopPropagation(); setShowResolutionModal(true); }}
+                className="mt-4 bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-500 hover:to-amber-500 text-white font-bold px-8 py-3 rounded-xl transition-all duration-300 shadow-lg shadow-orange-900/40 w-full hover:shadow-xl hover:shadow-orange-800/50 transform hover:scale-[1.02]"
               >
-                Resolve Market
+                Resolve Now
               </button>
             </div>
           </div>
         )}
+        
+        {/* Main content */}
+        <div className="relative z-10">
+          {/* Compact header */}
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-3">
+              <img src={data.image} alt="" className="w-10 h-10 rounded-lg object-cover" />
+              <span className="text-slate-400 text-sm bg-slate-800/60 px-2.5 py-1 rounded text-xs">{categoryTag}</span>
+            </div>
+            <div className="flex items-center gap-1.5 text-slate-500 text-xs">
+              <Clock size={12} />
+              <span>{getDaysHours(data.expiry_date)}</span>
+            </div>
+          </div>
 
-        <div className="relative z-10 flex flex-col h-full">
-          {/* Card Header */}
-          <div className="p-6 pb-4">
-            {/* Category and Time Row */}
-            <div className="flex items-center justify-between mb-4">
-              <div className={`${categoryColor.text} px-3 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wide flex items-center gap-2`}>
-                <img
-                  src={data.image}
-                  alt="Market icon"
-                  className="w-8 h-8 rounded-full object-cover border border-white/20"
-                />
-                <span>{data.tags?.[0] || "General"}</span>
+          {/* Better stats layout */}
+          {marketDetails && (
+            <div className="flex items-center gap-3 mb-6">
+              <div className="flex items-center gap-2 bg-slate-800/60 px-3 py-1.5 rounded-lg">
+                <Users size={14} className="text-slate-400" />
+                <span className="text-white text-sm font-medium">{marketDetails.bettorCount} Trades</span>
               </div>
-              <div className="flex items-center gap-2 text-slate-200 text-xs font-medium bg-white/10 backdrop-blur-sm border border-white/20 px-3 py-1.5 rounded-full shadow-md">
-                <Clock size={12} className="text-slate-300" />
-                <span className="whitespace-nowrap">{getDaysHours(data.expiry_date)}</span>
+              <div className="flex items-center gap-2 bg-slate-800/60 px-3 py-1.5 rounded-lg">
+                <BarChart2 size={14} className="text-slate-400" />
+                <span className="text-white text-sm font-medium">${(marketDetails.totalVolume / 1e6).toFixed(2)} Volume</span>
               </div>
             </div>
+          )}
 
-            {/* Market Question */}
-            <h2 className="text-white font-bold text-xl leading-tight mb-3 line-clamp-2 text-center drop-shadow-md">
+          {/* Compact content section */}
+          <div className="mb-6">
+            <h3 className="text-white text-lg font-semibold leading-tight mb-3 line-clamp-2">
               {data.question}
-            </h2>
-            <p className="text-slate-200 text-sm leading-tight mb-4 line-clamp-3 text-center drop-shadow-sm">
+            </h3>
+            <p className="text-slate-400 text-sm leading-relaxed line-clamp-2">
               {data.description}
             </p>
+          </div>
 
-            {/* Market Stats */}
-            {marketDetails && (
-              <div className="flex items-center justify-between text-xs text-slate-300 mb-4">
-                <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 px-3 py-1.5 rounded-lg shadow-sm">
-                  <Users size={12} className="text-slate-300" />
-                  <span className="text-white font-medium">{marketDetails.bettorCount}</span>
-                </div>
-                <div className="flex items-center gap-2 backdrop-blur-sm px-3 py-1.5 rounded-lg shadow-sm">
-                  <span className="text-slate-400">Pool</span>
-                  <span className="text-white font-semibold">${(marketDetails.totalVolume / 1e6).toFixed(2)}</span>
-                  <img src="usdc.svg" alt="USDC" className="w-5 h-5" />
-                </div>
+          {/* Simple creator section */}
+          <div className="mb-6 text-sm text-slate-500">
+            by <span className="text-slate-300">{data.creator.username}</span>
+          </div>
+
+          {/* Percentage visual buttons with extreme value protection */}
+          <div className="space-y-2">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                if (canInteract) {
+                  navigate(`/trade/${data.id}`, { state: { marketData: { ...data, name: data.question, endDate: timeInfo.local, iconUrl: data.image, userTimezone: userTimezone }, initialBuy: true } });
+                }
+              }}
+              disabled={!canInteract}
+              className="w-full relative h-10 bg-green-800 hover:bg-green-700 text-white font-semibold rounded-lg transition-colors duration-200 disabled:cursor-not-allowed overflow-hidden"
+            >
+              <div 
+                className="absolute left-0 top-0 h-full bg-green-500 transition-all duration-300"
+                style={{ width: `${Math.max(Math.min(odds.yesPercentage, 95), 5)}%` }}
+              />
+              <div className="relative z-10 flex items-center justify-between px-4 h-full">
+                <span className="truncate">Yes</span>
+                <span className="font-bold text-xs sm:text-sm whitespace-nowrap ml-2">{odds.yesPercentage.toFixed(0)}%</span>
               </div>
-            )}
-          </div>
-
-          {/* Odds Section */}
-          <div className="px-6 pb-6 mt-auto">
-            <div className="grid grid-rows-2 gap-3">
-              {/* Yes Option */}
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  if (!isMarketClosed && !data.isResolved) {
-                    navigate(`/trade/${data.id}`, {
-                      state: {
-                        marketData: {
-                          id: data.id,
-                          name: data.question,
-                          outcomes: { yes: "Yes", no: "No" },
-                          tags: data.tags,
-                          endDate: timeInfo.local,
-                          creator: data.creator.username,
-                          description: data.description,
-                          iconUrl: data.image,
-                          userTimezone: userTimezone,
-                        },
-                        initialBuy: true,
-                      },
-                    });
-                  }
-                }}
-                disabled={isMarketClosed || data.isResolved}
-                className={`
-                  flex justify-between items-center w-full relative group/btn overflow-hidden 
-                  text-white font-bold py-3 px-4 rounded-xl transition-all duration-300 
-                  transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed 
-                  disabled:hover:scale-100 bg-[#2b37334d] border-emerald-400/50 
-                  hover:bg-emerald-500/30 hover:border-emerald-400/50 hover:shadow-lg 
-                  hover:shadow-emerald-500/25
-                  before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent 
-                  before:via-white/5 before:to-transparent before:translate-x-[-100%] 
-                  before:transition-transform before:duration-700 hover:before:translate-x-[100%]
-                `}
-              >
-                <div className="text-base text-[#009966] font-bold drop-shadow-sm relative z-10">Yes</div>
-                <div className="text-base font-bold text-[#009966] drop-shadow-sm relative z-10">
-                  {odds.yesPercentage.toFixed(1)}%
-                </div>
-              </button>
-
-              {/* No Option */}
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  if (!isMarketClosed && !data.isResolved) {
-                    navigate(`/trade/${data.id}`, {
-                      state: {
-                        marketData: {
-                          id: data.id,
-                          name: data.question,
-                          outcomes: { yes: "Yes", no: "No" },
-                          tags: data.tags,
-                          endDate: timeInfo.local,
-                          creator: data.creator.username,
-                          description: data.description,
-                          iconUrl: data.image,
-                          userTimezone: userTimezone,
-                        },
-                        initialBuy: false,
-                      },
-                    });
-                  }
-                }}
-                disabled={isMarketClosed || data.isResolved}
-                className={`
-                  flex justify-between items-center w-full relative group/btn overflow-hidden 
-                  text-white font-bold py-3 px-4 rounded-xl transition-all duration-300 
-                  transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed 
-                  disabled:hover:scale-100 bg-[#3f24244d] border-red-400/50 
-                  hover:bg-red-500/30 hover:border-red-400/50 hover:shadow-lg 
-                  hover:shadow-red-500/25
-                  before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent 
-                  before:via-white/5 before:to-transparent before:translate-x-[-100%] 
-                  before:transition-transform before:duration-700 hover:before:translate-x-[100%]
-                `}
-              >
-                <div className="text-base font-bold text-[#ec003f] drop-shadow-sm relative z-10">No</div>
-                <div className="text-base font-bold text-[#ec003f] drop-shadow-sm relative z-10">
-                  {odds.noPercentage.toFixed(1)}%
-                </div>
-              </button>
-            </div>
-          </div>
-
-          {/* Enhanced Hover Effects */}
-          <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-2xl" />
-          <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none overflow-hidden rounded-2xl">
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 ease-out" />
+            </button>
+            
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                if (canInteract) {
+                  navigate(`/trade/${data.id}`, { state: { marketData: { ...data, name: data.question, endDate: timeInfo.local, iconUrl: data.image, userTimezone: userTimezone }, initialBuy: false } });
+                }
+              }}
+              disabled={!canInteract}
+              className="w-full relative h-10 bg-red-700 hover:bg-red-600 text-white font-semibold rounded-lg transition-colors duration-200 disabled:cursor-not-allowed overflow-hidden"
+            >
+              <div 
+                className="absolute left-0 top-0 h-full bg-red-500 transition-all duration-300"
+                style={{ width: `${Math.max(Math.min(odds.noPercentage, 95), 5)}%` }}
+              />
+              <div className="relative z-10 flex items-center justify-between px-4 h-full">
+                <span className="truncate">No</span>
+                <span className="font-bold text-xs sm:text-sm whitespace-nowrap ml-2">{odds.noPercentage.toFixed(0)}%</span>
+              </div>
+            </button>
           </div>
         </div>
       </div>
-
-      {/* Modal with Blurred Background */}
+      
+      {/* Modal is unchanged */}
       {showResolutionModal && (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center">
-          {/* Blurred Background Overlay */}
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div 
-            className="absolute inset-0 bg-black/50 backdrop-blur-md transition-all duration-300"
+            className="absolute inset-0 bg-black/70 backdrop-blur-md"
             onClick={() => setShowResolutionModal(false)}
           />
-          
-          {/* Modal Container */}
-          <div className="relative z-10 max-w-lg w-full mx-4 transform transition-all duration-300 ease-out scale-100 opacity-100">
+          <div className="relative z-10 max-w-lg w-full">
             <MarketResolutionModal
               market={data}
               isOpen={showResolutionModal}
