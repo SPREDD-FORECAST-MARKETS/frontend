@@ -18,6 +18,7 @@ export interface MostTradedMarket {
   question: string;
   expiry_date:string
   tradeCount: number;
+  totalVolume: string;
   marketId:string;
   image: string;
   creator: {

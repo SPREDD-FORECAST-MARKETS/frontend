@@ -64,10 +64,10 @@ const MarketStats: React.FC<MarketStatsProps> = ({
     </div>
 
     {/* Volume Display */}
-    {marketDetails?.totalVolume && (
+    {market.totalVolume && Number(market.totalVolume) > 0 && (
       <div className="inline-flex items-center gap-2 bg-black/80 backdrop-blur-sm border border-green-500/40 rounded-full px-4 py-2 self-start shadow-lg">
         <span className="text-green-400 text-sm font-semibold">
-          ${(marketDetails.totalVolume / 1e6).toFixed(2)} Volume
+          ${(Number(market.totalVolume) / 1e6).toFixed(2)} Volume
         </span>
       </div>
     )}
