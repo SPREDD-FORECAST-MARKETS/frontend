@@ -38,27 +38,41 @@ const isMarketClosed = (market: MostTradedMarket): boolean => {
   return new Date(expiryDate).getTime() <= currentDate.getTime();
 };
 
-interface MarketDetails {
-  totalVolume: number;
-  probabilityA: number;
-  probabilityB: number;
-  bettorCount?: number;
+interface NavigationDotProps {
+  active: boolean;
+  onClick: () => void;
+  label: string;
 }
+
+const NavigationDot: React.FC<NavigationDotProps> = ({
+  active,
+  onClick,
+  label,
+}) => (
+  <button
+    aria-label={label}
+    onClick={onClick}
+    className={`
+      w-2.5 h-2.5 rounded-full transition-all duration-300 
+      focus:outline-none focus:ring-2 focus:ring-orange-500
+      ${active ? "bg-orange-500 scale-125 shadow-md" : "bg-white/30 hover:bg-white/50"}
+    `}
+  />
+);
 
 interface MarketStatsProps {
   market: MostTradedMarket;
-  marketDetails: MarketDetails | null;
+  marketDetails: any;
 }
 
 const MarketStats: React.FC<MarketStatsProps> = ({
   market,
-  marketDetails
 }) => (
-  <div className="flex justify-between mb-2">
+  <div className="flex justify-between">
     {/* Trade Count Badge */}
-    <div className="inline-flex items-center gap-2 bg-black/80 backdrop-blur-sm border border-orange-500/40 rounded-full px-4 py-2 self-start shadow-lg">
+    <div className="inline-flex items-center gap-1.5 bg-black/60 backdrop-blur-sm border border-orange-500/40 rounded-full px-3 py-1 self-start">
       <img src="usdc.svg" className="w-4 h-4" alt="USDC" />
-      <span className="text-orange-400 text-sm font-semibold">
+      <span className="text-orange-400 text-xs font-medium">
         {market.tradeCount} Trades
       </span>
     </div>
@@ -76,7 +90,7 @@ const MarketStats: React.FC<MarketStatsProps> = ({
 
 interface ActionButtonsProps {
   market: MostTradedMarket;
-  marketDetails: MarketDetails | null;
+  marketDetails: any;
   onBuyClick: (e: React.MouseEvent, outcome: "yes" | "no") => void;
 }
 
@@ -88,32 +102,32 @@ const ActionButtons: React.FC<ActionButtonsProps> = ({
     <button
       onClick={(e: React.MouseEvent) => onBuyClick(e, "yes")}
       className="
-        bg-green-600 hover:bg-green-500 backdrop-blur-sm 
-        text-white font-semibold py-2 px-3 rounded-lg transition-all duration-200 
-        hover:scale-105 shadow-sm text-xs sm:text-sm
-        focus:outline-none focus:ring-2 focus:ring-green-500
+        bg-orange-500 hover:bg-orange-600 backdrop-blur-sm border border-orange-400/50 
+        text-white font-medium py-2 px-3 rounded-lg transition-all duration-200 
+        hover:scale-105 shadow-sm hover:shadow-orange-500/20 text-xs sm:text-sm
+        focus:outline-none focus:ring-2 focus:ring-orange-500
         flex flex-col items-center
       "
     >
       <span>Yes</span>
       {marketDetails?.probabilityA && (
-        <span className="text-xs opacity-90">{marketDetails.probabilityA.toFixed(0)}%</span>
+        <span className="text-xs opacity-90">{marketDetails.probabilityA.toFixed(1)}%</span>
       )}
     </button>
 
     <button
       onClick={(e: React.MouseEvent) => onBuyClick(e, "no")}
       className="
-        bg-red-600 hover:bg-red-500 backdrop-blur-sm 
-        text-white font-semibold py-2 px-3 rounded-lg transition-all duration-200 
-        hover:scale-105 shadow-sm text-xs sm:text-sm
-        focus:outline-none focus:ring-2 focus:ring-red-500
+        bg-slate-700 hover:bg-slate-600 backdrop-blur-sm border border-slate-600/50 
+        text-white font-medium py-2 px-3 rounded-lg transition-all duration-200 
+        hover:scale-105 shadow-sm hover:shadow-slate-500/20 text-xs sm:text-sm
+        focus:outline-none focus:ring-2 focus:ring-orange-500
         flex flex-col items-center
       "
     >
       <span>No</span>
       {marketDetails?.probabilityB && (
-        <span className="text-xs opacity-90">{marketDetails.probabilityB.toFixed(0)}%</span>
+        <span className="text-xs opacity-90">{marketDetails.probabilityB.toFixed(1)}%</span>
       )}
     </button>
   </div>
@@ -130,7 +144,7 @@ const LoadingSkeleton: React.FC<LoadingSkeletonProps> = ({ count }) => (
       <div
         key={`skeleton-${i}`}
         className="
-          aspect-square bg-slate-800 rounded-3xl animate-pulse 
+          aspect-square bg-slate-800 rounded-xl animate-pulse 
           min-h-[200px] sm:min-h-[240px] lg:min-h-[270px]
           bg-gradient-to-r from-slate-800 via-slate-700 to-slate-800
         "
@@ -145,7 +159,6 @@ interface MarketCardProps {
 
 const MarketCard: React.FC<MarketCardProps> = ({ market }) => {
   const [isHovered, setIsHovered] = useState<boolean>(false);
-  const [hasError, setHasError] = useState<boolean>(false);
   const navigate = useNavigate();
   const { data: marketDetails } = useMarketDetails(market.marketId);
 
@@ -153,75 +166,58 @@ const MarketCard: React.FC<MarketCardProps> = ({ market }) => {
     e.preventDefault();
     e.stopPropagation();
 
-    try {
-      const marketData = {
-        id: market.id,
-        name: market.question,
-        outcomes: { yes: "Yes", no: "No" },
-        creator: market.creator.username,
-        iconUrl: market.image,
-      };
+    const marketData = {
+      id: market.id,
+      name: market.question,
+      outcomes: { yes: "Yes", no: "No" },
+      creator: market.creator.username,
+      iconUrl: market.image,
+    };
 
-      navigate(`/trade/${market.id}`, {
-        state: {
-          marketData,
-          initialBuy: outcome === "yes",
-        },
-      });
-    } catch (error) {
-      setHasError(true);
-    }
+    navigate(`/trade/${market.id}`, {
+      state: {
+        marketData,
+        initialBuy: outcome === "yes",
+      },
+    });
   }, [market, navigate]);
-
-  // Handle image load errors
-  const handleImageError = useCallback(() => {
-    setHasError(true);
-  }, []);
 
   return (
     <Link
       to={`/trade/${market.id}`}
       className="
-        relative aspect-square overflow-hidden rounded-3xl 
-        group bg-[#131314f2]
-        backdrop-blur-xl border border-slate-600/60
-        hover:scale-[1.02] transition-all duration-300 
-        min-h-[200px] sm:min-h-[240px] lg:min-h-[270px] block 
-        shadow-2xl shadow-black/20
-        hover:border-slate-500/80 hover:-translate-y-1 hover:shadow-3xl hover:shadow-black/30
+        relative aspect-square overflow-hidden rounded-xl border border-slate-700/50 
+        group hover:scale-[1.03] transition-all duration-300 
+        min-h-[200px] sm:min-h-[240px] lg:min-h-[270px] block shadow-md hover:shadow-orange-500/10
       "
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      
-      {/* Background image with overlay */}
       <div
-        className="absolute inset-0 transition-transform duration-500 group-hover:scale-105 opacity-20"
+        className="absolute inset-0 transition-transform duration-500 group-hover:scale-105 bg-slate-900/80 "
         style={{
-          backgroundImage: market.image && !hasError ? `url(${market.image})` : undefined,
+          backgroundImage: market.image ? `url(${market.image})` : undefined,
           backgroundSize: "cover",
           backgroundPosition: "center",
+          opacity: 0.5
         }}
-      />
-      
-      {/* Hidden image for error handling */}
-      {market.image && (
-        <img
-          src={market.image}
-          alt=""
-          className="hidden"
-          onError={handleImageError}
+      >
+        <div
+          className={`
+            absolute inset-0 bg-gradient-to-t transition-opacity duration-300
+            ${isHovered ? "from-black/90 via-black/60 to-black/30" : "from-black/85 via-black/50 to-black/20"}
+          `}
         />
-      )}
+      </div>
 
       {/* Card Content */}
-      <div className="relative z-10 flex flex-col h-full p-4">
+      <div className="relative z-10 flex flex-col h-full p-4 sm:p-5 lg:p-6">
         {/* Top Section: Statistics */}
         <MarketStats market={market} marketDetails={marketDetails} />
 
         {/* Middle Section: Question */}
         <div className="flex-1 flex items-center min-h-0 my-4">
-          <h3 className="text-white font-bold text-lg sm:text-xl lg:text-2xl leading-tight line-clamp-3 drop-shadow-lg">
+          <h3 className="text-white font-semibold text-sm sm:text-base lg:text-lg leading-tight line-clamp-3 drop-shadow-sm">
             {market.question}
           </h3>
         </div>
@@ -233,15 +229,16 @@ const MarketCard: React.FC<MarketCardProps> = ({ market }) => {
             ${isHovered ? "opacity-0 translate-y-2" : "opacity-100 translate-y-0"}
           `}
         >
-          <span className="text-white/80 text-sm sm:text-base font-medium">
-            by <span className="text-orange-400 font-semibold">{market.creator.username}</span>
+          <span className="text-white/60 text-xs sm:text-sm">
+            by <span className="text-orange-400 font-medium">{market.creator.username}</span>
           </span>
         </div>
 
         {/* Bottom Section: Action Buttons (Hover View) */}
         <div
           className={`
-            absolute bottom-4 left-4 right-4 transition-all duration-300
+            absolute bottom-4 sm:bottom-5 lg:bottom-6 left-4 sm:left-5 lg:left-6 
+            right-4 sm:right-5 lg:right-6 transition-all duration-300
             ${isHovered ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4 pointer-events-none"}
           `}
         >
@@ -260,7 +257,6 @@ interface UseSlideNavigationReturn {
   slideIndex: number;
   goToSlide: (i: number) => void;
   nextSlide: () => void;
-  prevSlide: () => void;
 }
 
 const useSlideNavigation = (totalSlides: number, cardsPerView: number): UseSlideNavigationReturn => {
@@ -275,16 +271,12 @@ const useSlideNavigation = (totalSlides: number, cardsPerView: number): UseSlide
     if (totalSlides > 0) goToSlide(slideIndex + 1);
   }, [goToSlide, slideIndex, totalSlides]);
 
-  const prevSlide = useCallback((): void => {
-    if (totalSlides > 0) goToSlide(slideIndex - 1);
-  }, [goToSlide, slideIndex, totalSlides]);
-
   // Reset slide index when cards per view changes
   useEffect(() => {
     setSlideIndex(0);
   }, [cardsPerView]);
 
-  return { slideIndex, goToSlide, nextSlide, prevSlide };
+  return { slideIndex, goToSlide, nextSlide };
 };
 
 interface UseMarketDataReturn {
@@ -383,62 +375,12 @@ const useAutoSlide = (nextSlide: () => void, totalSlides: number, hovered: boole
   }, [nextSlide, totalSlides, hovered]);
 };
 
-const useWheelNavigation = (
-  nextSlide: () => void, 
-  prevSlide: () => void, 
-  totalSlides: number,
-  containerRef: React.RefObject<HTMLDivElement>
-): void => {
-  const lastWheelTime = useRef<number>(0);
-  const wheelThreshold = 100; // Minimum delta for wheel event
-  const wheelCooldown = 500; // Cooldown between wheel navigation (ms)
-
-  useEffect(() => {
-    const container = containerRef.current;
-    if (!container || totalSlides <= 1) return;
-
-    const handleWheel = (e: WheelEvent): void => {
-      const now = Date.now();
-      
-      // Check if enough time has passed since last wheel navigation
-      if (now - lastWheelTime.current < wheelCooldown) return;
-      
-      // Check if scroll is significant enough (filter out small trackpad movements)
-      const deltaY = Math.abs(e.deltaY);
-      const deltaX = Math.abs(e.deltaX);
-      
-      if (deltaY < wheelThreshold && deltaX < wheelThreshold) return;
-
-      // Prevent default scrolling
-      e.preventDefault();
-      
-      // Determine scroll direction (prioritize horizontal scroll for trackpad)
-      const isScrollingRight = deltaX > deltaY ? e.deltaX > 0 : e.deltaY > 0;
-      
-      if (isScrollingRight) {
-        nextSlide();
-      } else {
-        prevSlide();
-      }
-      
-      lastWheelTime.current = now;
-    };
-
-    container.addEventListener('wheel', handleWheel, { passive: false });
-    
-    return () => {
-      container.removeEventListener('wheel', handleWheel);
-    };
-  }, [nextSlide, prevSlide, totalSlides, containerRef]);
-};
-
 const TrendingMarketBanner: React.FC = () => {
   const [hovered, setHovered] = useState<boolean>(false);
-  const containerRef = useRef<HTMLDivElement>(null!);
 
   // Custom hooks for better organization
   const cardsPerView: number = useResponsiveView();
-  const { trendingMarkets, loading, error }: UseMarketDataReturn = useMarketData(MAX_SLIDES);
+  const { trendingMarkets, loading, }: UseMarketDataReturn = useMarketData(MAX_SLIDES);
 
   // Memoized calculations
   const displayMarkets: MostTradedMarket[] = useMemo(
@@ -446,76 +388,33 @@ const TrendingMarketBanner: React.FC = () => {
     [trendingMarkets]
   );
 
-  // Filter out closed markets first
-  const openMarkets: MostTradedMarket[] = useMemo(
-    () => displayMarkets.filter(market => !isMarketClosed(market)),
-    [displayMarkets]
-  );
+  const totalSlides: number = Math.ceil(displayMarkets.length / cardsPerView);
 
-  const totalSlides: number = Math.ceil(openMarkets.length / cardsPerView);
-
-  const { slideIndex, goToSlide, nextSlide, prevSlide }: UseSlideNavigationReturn = useSlideNavigation(totalSlides, cardsPerView);
+  const { slideIndex, goToSlide, nextSlide }: UseSlideNavigationReturn = useSlideNavigation(totalSlides, cardsPerView);
 
   const currentSlideMarkets: MostTradedMarket[] = useMemo(() => {
     const startIdx: number = slideIndex * cardsPerView;
-    return openMarkets.slice(startIdx, startIdx + cardsPerView);
-  }, [openMarkets, slideIndex, cardsPerView]);
+    return displayMarkets.slice(startIdx, startIdx + cardsPerView);
+  }, [displayMarkets, slideIndex, cardsPerView]);
 
   // Auto-slide functionality
   useAutoSlide(nextSlide, totalSlides, hovered);
-  
-  // Wheel navigation functionality
-  useWheelNavigation(nextSlide, prevSlide, totalSlides, containerRef);
 
-  // Early returns for edge cases
-  if (loading) {
-    return (
-      <section className="mb-6">
-        <h2 className="text-2xl sm:text-3xl font-semibold text-orange-400 mb-6">
-          HOT MARKETS
-        </h2>
-        <div className="grid gap-5 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          <LoadingSkeleton count={cardsPerView} />
-        </div>
-      </section>
-    );
-  }
-
-  // Handle error state
-  if (error) {
-    return (
-      <section className="mb-6">
-        <h2 className="text-2xl sm:text-3xl font-semibold text-orange-400 mb-6">
-          HOT MARKETS
-        </h2>
-        <div className="bg-slate-800/50 border border-slate-600/60 rounded-3xl p-8 text-center">
-          <div className="text-slate-400 mb-4">
-            <svg className="w-12 h-12 mx-auto mb-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <p className="text-lg font-medium text-slate-300">Unable to load trending markets</p>
-            <p className="text-sm text-slate-500 mt-2">Please check your connection and try again</p>
-          </div>
-        </div>
-      </section>
-    );
-  }
-  
-  if (trendingMarkets.length === 0) return null;
+  // Early returns for edge cases - return empty div if no markets or error
+  if (trendingMarkets.length === 0) return <div></div>;
 
   return (
     <section
       role="region"
       aria-label="Trending Markets"
-      className="mb-6 animate-fade-in"
+      className="mb-8 animate-fade-in"
     >
-      <h2 className="text-2xl sm:text-3xl font-semibold text-orange-400 mb-6">
+      <h2 className="text-2xl sm:text-3xl font-semibold  text-orange-400 mb-4 ">
         HOT MARKETS
       </h2>
 
       <div
-        ref={containerRef}
-        className="relative w-full"
+        className="relative w-full py-6 sm:py-8 lg:py-10"
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
         role="region"
@@ -525,49 +424,60 @@ const TrendingMarketBanner: React.FC = () => {
         }}
       >
         {/* Main Content Grid */}
-        <div className="">
+        <div className="px-4 sm:px-6 md:px-8 mx-auto">
           <div
             className={`
-            grid gap-5 sm:gap-6
-            grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4
+            grid gap-4 sm:gap-5 lg:gap-6
+            grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4
             ${cardsPerView === 1 ? "max-w-md mx-auto" : ""}
           `}
           >
             {loading ? (
               <LoadingSkeleton count={cardsPerView} />
             ) : (
-              currentSlideMarkets.map((market: MostTradedMarket) => (
-                <MarketCard key={market.id} market={market} />
-              ))
+              <>
+                {currentSlideMarkets.map((market: MostTradedMarket) =>
+                  // Skip rendering MarketCard for closed markets
+                  !isMarketClosed(market) ? (
+                    <MarketCard key={market.id} market={market} />
+                  ) : (
+                    <div
+                      key={`empty-closed-${market.id}`}
+                      className="aspect-square opacity-0 hidden sm:block"
+                    />
+                  )
+                )}
+
+                {/* Fill empty grid spots for consistent layout */}
+                {cardsPerView > 1 &&
+                  Array.from({
+                    length: Math.max(0, cardsPerView - currentSlideMarkets.length),
+                  }).map((_, i: number) => (
+                    <div key={`empty-${i}`} className="aspect-square opacity-0 hidden sm:block" />
+                  ))}
+              </>
             )}
           </div>
         </div>
 
         {/* Navigation Dots */}
         {totalSlides > 1 && (
-          <div 
-            className="flex items-center justify-center gap-1.5 mt-4"
-            role="tablist"
-            aria-label="Market slides navigation"
-          >
+          <div className="flex items-center justify-center gap-2 mt-6 sm:mt-8 px-4">
             {Array.from({ length: totalSlides }).map((_, i: number) => (
-              <button
+              <NavigationDot
                 key={i}
+                active={i === slideIndex}
                 onClick={() => goToSlide(i)}
-                className={`
-                  transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 focus:ring-offset-black
-                  ${i === slideIndex 
-                    ? "w-8 h-2 bg-orange-500 rounded-full" 
-                    : "w-2 h-2 bg-slate-600 hover:bg-slate-500 rounded-full"
-                  }
-                `}
-                role="tab"
-                aria-selected={i === slideIndex}
-                aria-controls={`slide-${i}`}
-                aria-label={`Go to slide ${i + 1} of ${totalSlides}`}
-                tabIndex={i === slideIndex ? 0 : -1}
+                label={`Go to slide ${i + 1}`}
               />
             ))}
+          </div>
+        )}
+
+        {/* Mobile Touch Instructions */}
+        {totalSlides > 1 && (
+          <div className="sm:hidden text-center mt-4 px-4">
+            <p className="text-white/60 text-xs">Swipe or wait for auto-advance</p>
           </div>
         )}
       </div>

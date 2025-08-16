@@ -3,10 +3,10 @@ import { FaTwitter, FaDiscord, FaInstagram, FaTelegram } from "react-icons/fa";
 
 const Footer = () => {
   return (
-    <footer className="bg-black text-white py-6 md:py-8 px-4 sm:px-6 lg:px-8">
+    <footer className="bg-black text-white py-8 md:py-12 lg:py-16 px-4 sm:px-6 lg:px-8">
       {/* <div className="container mx-auto max-w-screen-xl"> */}
       <div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 mb-6 md:mb-8 border-b border-gray-800 pb-6 md:pb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 lg:gap-16 mb-8 md:mb-12 border-b border-gray-800 pb-8 md:pb-10">
           {/* Logo and Description Section */}
           <div className="col-span-1 pr-0 md:pr-8">
             <div className="flex items-start space-x-3 mb-4">

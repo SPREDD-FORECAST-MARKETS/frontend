@@ -115,9 +115,7 @@ export const fetchMostTradedMarkets = async (
 
     return [response.data, response.status];
   } catch (error: any) {
-    if (error.response?.status === 400) {
-      throw new Error('Invalid parameters for most traded markets');
-    }
+    
     if (error.response?.status === 500) {
       throw new Error('Server error while fetching most traded markets');
     }
