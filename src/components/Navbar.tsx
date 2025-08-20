@@ -127,7 +127,7 @@ const Navbar = () => {
 
   return (
     <nav className="fixed top-0 left-0 w-full z-50 bg-[#0a0a0a] border-b border-gray-800/30 backdrop-blur-xl">
-      <div className="max-w-7xl mx-auto px-4 lg:px-8">
+      <div className="mx-auto px-6 sm:px-8 lg:px-12 xl:px-16 2xl:px-20 max-w-[1600px]">
         <div className="flex justify-between items-center h-16">
           {/* Logo Section */}
           <div className="flex items-center">
@@ -145,12 +145,12 @@ const Navbar = () => {
           </div>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-1">
+          <div className="hidden md:flex items-center space-x-6">
             {navigationLinks.map((link) => (
               <Link
                 key={link.name}
                 to={link.to}
-                className="relative group px-4 py-2 text-gray-300 hover:text-white font-medium text-sm transition-all duration-300"
+                className="relative group px-3 py-2 text-gray-300 hover:text-white font-medium text-sm transition-all duration-300"
               >
                 <span className="relative z-10">{link.name}</span>
 
@@ -179,7 +179,7 @@ const Navbar = () => {
               to="https://app.virtuals.io/geneses/1057"
               target="_blank"
               rel="noopener noreferrer"
-              className="group relative flex items-center ml-4 px-4 py-2 border border-[#ff6b35]/30 rounded-lg text-[#ff6b35] hover:bg-[#ff6b35]/10 transition-all duration-300 font-medium text-sm"
+              className="group relative flex items-center ml-8 px-4 py-2 border border-[#ff6b35]/30 rounded-lg text-[#ff6b35] hover:bg-[#ff6b35]/10 transition-all duration-300 font-medium text-sm"
             >
               <span className="flex items-center">
                 Buy $SPRDD
@@ -190,7 +190,7 @@ const Navbar = () => {
             {/* Create Prediction Button */}
             <Link
               to="/create-prediction"
-              className="ml-2 bg-gradient-to-r from-[#ff6b35] to-[#ff8c42] hover:from-[#ff8c42] hover:to-[#ff6b35] text-black font-semibold px-6 py-2 rounded-lg transition-all duration-300 transform hover:scale-105 hover:shadow-lg hover:shadow-[#ff6b35]/20 text-sm"
+              className="ml-3 bg-gradient-to-r from-[#ff6b35] to-[#ff8c42] hover:from-[#ff8c42] hover:to-[#ff6b35] text-black font-semibold px-6 py-2 rounded-lg transition-all duration-300 transform hover:scale-105 hover:shadow-lg hover:shadow-[#ff6b35]/20 text-sm"
             >
               Create Prediction
             </Link>
@@ -205,10 +205,10 @@ const Navbar = () => {
                   ref={profileButtonRef}
                   onClick={() => setShowProfileDropdown(!showProfileDropdown)}
                   className={`
-                    relative p-2 rounded-full transition-all duration-300 transform border
+                    relative p-2 rounded-full transition-all duration-300 border
                     ${
                       showProfileDropdown
-                        ? "bg-[#ff6b35] text-black border-[#ff6b35] rotate-180 scale-110"
+                        ? "bg-[#ff6b35] text-black border-[#ff6b35]"
                         : "text-gray-300 border-gray-700 hover:border-[#ff6b35]/50 hover:text-white hover:bg-white/5"
                     }
                   `}
