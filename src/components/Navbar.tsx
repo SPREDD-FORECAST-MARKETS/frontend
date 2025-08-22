@@ -140,9 +140,9 @@ const Navbar = () => {
 
   const navigationLinks = [
     { name: "Explore", to: "/" },
-    { name: "Faucet", to: "/faucet" },
+    // { name: "Faucet", to: "/faucet" },
     { name: "Leaderboard", to: "/leaderboard" },
-    { name: "Stake", to: "/stake" },
+    // { name: "Stake", to: "/stake" },
   ];
 
   return (

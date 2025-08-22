@@ -5,7 +5,7 @@ import Footer from "./components/Footer";
 import { privyConfig, PRIVY_APP_ID } from "./lib/privy";
 import Explore from "./pages/Explore";
 import CreatePrediction from "./pages/CreatePrediction";
-import { baseSepolia } from "viem/chains";
+import { base } from "viem/chains";
 import UserProfile from "./pages/UserProfile";
 import Trade from "./pages/Trade";
 import LeaderBoard from "./pages/LeaderBoard";
@@ -216,7 +216,7 @@ function App() {
         appId={PRIVY_APP_ID || "fallback-app-id"}
         config={{
           ...privyConfig,
-          defaultChain: baseSepolia,
+          defaultChain: base,
         }}
       >
         <QueryClientProvider client={queryClient}>

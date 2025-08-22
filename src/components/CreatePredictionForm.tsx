@@ -288,31 +288,37 @@ const CreatePredictionForm = () => {
   }, []);
 
   return (
-    <div className="w-full max-w-6xl mx-auto py-12 px-6 lg:px-12 text-white min-h-screen">
-      <div className="flex justify-end mb-6">
+    <div className="w-full max-w-5xl mx-auto py-6 md:py-10 px-4 sm:px-6 lg:px-8 text-white min-h-screen">
+      <div className="flex justify-between items-start mb-6">
         <Link
           to="/"
-          className="flex items-center gap-2 text-gray-400 hover:text-orange-500 transition-colors duration-300 text-sm uppercase tracking-wide"
+          className="flex items-center gap-1.5 text-gray-400 hover:text-orange-500 transition-colors duration-300 text-xs sm:text-sm uppercase tracking-wide"
         >
-          <span className="text-xl">←</span> Go Back
+          <span className="text-lg">←</span> Go Back
         </Link>
       </div>
 
-      <div className="bg-gradient-to-b from-[#111] to-[#0a0a0a] rounded-2xl shadow-xl p-8 sm:p-10 md:p-12 border border-zinc-800">
-        <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-orange-600 to-orange-700 mb-10 text-center font-serif tracking-tight">
+      <div className="mb-6 md:mb-8 text-center">
+        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-orange-500 mb-2 tracking-tight">
           Create Prediction
-        </h2>
+        </h1>
+        <p className="text-sm text-gray-400">
+          Set up a new prediction market for the community
+        </p>
+      </div>
+
+      <div className="bg-gradient-to-b from-[#111] to-[#0a0a0a] rounded-xl sm:rounded-2xl shadow-xl p-4 sm:p-6 md:p-8 border border-zinc-800">
 
         <form
           onSubmit={handleSubmit}
-          className="grid grid-cols-1 md:grid-cols-2 gap-10"
+          className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8"
         >
           {/* LEFT COLUMN */}
-          <div className="space-y-8">
+          <div className="space-y-5">
             <div>
               <label
                 htmlFor="title"
-                className="block text-gray-400 font-medium mb-3 text-xs uppercase tracking-wider"
+                className="block text-gray-300 font-medium mb-2 text-sm"
               >
                 Event Title
               </label>
@@ -323,7 +329,7 @@ const CreatePredictionForm = () => {
                 value={formData.title}
                 onChange={handleInputChange}
                 placeholder="Enter a clear, specific title"
-                className="w-full bg-[#111] border border-zinc-800 rounded-xl px-5 py-4 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-600/50 transition-all duration-300 shadow-inner"
+                className="w-full bg-[#111] border border-zinc-800 rounded-lg px-4 py-3 text-sm sm:text-base text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-600/50 transition-all duration-300 shadow-inner"
                 required
               />
             </div>
@@ -331,7 +337,7 @@ const CreatePredictionForm = () => {
             <div>
               <label
                 htmlFor="description"
-                className="block text-gray-400 font-medium mb-3 text-xs uppercase tracking-wider"
+                className="block text-gray-300 font-medium mb-2 text-sm"
               >
                 Description
               </label>
@@ -340,16 +346,16 @@ const CreatePredictionForm = () => {
                 name="description"
                 value={formData.description}
                 onChange={handleInputChange}
-                rows={4}
+                rows={3}
                 placeholder="Provide detailed information about this prediction"
-                className="w-full bg-[#111] border border-zinc-800 rounded-xl px-5 py-4 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-600/50 transition-all duration-300 shadow-inner resize-none"
+                className="w-full bg-[#111] border border-zinc-800 rounded-lg px-4 py-3 text-sm sm:text-base text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-600/50 transition-all duration-300 shadow-inner resize-none"
               />
             </div>
 
             <div>
               <label
                 htmlFor="resolutionCriteria"
-                className="block text-gray-400 font-medium mb-3 text-xs uppercase tracking-wider"
+                className="block text-gray-300 font-medium mb-2 text-sm"
               >
                 Resolution Criteria
               </label>
@@ -358,31 +364,33 @@ const CreatePredictionForm = () => {
                 name="resolutionCriteria"
                 value={formData.resolutionCriteria}
                 onChange={handleInputChange}
-                rows={3}
+                rows={2}
                 placeholder="Explain clearly how this prediction will be resolved"
-                className="w-full bg-[#111] border border-zinc-800 rounded-xl px-5 py-4 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-600/50 transition-all duration-300 shadow-inner resize-none"
+                className="w-full bg-[#111] border border-zinc-800 rounded-lg px-4 py-3 text-sm sm:text-base text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-600/50 transition-all duration-300 shadow-inner resize-none"
               />
             </div>
 
-            {/* Enhanced Category Selection with Search */}
+          </div>
+
+          <div className="space-y-5">
             <div>
-              <label className="block text-gray-400 font-medium mb-3 text-xs uppercase tracking-wider">
+              <label className="block text-gray-300 font-medium mb-2 text-sm">
                 Market Categories
               </label>
 
               {/* Selected Categories Display */}
               {formData.tags && formData.tags.length > 0 && (
-                <div className="mb-4 flex flex-wrap gap-2">
+                <div className="mb-3 flex flex-wrap gap-1.5">
                   {formData.tags.map((tag, index) => (
                     <span
                       key={index}
-                      className="inline-flex items-center gap-2 bg-gradient-to-r from-orange-600/20 to-orange-700/20 border border-orange-600/30 text-orange-300 px-3 py-1.5 rounded-lg text-sm font-medium"
+                      className="inline-flex items-center gap-1.5 bg-gradient-to-r from-orange-600/20 to-orange-700/20 border border-orange-600/30 text-orange-300 px-2 py-1 rounded-md text-xs font-medium"
                     >
                       {tag}
                       <button
                         type="button"
                         onClick={() => handleRemoveCategory(tag)}
-                        className="ml-1 text-orange-400 hover:text-orange-200 transition-colors"
+                        className="text-orange-400 hover:text-orange-200 transition-colors"
                       >
                         ×
                       </button>
@@ -396,7 +404,7 @@ const CreatePredictionForm = () => {
                 <button
                   type="button"
                   onClick={handleDropdownToggle}
-                  className="w-full bg-[#111] border border-zinc-800 rounded-xl px-5 py-4 text-left text-white focus:outline-none focus:ring-2 focus:ring-orange-600/50 transition-all duration-300 shadow-inner flex items-center justify-between hover:border-orange-600/50"
+                  className="w-full bg-[#111] border border-zinc-800 rounded-lg px-4 py-3 text-left text-sm sm:text-base text-white focus:outline-none focus:ring-2 focus:ring-orange-600/50 transition-all duration-300 shadow-inner flex items-center justify-between hover:border-orange-600/50"
                 >
                   <span
                     className={
@@ -408,7 +416,7 @@ const CreatePredictionForm = () => {
                       : "Select categories"}
                   </span>
                   <svg
-                    className={`w-5 h-5 transition-transform duration-200 ${
+                    className={`w-4 h-4 transition-transform duration-200 ${
                       isDropdownOpen ? "rotate-180" : ""
                     }`}
                     fill="none"
@@ -425,12 +433,12 @@ const CreatePredictionForm = () => {
                 </button>
 
                 {isDropdownOpen && (
-                  <div className="absolute z-10 w-full mt-2 bg-[#111] border border-zinc-800 rounded-xl shadow-xl max-h-72 overflow-hidden">
+                  <div className="absolute z-10 w-full mt-1 bg-[#111] border border-zinc-800 rounded-lg shadow-xl max-h-64 overflow-hidden">
                     {/* Search Input */}
-                    <div className="p-3 border-b border-zinc-800 bg-[#0a0a0a]">
+                    <div className="p-2 border-b border-zinc-800 bg-[#0a0a0a]">
                       <div className="relative">
                         <svg
-                          className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400"
+                          className="absolute left-2.5 top-1/2 transform -translate-y-1/2 w-3.5 h-3.5 text-gray-400"
                           fill="none"
                           stroke="currentColor"
                           viewBox="0 0 24 24"
@@ -447,14 +455,14 @@ const CreatePredictionForm = () => {
                           placeholder="Search categories..."
                           value={searchTerm}
                           onChange={handleSearchChange}
-                          className="w-full bg-[#111] border border-zinc-700 rounded-lg pl-10 pr-4 py-2 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-600/50 focus:border-orange-600/50 transition-all duration-200"
-                          onClick={(e) => e.stopPropagation()} // Prevent dropdown from closing
+                          className="w-full bg-[#111] border border-zinc-700 rounded-md pl-8 pr-3 py-2 text-sm text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-600/50 focus:border-orange-600/50 transition-all duration-200"
+                          onClick={(e) => e.stopPropagation()}
                         />
                       </div>
                     </div>
 
                     {/* Categories List */}
-                    <div className="max-h-48 overflow-y-auto">
+                    <div className="max-h-44 overflow-y-auto category-dropdown-scroll">
                       {filteredCategories.length > 0 ? (
                         filteredCategories.map((category) => {
                           const isSelected = formData.tags?.includes(category);
@@ -463,7 +471,7 @@ const CreatePredictionForm = () => {
                               key={category}
                               type="button"
                               onClick={() => handleCategorySelect(category)}
-                              className={`w-full px-5 py-3 text-left transition-all duration-200 flex items-center justify-between hover:bg-zinc-800/50 ${
+                              className={`w-full px-3 py-2 text-left text-sm transition-all duration-200 flex items-center justify-between hover:bg-zinc-800/50 ${
                                 isSelected
                                   ? "bg-orange-600/10 text-orange-300 border-r-2 border-orange-600"
                                   : "text-gray-300 hover:text-white"
@@ -472,7 +480,7 @@ const CreatePredictionForm = () => {
                               <span>{category}</span>
                               {isSelected && (
                                 <svg
-                                  className="w-4 h-4 text-orange-500"
+                                  className="w-3.5 h-3.5 text-orange-500"
                                   fill="currentColor"
                                   viewBox="0 0 20 20"
                                 >
@@ -487,7 +495,7 @@ const CreatePredictionForm = () => {
                           );
                         })
                       ) : (
-                        <div className="px-5 py-3 text-gray-400 text-center">
+                        <div className="px-3 py-2 text-gray-400 text-center text-sm">
                           No categories found for "{searchTerm}"
                         </div>
                       )}
@@ -496,28 +504,25 @@ const CreatePredictionForm = () => {
                 )}
               </div>
             </div>
-          </div>
 
-          {/* RIGHT COLUMN */}
-          <div className="space-y-8">
             <div>
-              <label className="block text-gray-400 font-medium mb-3 text-xs uppercase tracking-wider">
+              <label className="block text-gray-300 font-medium mb-2 text-sm">
                 Upload Image
               </label>
               <div
                 className={`border-2 border-dashed ${
                   imagePreview ? "border-green-500" : "border-zinc-800"
-                } rounded-2xl p-8 text-center cursor-pointer hover:border-orange-600 transition-all duration-300 bg-[#111]`}
+                } rounded-lg p-4 sm:p-6 text-center cursor-pointer hover:border-orange-600 transition-all duration-300 bg-[#111]`}
                 onClick={() => document.getElementById("image-upload")?.click()}
               >
                 {imagePreview ? (
                   <img
                     src={imagePreview}
                     alt="Preview"
-                    className="max-h-56 mx-auto rounded-2xl object-cover ring-2 ring-orange-600/20"
+                    className="max-h-32 sm:max-h-48 mx-auto rounded-lg object-cover ring-2 ring-orange-600/20"
                   />
                 ) : (
-                  <p className="text-gray-400 text-base">
+                  <p className="text-gray-400 text-sm sm:text-base">
                     Drag & drop or click (max 1MB)
                   </p>
                 )}
@@ -532,17 +537,18 @@ const CreatePredictionForm = () => {
             </div>
 
             <div>
-              <label className="block text-gray-400 font-medium mb-3 text-xs uppercase tracking-wider">
-                End Time (Your Local Time: {UTCTimeHelpers.getUserTimezone()})
+              <label className="block text-gray-300 font-medium mb-2 text-sm">
+                End Time 
+                <span className="text-xs text-gray-500 ml-1">({UTCTimeHelpers.getUserTimezone()})</span>
               </label>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <input
                   type="date"
                   id="endDate"
                   name="endDate"
                   value={formData.endDate}
                   onChange={handleInputChange}
-                  className="w-full bg-[#111] border border-zinc-800 rounded-xl px-5 py-4 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-600/50 transition-all duration-300 shadow-inner"
+                  className="w-full bg-[#111] border border-zinc-800 rounded-lg px-4 py-3 text-sm sm:text-base text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-600/50 transition-all duration-300 shadow-inner"
                   style={{ colorScheme: "dark" }}
                   required
                 />
@@ -552,22 +558,24 @@ const CreatePredictionForm = () => {
                   name="endTime"
                   value={formData.endTime}
                   onChange={handleInputChange}
-                  className="w-full bg-[#111] border border-zinc-800 rounded-xl px-5 py-4 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-600/50 transition-all duration-300 shadow-inner"
+                  className="w-full bg-[#111] border border-zinc-800 rounded-lg px-4 py-3 text-sm sm:text-base text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-600/50 transition-all duration-300 shadow-inner"
                   style={{ colorScheme: "dark" }}
                   required
                 />
               </div>
             </div>
-
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="w-full bg-gradient-to-br from-orange-600 to-orange-700 shadow-orange-500/20 p-4 rounded-xl transition-all duration-300 hover:shadow-orange-500/40 hover:scale-105 hover:from-orange-500 hover:to-orange-600 text-white font-bold disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {isSubmitting ? "Creating..." : "Create Event"}
-            </button>
           </div>
         </form>
+
+        <div className="mt-6 sm:mt-8">
+          <button
+            onClick={handleSubmit}
+            disabled={isSubmitting}
+            className="w-full bg-gradient-to-br from-orange-600 to-orange-700 shadow-orange-500/20 p-3 sm:p-4 rounded-lg sm:rounded-xl transition-all duration-300 hover:shadow-orange-500/40 hover:scale-[1.01] hover:from-orange-500 hover:to-orange-600 text-white font-bold text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isSubmitting ? "Creating..." : "Create Event"}
+          </button>
+        </div>
       </div>
     </div>
   );

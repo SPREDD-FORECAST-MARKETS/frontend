@@ -22,6 +22,7 @@ import { CONTRACT_ADDRESSES } from "../utils/wagmiConfig";
 import { FP_MANAGER_ABI } from "../abi/FPManager";
 import { fetchUserDashboardInfo, type UserDashboardInfo } from "../apis/user";
 import { fetchUserMarkets, type UserMarket } from "../apis/market"; // Import user markets API
+import ClaimButton from "../components/ClaimButton";
 
 const UserProfile = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -450,12 +451,15 @@ const UserProfile = () => {
           {activeTab === "transactions" && (
             <div>
               <div className="grid grid-cols-12 gap-2 sm:gap-4 pb-3 mb-2 border-b border-zinc-800 text-gray-400 text-xs sm:text-sm">
-                <div className="col-span-5 md:col-span-4">Transaction</div>
-                <div className="col-span-3 md:col-span-4 text-center hidden sm:block">
+                <div className="col-span-5 md:col-span-3">Transaction</div>
+                <div className="col-span-3 md:col-span-3 text-center hidden sm:block">
                   Date
                 </div>
-                <div className="col-span-6 sm:col-span-3 text-right">
+                <div className="col-span-4 sm:col-span-2 text-right">
                   Amount
+                </div>
+                <div className="col-span-3 sm:col-span-4 text-center">
+                  Actions
                 </div>
               </div>
 
@@ -491,7 +495,7 @@ const UserProfile = () => {
                     key={tx.id}
                     className="grid grid-cols-12 gap-2 sm:gap-4 py-3 sm:py-4 border-b border-zinc-800/50 items-center hover:bg-zinc-900/30 rounded-lg transition-all duration-300 px-2 group"
                   >
-                    <div className="col-span-5 md:col-span-4">
+                    <div className="col-span-5 md:col-span-3">
                       <div className="font-medium text-white text-sm sm:text-base">
                         {tx.market?.question || `Transaction #${tx.id}`}
                       </div>
@@ -504,11 +508,21 @@ const UserProfile = () => {
                         {new Date(tx.createdAt).toLocaleDateString()}
                       </div>
                     </div>
-                    <div className="col-span-3 md:col-span-4 text-center text-gray-400 hidden sm:block">
+                    <div className="col-span-3 md:col-span-3 text-center text-gray-400 hidden sm:block">
                       {new Date(tx.createdAt).toLocaleDateString()}
                     </div>
-                    <div className="col-span-6 sm:col-span-3 text-right font-medium group-hover:text-orange-500 transition-colors">
+                    <div className="col-span-4 sm:col-span-2 text-right font-medium group-hover:text-orange-500 transition-colors">
                       {formatTransactionAmount(tx.amount, tx.order_type)}
+                    </div>
+                    <div className="col-span-3 sm:col-span-4 flex justify-center">
+                      {tx.market?.contract_address && wallets[0]?.address && (
+                        <ClaimButton
+                          marketAddress={tx.market.contract_address}
+                          userAddress={wallets[0].address}
+                          marketQuestion={tx.market.question}
+                          size="sm"
+                        />
+                      )}
                     </div>
                   </div>
                 ))}
@@ -647,9 +661,19 @@ const UserProfile = () => {
                                 market.expiry_date
                               )}
                             </span>
-                            <button className="text-xs bg-zinc-900 px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg text-white border border-zinc-800 hover:border-orange-500/30 hover:bg-zinc-800 transition-all duration-300">
-                              View Details
-                            </button>
+                            <div className="flex flex-col gap-2 items-end">
+                              {wallets[0]?.address && (
+                                <ClaimButton
+                                  marketAddress={market.contract_address}
+                                  userAddress={wallets[0].address}
+                                  marketQuestion={market.question}
+                                  size="sm"
+                                />
+                              )}
+                              <button className="text-xs bg-zinc-900 px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg text-white border border-zinc-800 hover:border-orange-500/30 hover:bg-zinc-800 transition-all duration-300">
+                                View Details
+                              </button>
+                            </div>
                           </div>
                         </div>
                       </div>
