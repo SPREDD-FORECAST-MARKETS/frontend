@@ -128,12 +128,12 @@ const RaizeStyleCard = ({ data, index }: { data: Market; index: number }) => {
         onClick={!needsResolution ? handleCardClick : undefined}
         className={`
           relative group bg-[#131314f2] h-full
-          backdrop-blur-xl border border-gray-800/50 rounded-2xl p-5 overflow-hidden
-          shadow-2xl shadow-black/20 transition-all duration-300 ease-out
-          before:absolute before:inset-0 before:bg-gradient-to-br before:from-white/2 
-          before:via-transparent before:to-white/2 before:rounded-2xl before:pointer-events-none 
+          backdrop-blur-xl border border-slate-600/40 rounded-2xl p-5 overflow-hidden
+          shadow-2xl shadow-black/30 transition-all duration-300 ease-out
+          before:absolute before:inset-0 before:bg-gradient-to-br before:from-white/3 
+          before:via-transparent before:to-white/3 before:rounded-2xl before:pointer-events-none 
           before:opacity-0 before:transition-opacity before:duration-500
-          ${canInteract ? "cursor-pointer hover:border-gray-700/60 hover:-translate-y-1 hover:shadow-3xl hover:shadow-black/40 hover:before:opacity-100" : "opacity-70 cursor-default"}
+          ${canInteract ? "cursor-pointer hover:-translate-y-1 hover:shadow-3xl hover:shadow-black/50 hover:before:opacity-100" : "opacity-70 cursor-default"}
           ${isVisible ? "animate-reveal opacity-100" : "opacity-0 translate-y-10 scale-95"}
         `}
         style={{ animationDelay: `${index * 100}ms` }}

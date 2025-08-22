@@ -20,15 +20,16 @@ export function CategoryTabs({
   activeCategory 
 }: CategoryTabsProps) {
   const defaultItems: CategoryTabItem[] = [
-    { id: 1, name: "Top" },
-    { id: 2, name: "NBA" },
-    { id: 3, name: "Technology" },
-    { id: 4, name: "Environment" },
-    { id: 5, name: "Bitcoin" },
-    { id: 6, name: "Sports" },
-    { id: 7, name: "AI" },
-    { id: 8, name: "Crypto" },
-    { id: 9, name: "Business" },
+    { id: 1, name: "All" },
+    { id: 2, name: "Top" },
+    { id: 3, name: "NBA" },
+    { id: 4, name: "Technology" },
+    { id: 5, name: "Environment" },
+    { id: 6, name: "Bitcoin" },
+    { id: 7, name: "Sports" },
+    { id: 8, name: "AI" },
+    { id: 9, name: "Crypto" },
+    { id: 10, name: "Business" },
   ];
 
   const tabItems = items || defaultItems;
@@ -36,7 +37,7 @@ export function CategoryTabs({
   // Find active item based on activeCategory prop or default to first item
   const getActiveItem = () => {
     if (activeCategory === undefined) {
-      return tabItems[0]; // "Top"
+      return tabItems[0]; 
     }
     return tabItems.find(item => item.name === activeCategory) || tabItems[0];
   };
@@ -51,8 +52,8 @@ export function CategoryTabs({
 
   const handleCategoryClick = (item: CategoryTabItem) => {
     setActive(item);
-    // Pass undefined for "Top", otherwise pass the category name
-    const categoryValue = item.name === "Top" ? undefined : item.name;
+    // Pass undefined for "All", otherwise pass the category name
+    const categoryValue = item.name === "All" ? undefined : item.name;
     onCategoryChange?.(categoryValue);
   };
 

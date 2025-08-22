@@ -52,24 +52,35 @@ interface MarketStatsProps {
 const MarketStats: React.FC<MarketStatsProps> = ({
   market,
 }) => (
-  <div className="flex justify-between mb-2">
-    {/* Trade Count Badge */}
-    <div className="inline-flex items-center gap-2 bg-black/50 backdrop-blur-md border border-orange-500/40 rounded-full px-4 py-2 self-start shadow-lg">
-      <img src="usdc.svg" className="w-4 h-4" alt="USDC" />
-      <span className="text-orange-400 text-sm font-semibold">
-        {market.tradeCount} Trades
-      </span>
+  <>
+    {/* Mobile: Simple inline display */}
+    <div className="sm:hidden text-orange-400 text-sm font-medium mb-3">
+      <span>{market.tradeCount} Trades</span>
+      {market.totalVolume && Number(market.totalVolume) > 0 && (
+        <span> • ${Number(market.totalVolume).toFixed(0)}</span>
+      )}
     </div>
 
-    {/* Volume Display */}
-    {market.totalVolume && Number(market.totalVolume) > 0 && (
-      <div className="inline-flex items-center gap-2 bg-black/50 backdrop-blur-md border border-green-500/40 rounded-full px-4 py-2 self-start shadow-lg">
-        <span className="text-green-400 text-sm font-semibold">
-          ${Number(market.totalVolume).toFixed(2)} Volume
+    {/* Desktop: Original badge design */}
+    <div className="hidden sm:flex justify-between mb-2">
+      {/* Trade Count Badge */}
+      <div className="inline-flex items-center gap-1 sm:gap-2 bg-black/50 backdrop-blur-md border border-orange-500/40 rounded-full px-2 sm:px-4 py-1 sm:py-2 self-start shadow-lg">
+        <img src="usdc.svg" className="w-3 sm:w-4 h-3 sm:h-4" alt="USDC" />
+        <span className="text-orange-400 text-xs sm:text-sm font-semibold">
+          {market.tradeCount} Trades
         </span>
       </div>
-    )}
-  </div>
+
+      {/* Volume Display */}
+      {market.totalVolume && Number(market.totalVolume) > 0 && (
+        <div className="inline-flex items-center gap-1 sm:gap-2 bg-black/50 backdrop-blur-md border border-green-500/40 rounded-full px-2 sm:px-4 py-1 sm:py-2 self-start shadow-lg">
+          <span className="text-green-400 text-xs sm:text-sm font-semibold">
+            ${Number(market.totalVolume).toFixed(2)} Volume
+          </span>
+        </div>
+      )}
+    </div>
+  </>
 );
 
 interface ActionButtonsProps {
@@ -180,13 +191,13 @@ const MarketCard: React.FC<MarketCardProps> = ({ market }) => {
     <Link
       to={`/trade/${market.id}`}
       className="
-        relative aspect-square overflow-hidden rounded-3xl 
+        relative aspect-[16/10] sm:aspect-square overflow-hidden rounded-2xl sm:rounded-3xl 
         group bg-[#131314f2]
         backdrop-blur-xl border border-slate-600/60
-        hover:scale-[1.02] transition-all duration-300 
-        min-h-[180px] sm:min-h-[200px] lg:min-h-[220px] block 
+        sm:hover:scale-[1.02] transition-all duration-300 
+        min-h-[240px] sm:min-h-[200px] lg:min-h-[220px] block 
         shadow-2xl shadow-black/20
-        hover:border-slate-500/80 hover:-translate-y-1 hover:shadow-3xl hover:shadow-black/30
+        sm:hover:border-slate-500/80 sm:hover:-translate-y-1 sm:hover:shadow-3xl sm:hover:shadow-black/30
       "
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
@@ -213,33 +224,33 @@ const MarketCard: React.FC<MarketCardProps> = ({ market }) => {
       )}
 
       {/* Card Content */}
-      <div className="relative z-10 flex flex-col h-full p-4">
+      <div className="relative z-10 flex flex-col h-full p-3 sm:p-4">
         {/* Top Section: Statistics */}
         <MarketStats market={market} />
 
         {/* Middle Section: Question */}
-        <div className="flex-1 flex items-center min-h-0 my-4">
-          <h3 className="text-white font-bold text-base sm:text-lg lg:text-xl leading-snug line-clamp-3 drop-shadow-lg">
+        <div className="flex-1 flex items-center min-h-0 my-2 sm:my-4">
+          <h3 className="text-white font-extrabold text-xl sm:font-bold sm:text-lg lg:text-xl leading-tight sm:leading-snug line-clamp-2 sm:line-clamp-3 drop-shadow-lg">
             {market.question}
           </h3>
         </div>
 
-        {/* Bottom Section: Creator Info (Default View) */}
+        {/* Creator Info - Mobile: Always show, Desktop: Hide on hover */}
         <div
           className={`
             transition-all duration-300
-            ${isHovered ? "opacity-0 translate-y-2" : "opacity-100 translate-y-0"}
+            ${isHovered ? "sm:opacity-0 sm:translate-y-2" : "sm:opacity-100 sm:translate-y-0"}
           `}
         >
-          <span className="text-white/80 text-sm sm:text-base font-medium">
+          <span className="text-white/70 text-xs sm:text-white/80 sm:text-sm sm:font-medium">
             by <span className="text-orange-400 font-semibold">{market.creator.username}</span>
           </span>
         </div>
 
-        {/* Bottom Section: Action Buttons (Hover View) */}
+        {/* Action Buttons - Desktop only on hover, Hidden on mobile */}
         <div
           className={`
-            absolute bottom-4 left-4 right-4 transition-all duration-300
+            hidden sm:block absolute bottom-4 left-4 right-4 transition-all duration-300
             ${isHovered ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4 pointer-events-none"}
           `}
         >
@@ -569,6 +580,16 @@ const TrendingMarketBanner: React.FC = () => {
           </div>
         )}
       </div>
+
+      <Link
+        to="/create-prediction"
+        className="block sm:hidden mt-6 w-full bg-gradient-to-r from-[#ff6b35] to-[#ff8c42] active:from-[#ff8c42] active:to-[#ff6b35] text-white font-semibold px-6 py-4 rounded-2xl transition-all duration-300 transform active:scale-[0.98] text-center flex items-center justify-center gap-2.5 border border-orange-500/20"
+      >
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v12m6-6H6" />
+        </svg>
+        <span className="text-base tracking-wide">Create Prediction</span>
+      </Link>
     </section>
   );
 };

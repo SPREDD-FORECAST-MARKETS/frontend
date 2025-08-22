@@ -6,7 +6,71 @@ const Footer = () => {
     <footer className="bg-black text-white py-8 md:py-12 lg:py-16 px-4 sm:px-6 lg:px-8">
       {/* <div className="container mx-auto max-w-screen-xl"> */}
       <div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 lg:gap-16 mb-8 md:mb-12 border-b border-gray-800 pb-8 md:pb-10">
+        {/* Mobile Compact Footer */}
+        <div className="md:hidden py-4 space-y-4">
+          {/* Social Icons Row */}
+          <div className="flex justify-center space-x-4">
+            <Link
+              to="https://x.com/spreddai"
+              target="_blank"
+              className="w-10 h-10 rounded-full border border-orange-500/30 text-orange-500 hover:bg-orange-500 hover:text-black flex items-center justify-center transition-all"
+            >
+              <FaTwitter className="w-5 h-5" />
+            </Link>
+            <Link
+              to="https://t.me/spreddguard"
+              target="_blank"
+              className="w-10 h-10 rounded-full border border-orange-500/30 text-orange-500 hover:bg-orange-500 hover:text-black flex items-center justify-center transition-all"
+            >
+              <FaTelegram className="w-5 h-5" />
+            </Link>
+            <Link
+              to="https://discord.com/invite/spredd"
+              target="_blank"
+              className="w-10 h-10 rounded-full border border-orange-500/30 text-orange-500 hover:bg-orange-500 hover:text-black flex items-center justify-center transition-all"
+            >
+              <FaDiscord className="w-5 h-5" />
+            </Link>
+            <Link
+              to="https://www.instagram.com/spredd.ai"
+              target="_blank"
+              className="w-10 h-10 rounded-full border border-orange-500/30 text-orange-500 hover:bg-orange-500 hover:text-black flex items-center justify-center transition-all"
+            >
+              <FaInstagram className="w-5 h-5" />
+            </Link>
+          </div>
+
+          {/* Links Row */}
+          <div className="flex justify-center space-x-6 text-xs">
+            <Link
+              to="/leaderboard"
+              className="text-gray-400 hover:text-orange-500 transition-colors"
+            >
+              Leaderboard
+            </Link>
+            <Link
+              to="https://typhoon-pond-4cf.notion.site/Spredd-Markets-Decentralized-Forecasting-Platform-21e6074dcacb800eb3c6ea8007309325?source=copy_link"
+              target="_blank"
+              className="text-gray-400 hover:text-orange-500 transition-colors"
+            >
+              Docs
+            </Link>
+            <Link
+              to="/contact"
+              className="text-gray-400 hover:text-orange-500 transition-colors"
+            >
+              Contact
+            </Link>
+          </div>
+
+          {/* Copyright */}
+          <div className="text-center text-xs text-gray-500">
+            © {new Date().getFullYear()} Spredd Markets
+          </div>
+        </div>
+
+        {/* Desktop Footer - Keep Original */}
+        <div className="hidden md:grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 lg:gap-16 mb-8 md:mb-12 border-b border-gray-800 pb-8 md:pb-10">
           {/* Logo and Description Section */}
           <div className="col-span-1 pr-0 md:pr-8">
             <div className="flex items-start space-x-3 mb-4">
@@ -123,8 +187,8 @@ const Footer = () => {
           </div>
         </div>
 
-        {/* Copyright and Legal Links */}
-        <div className="flex flex-col md:flex-row justify-between items-center text-sm md:text-base text-gray-500">
+        {/* Copyright and Legal Links - Desktop Only */}
+        <div className="hidden md:flex flex-col md:flex-row justify-between items-center text-sm md:text-base text-gray-500">
           <div className="mb-4 md:mb-0 text-center md:text-left">
             &copy; {new Date().getFullYear()} SPREDD MARKETS. All Rights
             Reserved.
