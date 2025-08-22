@@ -51,6 +51,11 @@ export const MARKET_ABI = [
 		"type": "error"
 	},
 	{
+		"inputs": [],
+		"name": "ReentrancyGuardReentrantCall",
+		"type": "error"
+	},
+	{
 		"inputs": [
 			{
 				"internalType": "address",
@@ -115,6 +120,31 @@ export const MARKET_ABI = [
 		"inputs": [
 			{
 				"indexed": false,
+				"internalType": "uint256",
+				"name": "creatorFee",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "rewardPoolFee",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "factoryFee",
+				"type": "uint256"
+			}
+		],
+		"name": "FeesDistributed",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
 				"internalType": "enum SpreddMarket.MarketOutcome",
 				"name": "outcome",
 				"type": "uint8"
@@ -154,7 +184,19 @@ export const MARKET_ABI = [
 			{
 				"indexed": false,
 				"internalType": "uint256",
-				"name": "amount",
+				"name": "originalBet",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "winnings",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "totalPayout",
 				"type": "uint256"
 			}
 		],
@@ -400,6 +442,11 @@ export const MARKET_ABI = [
 				"internalType": "uint256",
 				"name": "totalBets",
 				"type": "uint256"
+			},
+			{
+				"internalType": "bool",
+				"name": "feesDistributed",
+				"type": "bool"
 			}
 		],
 		"stateMutability": "view",
@@ -459,6 +506,77 @@ export const MARKET_ABI = [
 			{
 				"internalType": "uint256",
 				"name": "firstPositionTime",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_user",
+				"type": "address"
+			}
+		],
+		"name": "getUserExpectedWinnings",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "expectedWinningsA",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "expectedWinningsB",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_user",
+				"type": "address"
+			}
+		],
+		"name": "getUserWinnings",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "originalBet",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "winnings",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "totalPayout",
+				"type": "uint256"
+			},
+			{
+				"internalType": "bool",
+				"name": "canClaim",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "getWinningPoolSize",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
 				"type": "uint256"
 			}
 		],
@@ -563,6 +681,11 @@ export const MARKET_ABI = [
 				"internalType": "bool",
 				"name": "resolved",
 				"type": "bool"
+			},
+			{
+				"internalType": "bool",
+				"name": "feesDistributed",
+				"type": "bool"
 			}
 		],
 		"stateMutability": "view",
@@ -613,6 +736,19 @@ export const MARKET_ABI = [
 		"type": "function"
 	},
 	{
+		"inputs": [],
+		"name": "rewardPoolPercent",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
 		"inputs": [
 			{
 				"internalType": "address",
@@ -652,6 +788,19 @@ export const MARKET_ABI = [
 		"type": "function"
 	},
 	{
+		"inputs": [],
+		"name": "totalFeePercent",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
 		"inputs": [
 			{
 				"internalType": "address",
@@ -679,6 +828,19 @@ export const MARKET_ABI = [
 			{
 				"internalType": "uint256",
 				"name": "firstPositionTime",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "winningPoolSize",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
 				"type": "uint256"
 			}
 		],

@@ -1,7 +1,7 @@
 import { useResolveMarket } from "../hooks/useMarketResolve";
 import { MarketOutcomeValues, type Market } from "../lib/interface";
 import { useSwitchChain } from "wagmi";
-import { baseSepolia } from "viem/chains";
+import { base } from "viem/chains";
 import { resolveMarket } from "../apis/market";
 import { useEffect, useState } from "react";
 import { parseMarketExpiryDate } from "../utils/helpers";
@@ -70,7 +70,7 @@ export const MarketResolutionModal = ({
 
     try {
       setCurrentStep("Switching to Base Sepolia...");
-      await switchChain({ chainId: baseSepolia.id });
+      await switchChain({ chainId: base.id });
 
       const outcomeTitle = outcome === MarketOutcomeValues.OPTION_A ? "YES" : "NO";
       setPendingOutcome(outcomeTitle);

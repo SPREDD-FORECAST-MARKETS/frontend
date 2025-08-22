@@ -6,9 +6,8 @@ import { createMarket } from "../apis/market";
 import { getAccessToken } from "@privy-io/react-auth";
 import { useCreateMarket } from "../hooks/useCreateMarket";
 import React from "react";
-import { useSwitchChain, useWaitForTransactionReceipt } from "wagmi";
-import { decodeEventLog, parseAbiItem } from "viem";
-import { baseSepolia } from "viem/chains";
+import { useSwitchChain } from "wagmi";
+import { base } from "viem/chains";
 import type { FormData } from "../lib/interface";
 import { UTCTimeHelpers } from "../utils/helpers";
 
@@ -60,10 +59,10 @@ const CreatePredictionForm = () => {
 
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [uploadedImageUrl, setUploadedImageUrl] = useState<string>("");
-  const [marketContractAddress, setMarketContractAddress] = useState<
+  const [, setMarketContractAddress] = useState<
     string | null
   >(null);
-  const [marketId, setMarketId] = useState<string | null>(null);
+  const [, setMarketId] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [confirmedEndTimeUTC, setConfirmedEndTimeUTC] = useState<number | null>(
     null
@@ -74,16 +73,13 @@ const CreatePredictionForm = () => {
   const [searchTerm, setSearchTerm] = useState("");
 
   const { switchChain } = useSwitchChain();
-  const { createMarket: createSmartContractMarket, hash: contractHash } =
+  const { createMarket: createSmartContractMarket, marketAddress: hookMarketAddress, marketId: hookMarketId } =
     useCreateMarket();
 
-  const { data: receipt } = useWaitForTransactionReceipt({
-    hash: contractHash,
-  });
-
-  const marketCreatedEvent = parseAbiItem(
-    "event MarketCreated(bytes32 indexed marketId, address indexed marketContract, address indexed owner, address token, string question, string optionA, string optionB, uint256 endTime)"
-  );
+  // Remove the useWaitForTransactionReceipt since the hook handles it
+  // const { data: receipt } = useWaitForTransactionReceipt({
+  //   hash: contractHash,
+  // });
 
   // Filter categories based on search term
   const filteredCategories = AVAILABLE_CATEGORIES.filter((category) =>
@@ -170,7 +166,7 @@ const CreatePredictionForm = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    await switchChain({ chainId: baseSepolia.id });
+    await switchChain({ chainId: base.id });
 
     if (isSubmitting) return;
     setIsSubmitting(true);
@@ -195,7 +191,7 @@ const CreatePredictionForm = () => {
 
       console.log("Creating market with endTimeUTC:", endTimeUTC);
 
-      // Create smart contract market - no token approval or initialization needed
+      // Create smart contract market
       await createSmartContractMarket(
         formData.title,
         formData.options[0],
@@ -210,104 +206,72 @@ const CreatePredictionForm = () => {
     }
   };
 
-  // Handle market creation success and database storage
+  // Simplified useEffect that uses data from the hook
   useEffect(() => {
-    if (!marketContractAddress || !marketId || !confirmedEndTimeUTC) return;
+    // Use the marketAddress and marketId from the hook when they become available
+    if (hookMarketAddress && hookMarketId && confirmedEndTimeUTC) {
+      setMarketContractAddress(hookMarketAddress);
+      setMarketId(hookMarketId);
+      
+      // Store in database
+      const handleDatabaseStorage = async () => {
+        try {
+          const dbDateString = new Date(confirmedEndTimeUTC * 1000).toISOString();
 
-    const handleDatabaseStorage = async () => {
-      try {
-        const dbDateString = new Date(confirmedEndTimeUTC * 1000).toISOString();
+          console.log("Storing in database:");
+          console.log("UTC timestamp from contract:", confirmedEndTimeUTC);
+          console.log("ISO string for DB:", dbDateString);
+          console.log("Market contract:", hookMarketAddress);
+          console.log("Market ID:", hookMarketId);
 
-        console.log("Storing in database:");
-        console.log("UTC timestamp from contract:", confirmedEndTimeUTC);
-        console.log("ISO string for DB:", dbDateString);
+          const authToken = await getAccessToken();
+          const [, status] = await createMarket(
+            authToken!,
+            formData.title,
+            formData.resolutionCriteria,
+            formData.description,
+            dbDateString,
+            uploadedImageUrl ||
+              "https://rrgzufevhpeypfviivan.supabase.co/storage/v1/object/public/spreadd/market/1750689653867_photo_5103127210662931859_y.jpg",
+            hookMarketAddress,
+            hookMarketId,
+            formData.tags || null
+          );
 
-        const authToken = await getAccessToken();
-        const [, status] = await createMarket(
-          authToken!,
-          formData.title,
-          formData.resolutionCriteria,
-          formData.description,
-          dbDateString,
-          uploadedImageUrl ||
-            "https://rrgzufevhpeypfviivan.supabase.co/storage/v1/object/public/spreadd/market/1750689653867_photo_5103127210662931859_y.jpg",
-          marketContractAddress,
-          marketId,
-          formData.tags || null
-        );
-
-        if (status === -1) {
-          error("Failed to create Prediction!", 3);
-          return;
-        }
-
-        success("Prediction created successfully!");
-
-        // Reset form state
-        setImagePreview(null);
-        setMarketContractAddress(null);
-        setMarketId(null);
-        setConfirmedEndTimeUTC(null);
-
-        // Optionally reset form data
-        setFormData({
-          title: "",
-          options: ["Yes", "No"],
-          description: "",
-          resolutionCriteria: "",
-          tags: [],
-          endDate: "",
-          endTime: "",
-          createOnChain: true,
-        });
-      } catch (err) {
-        console.error("Error storing market in database:", err);
-        error("Market created on blockchain but failed to store in database");
-      }
-    };
-
-    handleDatabaseStorage();
-  }, [marketContractAddress, marketId, confirmedEndTimeUTC]);
-
-  // Parse transaction receipt for market creation event
-  useEffect(() => {
-    if (!receipt?.logs) return;
-
-    for (const log of receipt.logs) {
-      try {
-        const parsed = decodeEventLog({
-          abi: [marketCreatedEvent],
-          data: log.data,
-          topics: log.topics,
-        });
-
-        if (parsed.eventName === "MarketCreated") {
-          const marketContract = parsed.args.marketContract;
-          const marketId = parsed.args.marketId;
-          const contractEndTime = parsed.args.endTime;
-
-          setMarketContractAddress(marketContract);
-          setMarketId(marketId);
-
-          // Verify timestamp consistency
-          if (
-            confirmedEndTimeUTC &&
-            Number(contractEndTime) !== confirmedEndTimeUTC
-          ) {
-            console.warn("Timestamp mismatch!", {
-              stored: confirmedEndTimeUTC,
-              contract: Number(contractEndTime),
-            });
+          if (status === -1) {
+            error("Failed to create Prediction in database!", 3);
+            return;
           }
 
-          success("Market created on blockchain successfully!");
-          break;
+          success("Prediction created successfully!");
+
+          // Reset form state
+          setImagePreview(null);
+          setMarketContractAddress(null);
+          setMarketId(null);
+          setConfirmedEndTimeUTC(null);
+
+          // Reset form data
+          setFormData({
+            title: "",
+            options: ["Yes", "No"],
+            description: "",
+            resolutionCriteria: "",
+            tags: [],
+            endDate: "",
+            endTime: "",
+            createOnChain: true,
+          });
+
+        } catch (err) {
+          console.error("Error storing market in database:", err);
+          error("Market created on blockchain but failed to store in database");
         }
-      } catch (error: any) {
-        console.error("Error parsing MarketCreated event:", error);
-      }
+      };
+
+      handleDatabaseStorage();
     }
-  }, [receipt, confirmedEndTimeUTC]);
+  }, [hookMarketAddress, hookMarketId, confirmedEndTimeUTC]);
 
   // Close dropdown when clicking outside
   useEffect(() => {

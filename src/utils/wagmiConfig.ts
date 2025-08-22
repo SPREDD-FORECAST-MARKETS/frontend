@@ -1,13 +1,12 @@
 import { createConfig } from '@privy-io/wagmi';
 import { http } from 'viem';
-import { baseSepolia } from 'viem/chains';
+import { base } from 'viem/chains';
 import { farcasterMiniApp } from '@farcaster/miniapp-wagmi-connector';
 
 export const wagmiConfig = createConfig({
-  chains: [baseSepolia],
+  chains: [base],
   transports: {
-    [baseSepolia.id]: http(),
-  },
+    [base.id]: http(`https://base-mainnet.infura.io/v3/${import.meta.env.VITE_INFURA_PROJECT_ID}`),  },
   connectors:[
     farcasterMiniApp()
   ]
@@ -15,9 +14,9 @@ export const wagmiConfig = createConfig({
 
 
 export const CONTRACT_ADDRESSES = {
-  token: "0x4a2661Ab44eD073Eb8a5834cBcBD287bfB4d1CFF",
-  factory: "0xF9f8751EfbD8017fF9fAA398a991b36a23EcbA7B",
-  fpManager: "0xf9B163C376113DD402491dFFe3FC84241Be668C4"
+  token: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+  factory: "0x54Bf15abAfC944635aB657ff8e5F1A1C16789B27",
+  fpManager: "0x0fcd9457E434E5D956a197A4810f6E706317f5F7"
 } as const
 
 

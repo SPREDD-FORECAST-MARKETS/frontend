@@ -105,7 +105,7 @@ export type Market = {
   tags: string[];
   marketId: string;
   isResolved: boolean;
-  status: "ACTIVE" | "RESOLVED" | "CANCELLED"; // expand as needed
+  status: "ACTIVE" | "EXPIRED" | "CLOSED" |"RESOLVED"; // expand as needed
   outcomeWonTitle: string,
   winningOutcome: string,
   outcomeWon: number | null;

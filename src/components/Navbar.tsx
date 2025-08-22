@@ -2,22 +2,31 @@ import { usePrivy } from "@privy-io/react-auth";
 import { Link, useLocation } from "react-router-dom";
 import { FaExternalLinkAlt, FaDollarSign, FaUser } from "react-icons/fa";
 import { useEffect, useState, useRef } from "react";
-import { getBalance } from "@wagmi/core";
 import { formatUnits } from "viem";
 import { UserRound, Wallet, LogOut, Copy, ExternalLink } from "lucide-react";
 import { loginApi } from "../apis/auth";
 import { useToast } from "../hooks/useToast";
 import { useAtom } from "jotai";
 import { balanceAtom, refreshUserAtom, userAtom } from "../atoms/global";
-import { CONTRACT_ADDRESSES, wagmiConfig } from "../utils/wagmiConfig";
-import { baseSepolia } from "viem/chains";
-import { useSwitchChain } from "wagmi";
+import { base } from "viem/chains";
+import { useSwitchChain, useReadContract } from "wagmi";
+
+const USDC_ADDRESS = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
+
+const ERC20_ABI = [
+  {
+    inputs: [{ name: "account", type: "address" }],
+    name: "balanceOf",
+    outputs: [{ name: "", type: "uint256" }],
+    stateMutability: "view",
+    type: "function"
+  }
+] as const;
 
 const Navbar = () => {
   const location = useLocation();
   const [networkName] = useState("Base");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isLoadingBalance] = useState(false);
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
   const [copySuccess, setCopySuccess] = useState(false);
 
@@ -26,14 +35,38 @@ const Navbar = () => {
 
   const { switchChain } = useSwitchChain();
 
-  const { login, authenticated, logout, getAccessToken, user, ready } =
+  const { login, authenticated, logout, getAccessToken, user, } =
     usePrivy();
 
-  const [userBalance, setUserBalance] = useAtom(balanceAtom);
+  const [, setUserBalance] = useAtom(balanceAtom);
 
   const { success, error: toastError } = useToast();
   const [, setUser] = useAtom(userAtom);
   const [refreshUser] = useAtom(refreshUserAtom);
+
+  // Read USDC balance
+  const { data: usdcBalance, isLoading: isLoadingBalance, refetch: refetchBalance } = useReadContract({
+    address: USDC_ADDRESS as `0x${string}`,
+    abi: ERC20_ABI,
+    functionName: "balanceOf",
+    args: user?.wallet?.address ? [user.wallet.address as `0x${string}`] : undefined,
+    query: {
+      enabled: !!user?.wallet?.address,
+      refetchInterval: 5000, // Refetch every 5 seconds
+    }
+  });
+
+  // Update balance atom when USDC balance changes
+  useEffect(() => {
+    if (usdcBalance !== undefined) {
+      setUserBalance({
+        value: usdcBalance,
+        decimals: 6,
+        formatted: formatUnits(usdcBalance, 6),
+        symbol: "USDC"
+      });
+    }
+  }, [usdcBalance, setUserBalance]);
 
   // Copy address to clipboard
   const copyToClipboard = (text: string) => {
@@ -72,30 +105,10 @@ const Navbar = () => {
     };
   }, []);
 
+  // Switch to Base mainnet on load
   useEffect(() => {
-    switchChain({ chainId: baseSepolia.id });
-  }, []);
-
-  useEffect(() => {
-    let intervalId: NodeJS.Timeout;
-
-    async function fetchBalance() {
-      const balance = await getBalance(wagmiConfig, {
-        address: user?.wallet?.address as `0x${string}`,
-        token: CONTRACT_ADDRESSES.token,
-      });
-      setUserBalance(balance);
-    }
-
-    if (user) {
-      fetchBalance(); // Initial fetch
-      intervalId = setInterval(fetchBalance, 2000); // Fetch every 2s
-    }
-
-    return () => {
-      if (intervalId) clearInterval(intervalId);
-    };
-  }, [authenticated, user, ready]);
+    switchChain({ chainId: base.id });
+  }, [switchChain]);
 
   useEffect(() => {
     if (!authenticated) return;
@@ -117,6 +130,13 @@ const Navbar = () => {
         toastError("Something went wrong!", 2);
       });
   }, [authenticated, refreshUser]);
+
+  // Format balance for display
+  const formatBalance = () => {
+    if (isLoadingBalance) return "Loading...";
+    if (!usdcBalance) return "0.00";
+    return parseFloat(formatUnits(usdcBalance, 6)).toFixed(2);
+  };
 
   const navigationLinks = [
     { name: "Explore", to: "/" },
@@ -285,21 +305,19 @@ const Navbar = () => {
 
                       <div className="flex justify-between items-center bg-gray-800/20 px-3 py-2 rounded-lg">
                         <p className="text-sm text-gray-400 font-medium">
-                          Balance
+                          USDC Balance
                         </p>
                         <p className="text-sm font-semibold text-white flex items-center">
                           <FaDollarSign className="h-3 w-3 mr-1 text-[#ff6b35]" />
-                          {isLoadingBalance ? (
-                            <span className="text-gray-400">Loading...</span>
-                          ) : userBalance ? (
-                            <span>
-                              {parseFloat(
-                                formatUnits(BigInt(userBalance?.value), 6)
-                              ).toFixed(4)}{" "}
-                              USD
-                            </span>
-                          ) : (
-                            <span className="text-gray-400">--</span>
+                          <span>{formatBalance()} USDC</span>
+                          {!isLoadingBalance && (
+                            <button
+                              onClick={() => refetchBalance()}
+                              className="ml-2 text-xs text-[#ff6b35] hover:text-[#ff8c42] transition-colors"
+                              title="Refresh balance"
+                            >
+                              ↻
+                            </button>
                           )}
                         </p>
                       </div>
@@ -412,6 +430,17 @@ const Navbar = () => {
 
           {/* Mobile Wallet Section */}
           <div className="px-4 py-4 border-t border-gray-800/50">
+            {authenticated && (
+              <div className="mb-4 bg-gray-800/20 px-3 py-2 rounded-lg">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-gray-400">USDC Balance:</span>
+                  <span className="text-sm font-semibold text-white">
+                    ${formatBalance()}
+                  </span>
+                </div>
+              </div>
+            )}
+
             {authenticated ? (
               <div className="space-y-3">
                 <Link

@@ -6,8 +6,7 @@ import { useEffect, useState } from "react";
 import { useAtom } from "jotai";
 import { balanceAtom } from "../atoms/global";
 import { usePrivy } from "@privy-io/react-auth";
-import { useUsdtToken } from "../hooks/useToken";
-import { CONTRACT_ADDRESSES } from "../utils/wagmiConfig";
+import { useUsdcToken } from "../hooks/useToken";
 import { useToast } from "../hooks/useToast";
 import { createOrUpdateTokenAllocation, createTrade } from "../apis/trade";
 
@@ -43,8 +42,24 @@ const TradingPanel = ({
   const [userBalance] = useAtom(balanceAtom);
   const { user, getAccessToken } = usePrivy();
   const { writeContractAsync, isSuccess, isError } = useWriteContract();
-  const { approve } = useUsdtToken();
+  const { approve } = useUsdcToken();
   const toast = useToast();
+
+
+  const { data: usdcBalance } = useReadContract({
+    address: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913", // USDC address
+    abi: [
+      {
+        inputs: [{ name: "account", type: "address" }],
+        name: "balanceOf",
+        outputs: [{ name: "", type: "uint256" }],
+        stateMutability: "view",
+        type: "function"
+      }
+    ],
+    functionName: "balanceOf",
+    args: user?.wallet?.address ? [user.wallet.address as `0x${string}`] : undefined,
+  }) as { data: bigint | undefined };
 
   const { data: oddsData, refetch: refetchOdds } = useReadContract({
     address: marketData.contract_address as `0x${string}`,
@@ -142,10 +157,10 @@ const TradingPanel = ({
       if (isBuy) {
         const betAmount = parseUnits(quantity.toString(), 6);
         await approve({
-          tokenAddress: CONTRACT_ADDRESSES.token as `0x${string}`,
+          // tokenAddress: CONTRACT_ADDRESSES.token as `0x${string}`,
           spender: marketData.contract_address as `0x${string}`,
           usdAmount: quantity,
-          decimals: 6,
+          // decimals: 6,
         });
 
         const txHash = await writeContractAsync({
@@ -189,13 +204,14 @@ const TradingPanel = ({
 
   useEffect(() => {
     if (isBuy) {
-      const availableBalance = userBalance?.value ? parseFloat(formatUnits(userBalance.value, userBalance.decimals!)) : 0;
-      setBalanceLow(availableBalance < quantity);
+      // Use USDC balance instead of generic balance
+      const availableUsdcBalance = usdcBalance ? parseFloat(formatUnits(usdcBalance, 6)) : 0;
+      setBalanceLow(availableUsdcBalance < quantity);
     } else {
       const maxSellAmount = isYes ? userBetA : userBetB;
       setBalanceLow(maxSellAmount < quantity);
     }
-  }, [quantity, isBuy, isYes, userBetA, userBetB, userBalance]);
+  }, [quantity, isBuy, isYes, userBetA, userBetB, usdcBalance]);
 
   const getCurrentPrice = (forYes:boolean) => (forYes ? oddsA / 100 : oddsB / 100);
 

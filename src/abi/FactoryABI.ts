@@ -50,6 +50,31 @@ export const FACTORY_ABI = [
 		"inputs": [
 			{
 				"indexed": true,
+				"internalType": "address",
+				"name": "market",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "amount",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "totalFees",
+				"type": "uint256"
+			}
+		],
+		"name": "FeesRecorded",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
 				"internalType": "bytes32",
 				"name": "marketId",
 				"type": "bytes32"
@@ -668,11 +693,11 @@ export const FACTORY_ABI = [
 		"inputs": [
 			{
 				"internalType": "uint256",
-				"name": "_amount",
+				"name": "amount",
 				"type": "uint256"
 			}
 		],
-		"name": "receiveFactoryFees",
+		"name": "recordFeeFromMarket",
 		"outputs": [],
 		"stateMutability": "nonpayable",
 		"type": "function"
@@ -799,6 +824,25 @@ export const FACTORY_ABI = [
 				"internalType": "address",
 				"name": "",
 				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"name": "validMarkets",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
 			}
 		],
 		"stateMutability": "view",

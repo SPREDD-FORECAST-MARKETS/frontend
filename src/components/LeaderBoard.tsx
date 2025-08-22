@@ -15,6 +15,7 @@ const LeaderBoard = () => {
   const [leaderboardUsers, setLeaderboardUsers] = useState<LeaderboardEntry[]>([]);
   const [isInitialLoad, setIsInitialLoad] = useState(true);
 
+  console.log("==================",leaderboardUsers)
   const getLeaderboard = async (pointType: PointType, limit?: number, isRefresh = false) => {
     if (!isRefresh) setLoading(true);
     setError(null);
@@ -44,6 +45,7 @@ const LeaderBoard = () => {
 
   useEffect(() => {
     getLeaderboard(leaderboardPointType, 10, false);
+    
     const interval = setInterval(() => {
       getLeaderboard(leaderboardPointType, 10, true);
     }, 10000);

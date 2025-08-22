@@ -1,62 +1,116 @@
 import { useWriteContract, useWaitForTransactionReceipt } from "wagmi";
-import { MARKET_ABI } from "../abi/MarketABI";
 import { FACTORY_ABI } from "../abi/FactoryABI";
 import { CONTRACT_ADDRESSES } from "../utils/wagmiConfig";
-import { type Address, decodeEventLog, formatUnits, parseUnits } from "viem";
+import { type Address, decodeEventLog } from "viem";
 import { usePublicClient } from "wagmi";
 import { useState, useEffect } from "react";
-import { useUsdtToken } from "./useToken";
+
+// USDC contract address on Base mainnet
+const USDC_ADDRESS = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913" as const;
+
+// Standard ERC20 ABI for approve function
+const ERC20_ABI = [
+  {
+    inputs: [
+      { name: "spender", type: "address" },
+      { name: "amount", type: "uint256" }
+    ],
+    name: "approve",
+    outputs: [{ name: "", type: "bool" }],
+    stateMutability: "nonpayable",
+    type: "function"
+  }
+] as const;
 
 export function useCreateMarket() {
-  const { writeContract, data: hash, isPending } = useWriteContract();
-  const {
-    isLoading: isConfirming,
-    isSuccess,
-    data: receipt,
-  } = useWaitForTransactionReceipt({
-    hash,
-  });
-
+  const { writeContractAsync } = useWriteContract();
+  const [isLoading, setIsLoading] = useState(false);
   const [marketAddress, setMarketAddress] = useState<Address | null>(null);
   const [marketId, setMarketId] = useState<string | null>(null);
+  const [marketCreationHash, setMarketCreationHash] = useState<`0x${string}` | null>(null);
+  
   const publicClient = usePublicClient();
-  const { approve } = useUsdtToken();
 
+  // Watch for the market creation transaction receipt (not approval)
+  const { data: receipt, isSuccess, isLoading: isConfirming } = useWaitForTransactionReceipt({
+    hash: marketCreationHash ?? undefined,
+    query: { enabled: !!marketCreationHash }
+  });
 
+  // Extract market data from the market creation transaction receipt
   useEffect(() => {
     const extractMarketData = async () => {
-      if (isSuccess && receipt && publicClient) {
+      if (!isSuccess || !receipt || !publicClient) return;
+
+      console.log("Processing market creation receipt with", receipt.logs.length, "logs");
+      
+      const factoryAddress = CONTRACT_ADDRESSES.factory?.toLowerCase();
+      if (!factoryAddress) return;
+
+      // Correct event ABI matching your contract
+      const correctMarketCreatedEvent = {
+        anonymous: false,
+        inputs: [
+          { indexed: true, name: "marketId", type: "bytes32" },
+          { indexed: true, name: "marketContract", type: "address" },
+          { indexed: true, name: "owner", type: "address" },
+          { indexed: false, name: "token", type: "address" },
+          { indexed: false, name: "question", type: "string" },
+          { indexed: false, name: "optionA", type: "string" },
+          { indexed: false, name: "optionB", type: "string" },
+          { indexed: false, name: "endTime", type: "uint256" }
+        ],
+        name: "MarketCreated",
+        type: "event"
+      };
+
+      for (const log of receipt.logs) {
+        // Only process logs from the factory contract
+        if (log.address.toLowerCase() !== factoryAddress) {
+          continue;
+        }
+
         try {
-          // Look for MarketCreated event in the transaction logs
-          for (const log of receipt.logs) {
-            try {
-              const decodedLog = decodeEventLog({
-                abi: FACTORY_ABI,
-                data: log.data,
-                topics: log.topics,
-              });
+          const decoded = decodeEventLog({
+            abi: [correctMarketCreatedEvent],
+            data: log.data,
+            topics: log.topics,
+          });
 
-              // Based on your factory ABI, the MarketCreated event has these indexed fields:
-              // marketId (bytes32), marketContract (address), owner (address)
-              if (decodedLog.eventName === "MarketCreated") {
-                const args = decodedLog.args as any;
-
-                // Extract marketId (bytes32) and marketContract (address)
-                if (args.marketId) {
-                  setMarketId(args.marketId);
-                }
-                if (args.marketContract) {
-                  setMarketAddress(args.marketContract as Address);
-                }
-                break;
-              }
-            } catch (error) {
-              console.error("Error decoding log:", error);
-              continue;
-            }
+          if (decoded.eventName === "MarketCreated") {
+            const args = decoded.args as any;
+            setMarketId(args.marketId);
+            setMarketAddress(args.marketContract);
+            
+            console.log("Market creation successful:", {
+              marketId: args.marketId,
+              marketContract: args.marketContract,
+              owner: args.owner,
+              endTime: args.endTime
+            });
+            
+            break;
           }
         } catch (error) {
-          console.error("Error extracting market data:", error);
+          console.error("Error decoding MarketCreated event:", error);
+          
+          // Fallback: Manual extraction from topics
+          if (log.topics.length >= 4) {
+            const marketId = log.topics[1];
+            const marketContract = log.topics[2] ? `0x${log.topics[2].slice(-40)}` : null;
+            
+            if (marketId) {
+              setMarketId(marketId);
+            }
+            setMarketAddress(marketContract as Address);
+            
+            console.log("Manual extraction successful:", {
+              marketId,
+              marketContract
+            });
+            
+            break;
+          }
         }
       }
     };
@@ -68,129 +122,76 @@ export function useCreateMarket() {
     question: string,
     optionA: string,
     optionB: string,
-    endTime: number // Changed from durationDays to endTime (Unix timestamp)
+    endTime: number
   ) => {
     const factoryAddress = CONTRACT_ADDRESSES.factory || "";
     if (!factoryAddress) throw new Error("Factory not deployed on this chain");
 
-    // Reset previous state
-    setMarketAddress(null);
-    setMarketId(null);
-
-    // Get the market creation fee first
-    const fee = await publicClient?.readContract({
-      address: factoryAddress as Address,
-      abi: FACTORY_ABI,
-      functionName: "getMarketCreationFee",
-    });
-
-    console.log("Market creation fee:", fee);
-
-    await approve({
-      tokenAddress: CONTRACT_ADDRESSES.token as `0x${string}`,
-      spender: factoryAddress as `0x${string}`,
-      usdAmount: parseInt(formatUnits(BigInt(fee as string), 6)),
-      decimals: 6,
-    });
-
-    await writeContract({
-      address: factoryAddress,
-      abi: FACTORY_ABI,
-      functionName: "createMarket",
-      args: [question, optionA, optionB, endTime],
-    });
-
-    return
-  };
-
-  return {
-    createMarket,
-    isPending: isPending || isConfirming,
-    isSuccess,
-    hash,
-    marketAddress,
-    marketId, // Also return the market ID
-  };
-}
-
-export function useInitializeMarket() {
-  const { writeContractAsync, data: hash, isPending } = useWriteContract();
-  const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({
-    hash,
-  });
-
-  const initializeMarket = async (
-    marketAddress: Address,
-    initialLiquidity: string
-  ) => {
-    if (!marketAddress) {
-      throw new Error("Market address is required");
-    }
-
-    const parsedAmount = parseUnits(initialLiquidity, 6); // Assuming 6 decimals for USDC
-
-    return await writeContractAsync({
-      address: marketAddress,
-      abi: MARKET_ABI,
-      functionName: "initializeMarket",
-      args: [parsedAmount],
-    });
-  };
-
-  return {
-    initializeMarket,
-    isPending: isPending || isConfirming,
-    isSuccess,
-    hash,
-  };
-}
-
-// Additional hook to handle the complete market creation flow
-export function useCreateAndInitializeMarket() {
-  const { createMarket, isPending: isCreating, isSuccess: isCreated, marketAddress } = useCreateMarket();
-  const { initializeMarket, isPending: isInitializing, isSuccess: isInitialized } = useInitializeMarket();
-
-  const [isComplete, setIsComplete] = useState(false);
-
-  // Auto-initialize market after creation if initialLiquidity is provided
-  useEffect(() => {
-    if (isCreated && marketAddress && !isComplete) {
-      // You could auto-initialize here if needed, or leave it manual
-      setIsComplete(true);
-    }
-  }, [isCreated, marketAddress, isComplete]);
-
-  const createAndInitializeMarket = async (
-    question: string,
-    optionA: string,
-    optionB: string,
-    endTime: number,
-    initialLiquidity?: string
-  ) => {
+    setIsLoading(true);
+    
     try {
-      // Step 1: Create market
-      await createMarket(question, optionA, optionB, endTime);
+      // Reset previous state
+      setMarketAddress(null);
+      setMarketId(null);
+      setMarketCreationHash(null);
 
-      // Step 2: Initialize market (if initial liquidity provided)
-      if (initialLiquidity && marketAddress) {
-        await initializeMarket(marketAddress, initialLiquidity);
+      // Step 1: Get the market creation fee
+      const fee = await publicClient?.readContract({
+        address: factoryAddress as Address,
+        abi: FACTORY_ABI,
+        functionName: "getMarketCreationFee",
+      });
+
+      console.log("Market creation fee:", fee);
+
+      if (!fee) {
+        throw new Error("Could not fetch market creation fee");
       }
+
+      const feeAmount = BigInt(fee.toString());
+
+      // Step 2: Approve USDC spending
+      console.log("Approving USDC spending...");
+      const approvalTx = await writeContractAsync({
+        address: USDC_ADDRESS,
+        abi: ERC20_ABI,
+        functionName: "approve",
+        args: [factoryAddress as Address, feeAmount],
+      });
+
+      console.log("Approval transaction completed:", approvalTx);
+
+      // Step 3: Create the market
+      console.log("Creating market...");
+      const createTx = await writeContractAsync({
+        address: factoryAddress,
+        abi: FACTORY_ABI,
+        functionName: "createMarket",
+        args: [question, optionA, optionB, endTime],
+      });
+
+      console.log("Market creation transaction:", createTx);
+      
+      // Set the market creation hash to watch for receipt
+      setMarketCreationHash(createTx);
+
+      return { approvalTx, createTx };
+
     } catch (error) {
-      console.error("Error in market creation flow:", error);
+      console.error("Error in market creation process:", error);
       throw error;
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return {
-    createAndInitializeMarket,
     createMarket,
-    initializeMarket,
-    isPending: isCreating || isInitializing,
-    isCreating,
-    isInitializing,
-    isCreated,
-    isInitialized,
-    isComplete,
+    isLoading: isLoading || isConfirming,
+    isSuccess,
+    hash: marketCreationHash, // Return the market creation hash for the form component
     marketAddress,
+    marketId,
+    receipt // Export receipt so form component can use it
   };
 }
