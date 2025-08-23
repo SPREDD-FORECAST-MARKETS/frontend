@@ -28,7 +28,7 @@ export const useResolveMarket = ({
     useReadContract({
       abi: MARKET_ABI,
       functionName: "marketInfo",
-      address: marketData.marketId as `0x${string}`,
+      address: marketData.contract_address as `0x${string}`,
     });
 
   const { data: contractMarketId } = useReadContract({
