@@ -191,13 +191,14 @@ const MarketCard: React.FC<MarketCardProps> = ({ market }) => {
     <Link
       to={`/trade/${market.id}`}
       className="
-        relative aspect-[16/10] sm:aspect-square overflow-hidden rounded-2xl sm:rounded-3xl 
+        relative aspect-[4/3] sm:aspect-square overflow-hidden rounded-xl sm:rounded-2xl lg:rounded-3xl 
         group bg-[#131314f2]
         backdrop-blur-xl border border-slate-600/60
         sm:hover:scale-[1.02] transition-all duration-300 
-        min-h-[240px] sm:min-h-[200px] lg:min-h-[220px] block 
-        shadow-2xl shadow-black/20
+        min-h-[200px] sm:min-h-[180px] lg:min-h-[220px] block 
+        shadow-lg shadow-black/20
         sm:hover:border-slate-500/80 sm:hover:-translate-y-1 sm:hover:shadow-3xl sm:hover:shadow-black/30
+        w-full max-w-full
       "
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
@@ -224,13 +225,13 @@ const MarketCard: React.FC<MarketCardProps> = ({ market }) => {
       )}
 
       {/* Card Content */}
-      <div className="relative z-10 flex flex-col h-full p-3 sm:p-4">
+      <div className="relative z-10 flex flex-col h-full p-3 sm:p-4 md:p-5">
         {/* Top Section: Statistics */}
         <MarketStats market={market} />
 
         {/* Middle Section: Question */}
         <div className="flex-1 flex items-center min-h-0 my-2 sm:my-4">
-          <h3 className="text-white font-extrabold text-xl sm:font-bold sm:text-lg lg:text-xl leading-tight sm:leading-snug line-clamp-2 sm:line-clamp-3 drop-shadow-lg">
+          <h3 className="text-white font-extrabold text-xl sm:font-bold sm:text-lg lg:text-xl leading-tight sm:leading-snug line-clamp-2 sm:line-clamp-3 drop-shadow-lg break-words">
             {market.question}
           </h3>
         </div>
@@ -445,6 +446,26 @@ const TrendingMarketBanner: React.FC = () => {
   const [hovered, setHovered] = useState<boolean>(false);
   const containerRef = useRef<HTMLDivElement>(null!);
 
+  // Add style for hiding scrollbars
+  React.useEffect(() => {
+    const style = document.createElement('style');
+    style.textContent = `
+      .scrollbar-hide {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+      .scrollbar-hide::-webkit-scrollbar {
+        display: none;
+      }
+    `;
+    document.head.appendChild(style);
+    return () => {
+      if (document.head.contains(style)) {
+        document.head.removeChild(style);
+      }
+    };
+  }, []);
+
   // Custom hooks for better organization
   const cardsPerView: number = useResponsiveView();
   const { trendingMarkets, loading, error }: UseMarketDataReturn = useMarketData(MAX_SLIDES);
@@ -533,29 +554,58 @@ const TrendingMarketBanner: React.FC = () => {
           fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif',
         }}
       >
-        {/* Main Content Grid */}
-        <div className="">
-          <div
-            className={`
-            grid gap-4 sm:gap-5
-            grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4
-            ${cardsPerView === 1 ? "max-w-md mx-auto" : ""}
-          `}
+        {/* Main Content - Horizontal Scroll Container */}
+        <div className="w-full">
+          {/* Mobile: Horizontal scroll */}
+          <div 
+            className="sm:hidden overflow-x-auto scrollbar-hide -mx-6" 
+            style={{
+              WebkitOverflowScrolling: 'touch',
+              scrollBehavior: 'smooth'
+            }}
           >
-            {loading ? (
-              <LoadingSkeleton count={cardsPerView} />
-            ) : (
-              currentSlideMarkets.map((market: MostTradedMarket) => (
-                <MarketCard key={market.id} market={market} />
-              ))
-            )}
+            <div className="flex px-6 pb-2" style={{
+              scrollSnapType: 'x mandatory'
+            }}>
+              {loading ? (
+                <LoadingSkeleton count={cardsPerView} />
+              ) : (
+                openMarkets.map((market: MostTradedMarket) => (
+                  <div key={market.id} className="flex-none w-[calc(100vw-3rem)] pr-4" style={{
+                    scrollSnapAlign: 'start'
+                  }}>
+                    <MarketCard market={market} />
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+
+          {/* Desktop: Grid with slides */}
+          <div className="hidden sm:block">
+            <div
+              className={`
+              grid gap-4 lg:gap-5
+              grid-cols-2 lg:grid-cols-3 xl:grid-cols-4
+              w-full max-w-full
+              transition-all duration-500 ease-in-out
+            `}
+            >
+              {loading ? (
+                <LoadingSkeleton count={cardsPerView} />
+              ) : (
+                currentSlideMarkets.map((market: MostTradedMarket) => (
+                  <MarketCard key={market.id} market={market} />
+                ))
+              )}
+            </div>
           </div>
         </div>
 
-        {/* Navigation Dots */}
+        {/* Navigation Dots - Desktop only */}
         {totalSlides > 1 && (
           <div 
-            className="flex items-center justify-center gap-1.5 mt-4"
+            className="hidden sm:flex items-center justify-center gap-1.5 mt-4"
             role="tablist"
             aria-label="Market slides navigation"
           >

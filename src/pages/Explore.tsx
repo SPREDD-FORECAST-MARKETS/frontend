@@ -90,8 +90,8 @@ const Explore = () => {
 
   // Render
   return (
-    <div className="w-full bg-gradient-to-br from-white/5 via-transparent to-black/20 text-white min-h-screen">
-      <div className="container mx-auto px-6 sm:px-8 lg:px-12 xl:px-16 2xl:px-20 pt-8 pb-6 sm:pb-8 lg:pb-10 max-w-[1600px]">
+    <div className="w-full bg-gradient-to-br from-white/5 via-transparent to-black/20 text-white min-h-screen overflow-x-hidden">
+      <div className="container mx-auto px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 2xl:px-20 pt-6 sm:pt-8 pb-6 sm:pb-8 lg:pb-10 max-w-[1600px]">
         {/* Trending Markets Section */}
         <TrendingMarket />
 
