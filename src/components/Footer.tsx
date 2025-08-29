@@ -75,7 +75,7 @@ const Footer = () => {
           <div className="col-span-1 pr-0 md:pr-8">
             <div className="flex items-start space-x-3 mb-4">
               <img
-                src="/logo.jpg"
+                src="/logo.png"
                 alt="SPREDD MARKETS Logo"
                 className="h-10 md:h-12 w-auto mt-0.5"
               />

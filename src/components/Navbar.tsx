@@ -154,7 +154,7 @@ const Navbar = () => {
           <div className="flex items-center">
             <Link to="/" className="flex items-center group">
               <img
-                src="/logo.jpg"
+                src="/logo.png"
                 alt="SPREDD MARKETS Logo"
                 className="h-8 w-auto mr-3 transition-transform duration-300 group-hover:scale-105"
               />

@@ -7,7 +7,6 @@ import {
   Star,
   ArrowRight,
   ChevronRight,
-  Sparkles,
 } from "lucide-react";
 import { useLogin } from "@privy-io/react-auth";
 
@@ -17,31 +16,24 @@ const LogOut = () => {
   const features = [
     {
       icon: <TrendingUp size={24} />,
-      title: "Prediction Markets",
-      description: "Create and trade on real-world events with cryptocurrency",
+      title: "Forecasting Markets",
+      description: "Forecast outcomes on real-world events and earn rewards",
     },
     {
       icon: <Shield size={24} />,
-      title: "Secure & Decentralized",
-      description: "Built on blockchain for transparency and security",
+      title: "Skill-Based System",
+      description: "Rewards accuracy and expertise, not luck",
     },
     {
       icon: <Zap size={24} />,
-      title: "Instant Rewards",
-      description: "Get rewarded for accurate predictions instantly",
+      title: "No-Loss Bonding",
+      description: "Bond SPRDD tokens without risk - always returned",
     },
     {
       icon: <Users size={24} />,
       title: "Community Driven",
-      description: "Join thousands of traders in prediction markets",
+      description: "Join forecasters earning through skill-based predictions",
     },
-  ];
-
-  const stats = [
-    { label: "Active Markets", value: "150+" },
-    { label: "Total Volume", value: "$2.5M" },
-    { label: "Users", value: "10K+" },
-    { label: "Success Rate", value: "89%" },
   ];
 
   return (
@@ -73,26 +65,24 @@ const LogOut = () => {
         {/* Main Content Container */}
         <div className="max-w-6xl w-full">
           {/* Hero Section */}
-          <div className="text-center mb-16">
+          <div className="text-center mb-6 lg:mb-8">
             {/* Logo/Brand */}
-            <div className="flex items-center justify-center mb-8">
-              <div className="w-20 h-20 bg-gradient-to-r from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center shadow-2xl shadow-orange-500/20">
-                <Sparkles size={40} className="text-white" />
-              </div>
+            <div className="flex items-center justify-center mb-6">
+              <img src="/logo.png" alt="Spredd Markets" className="w-20 h-20 rounded-2xl shadow-2xl shadow-orange-500/20" />
             </div>
 
             {/* Main Heading */}
             <h1 className="text-5xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-white via-orange-200 to-orange-400 bg-clip-text text-transparent leading-tight">
               Spredd Markets
               <span className="block text-3xl md:text-4xl mt-2 text-gray-300">
-                Prediction Platform
+                Forecasting Platform
               </span>
             </h1>
 
             {/* Subtitle */}
             <p className="text-xl md:text-2xl text-gray-400 mb-8 max-w-3xl mx-auto leading-relaxed">
-              Trade on the future of real-world events. Make predictions, earn
-              rewards, and join the decentralized prediction economy.
+              Forecast the future of real-world events. Demonstrate skill, earn
+              rewards, and participate in decentralized forecasting markets.
             </p>
 
             {/* CTA Button */}
@@ -117,24 +107,8 @@ const LogOut = () => {
             </div>
           </div>
 
-          {/* Stats Section */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-16">
-            {stats.map((stat, index) => (
-              <div key={index} className="text-center group">
-                <div className="bg-zinc-900/50 backdrop-blur-sm border border-zinc-800 rounded-2xl p-6 transition-all duration-300 hover:border-orange-500/30 hover:bg-zinc-800/50 hover:scale-105">
-                  <div className="text-3xl md:text-4xl font-bold text-white mb-2 group-hover:text-orange-400 transition-colors">
-                    {stat.value}
-                  </div>
-                  <div className="text-gray-400 text-sm font-medium">
-                    {stat.label}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-
           {/* Features Grid */}
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             {features.map((feature, index) => (
               <div key={index} className="group">
                 <div className="bg-zinc-900/30 backdrop-blur-sm border border-zinc-800 rounded-2xl p-6 h-full transition-all duration-300 hover:border-orange-500/30 hover:bg-zinc-800/50 hover:transform hover:scale-105">
@@ -152,27 +126,6 @@ const LogOut = () => {
             ))}
           </div>
 
-          {/* Bottom CTA */}
-          <div className="text-center">
-            <div className="bg-zinc-900/50 backdrop-blur-sm border border-zinc-800 rounded-3xl p-8 max-w-2xl mx-auto">
-              <h3 className="text-2xl font-bold text-white mb-4">
-                Ready to Start Predicting?
-              </h3>
-              <p className="text-gray-400 mb-6">
-                Join thousands of traders making money from accurate predictions
-              </p>
-              <button
-                onClick={login}
-                className="group inline-flex items-center gap-2 bg-white text-black font-semibold px-6 py-3 rounded-xl transition-all duration-300 hover:bg-gray-100 hover:scale-105"
-              >
-                Get Started Now
-                <ChevronRight
-                  size={18}
-                  className="group-hover:translate-x-1 transition-transform duration-300"
-                />
-              </button>
-            </div>
-          </div>
         </div>
 
         {/* Decorative Elements */}
