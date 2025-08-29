@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useToast } from '../hooks/useToast';
 import Aurora from '../components/Aurora';
-import { TwitterApiService } from '../services/twitterApi';
+import { CreatorsApiService } from '../services/creatorsApi';
 
 const WaitlistUser = ({ avatar, name, handle, position }: { avatar: string; name: string; handle: string; position: number }) => (
   <div className="flex items-center justify-between bg-black/30 backdrop-blur-sm rounded-lg p-3 border border-orange-600/40">
@@ -26,10 +26,9 @@ const Waitlist = () => {
   const [isValidating, setIsValidating] = useState(false);
   const [validationError, setValidationError] = useState('');
 
-  const twitterService = new TwitterApiService();
+  const creatorsService = new CreatorsApiService();
   const { success } = useToast();
 
-  // Use the share page which contains Open Graph tags to ensure a social preview/image is attached.
   const shareUrl = 'https://spredd.markets/creators';
 
   const handleShareX = () => {
@@ -54,15 +53,27 @@ const Waitlist = () => {
   success('Opening X compose');
   };
 
-  // install flow removed — not used when directing straight to X
 
   useEffect(() => {
-    const saved = localStorage.getItem('spredd-creators');
-    if (saved) {
-      const data = JSON.parse(saved);
-      setTotalUsers(data.totalUsers || 0);
-      setUserList(data.userList || []);
-    }
+    const loadCreators = async () => {
+      const countResult = await creatorsService.getCreatorCount();
+      if (countResult.success) {
+        setTotalUsers(countResult.count || 0);
+      }
+
+      const listResult = await creatorsService.getCreators();
+      if (listResult.success && listResult.creators) {
+        const formattedUsers = listResult.creators.map(creator => ({
+          avatar: creator.profile_image_url,
+          name: creator.twitter_name,
+          handle: `@${creator.twitter_username}`,
+          position: creator.position
+        }));
+        setUserList(formattedUsers);
+      }
+    };
+
+    loadCreators();
   }, []);
 
   const handleJoinWaitlist = async (e: React.FormEvent) => {
@@ -73,42 +84,28 @@ const Waitlist = () => {
     setValidationError('');
 
     try {
-      const result = await twitterService.validateUsername(username);
-      if (result.isValid && result.user) {
-        // Prevent duplicates: check if this username already joined (compare case-insensitive)
-        const returnedUsername = (result.user.username || '').toString().toLowerCase();
-        const alreadyJoined = userList.some(u => (u.handle || '').replace(/^@/, '').toLowerCase() === returnedUsername);
-        if (alreadyJoined) {
-          setValidationError("This username has already joined the creator's program");
-          setIsValidating(false);
-          return;
-        }
-
-        const newPosition = totalUsers + 1;
+      const result = await creatorsService.joinCreators(username);
+      if (result.success && result.creator) {
         const newUser = {
-          avatar: result.user.profile_image_url,
-          name: result.user.name,
-          handle: `@${result.user.username}`,
-          position: newPosition
+          avatar: result.creator.profile_image_url,
+          name: result.creator.twitter_name,
+          handle: `@${result.creator.twitter_username}`,
+          position: result.creator.position
         };
 
-        const updatedUserList = [newUser, ...userList];
-        setPosition(newPosition);
-        setTotalUsers(newPosition);
-        setUserList(updatedUserList);
+        setPosition(result.creator.position);
+        setTotalUsers(result.creator.position);
+        setUserList(prev => [newUser, ...prev]);
         setIsJoined(true);
         setCurrentUser({ avatar: newUser.avatar, name: newUser.name, handle: newUser.handle });
 
-        localStorage.setItem('spredd-creators', JSON.stringify({
-          totalUsers: newPosition,
-          userList: updatedUserList
-        }));
+        success('Successfully joined the creators program!');
       } else {
-        setValidationError(result.error || 'Username not found');
+        setValidationError(result.error || 'Failed to join creators program');
       }
     } catch (err) {
       console.error(err);
-      setValidationError('Failed to validate username. Please try again.');
+      setValidationError('Failed to join creators program. Please try again.');
     } finally {
       setIsValidating(false);
     }
