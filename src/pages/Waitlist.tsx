@@ -196,7 +196,7 @@ const Waitlist = () => {
 ">
   <div className="flex-1">
     <div className="text-white font-semibold text-base sm:text-lg leading-tight">
-      Stay updated with Spredd!
+      Join the creator's program
     </div>
     <div className="mt-2.5">
       <a
