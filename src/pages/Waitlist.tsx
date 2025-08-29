@@ -40,7 +40,9 @@ const Waitlist = () => {
 
 
   // Concise creator-focused tweet copy. The share page provides the OG image.
-  const text = `Creators — build markets, reward your audience, and earn with $SPRDD. Join the creator's program: ${shareUrl} #SpreddTheWord`;
+  const text = `Creators — Build markets, engage with your community and hold $SPRDD to boost your rewards. Join the creator's program: ${shareUrl}
+
+#SpreddTheWord #SpreddMarkets`;
   const intentUrl = `https://x.com/intent/post?text=${encodeURIComponent(text)}`;
 
     // open centered popup
