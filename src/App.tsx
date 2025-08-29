@@ -18,6 +18,7 @@ import LogOut from "./pages/Logout"; // Use LoginPage instead of LogOut
 import { useEffect, type JSX } from "react";
 import PrivacyPage from "./pages/PrivacyPage";
 import TermsConditions from "./pages/TermsConditions";
+import Waitlist from "./pages/Waitlist";
 import ScrollToTop from "./utils/scrolltop";
 import { MiniAppProvider } from '@neynar/react';
 import { sdk } from '@farcaster/miniapp-sdk';
@@ -192,6 +193,15 @@ function AppContent() {
                   <Navbar />
                   <div className="text-white p-8">Contact Page</div>
                   <Footer />
+                </>
+              }
+            />
+            <Route
+              path="/waitlist"
+              element={
+                <>
+                  <Navbar />
+                  <Waitlist />
                 </>
               }
             />
