@@ -5,11 +5,6 @@ interface TwitterUser {
   profile_image_url: string;
 }
 
-interface TwitterApiResponse {
-  data?: TwitterUser;
-  errors?: Array<{ message: string }>;
-}
-
 export class TwitterApiService {
   private backendUrl: string;
   
