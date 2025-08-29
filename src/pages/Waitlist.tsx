@@ -30,14 +30,17 @@ const Waitlist = () => {
   const { success } = useToast();
 
   // Use the share page which contains Open Graph tags to ensure a social preview/image is attached.
-  const shareUrl = 'https://spredd.markets/share';
+  const shareUrl = 'https://spredd.markets/creators';
 
   const handleShareX = () => {
-  // Use canonical share page only (do not include referral parameters)
-  const place = position ?? totalUsers ?? '';
-  const referralUrl = shareUrl;
-  // Share copy with only the main link; image preview comes from the share page OG tags.
-  const text = `I’m #${place} on Spredd — where your predictions become market signals and rewards. Be part of the signal: ${referralUrl}`;
+  // New creator program share text
+
+
+
+
+
+  // Concise creator-focused tweet copy. The share page provides the OG image.
+  const text = `Creators — build markets, reward your audience, and earn with $SPRDD. Join the creator's program: ${shareUrl} #SpreddTheWord`;
   const intentUrl = `https://x.com/intent/post?text=${encodeURIComponent(text)}`;
 
     // open centered popup
@@ -52,7 +55,7 @@ const Waitlist = () => {
   // install flow removed — not used when directing straight to X
 
   useEffect(() => {
-    const saved = localStorage.getItem('spredd-waitlist');
+    const saved = localStorage.getItem('spredd-creators');
     if (saved) {
       const data = JSON.parse(saved);
       setTotalUsers(data.totalUsers || 0);
@@ -74,7 +77,7 @@ const Waitlist = () => {
         const returnedUsername = (result.user.username || '').toString().toLowerCase();
         const alreadyJoined = userList.some(u => (u.handle || '').replace(/^@/, '').toLowerCase() === returnedUsername);
         if (alreadyJoined) {
-          setValidationError('This username has already joined the waitlist');
+          setValidationError("This username has already joined the creator's program");
           setIsValidating(false);
           return;
         }
@@ -94,7 +97,7 @@ const Waitlist = () => {
         setIsJoined(true);
         setCurrentUser({ avatar: newUser.avatar, name: newUser.name, handle: newUser.handle });
 
-        localStorage.setItem('spredd-waitlist', JSON.stringify({
+        localStorage.setItem('spredd-creators', JSON.stringify({
           totalUsers: newPosition,
           userList: updatedUserList
         }));
@@ -126,14 +129,14 @@ const Waitlist = () => {
         {!isJoined ? (
           <div className="text-center mb-8">
             <p className="text-gray-400 mb-2">Others ahead of you</p>
-            <div className="text-6xl font-bold" style={{ color: '#00FFA3' }}>
+            <div className="text-6xl font-bold text-white">
               {totalUsers.toLocaleString()}
             </div>
           </div>
         ) : (
           <div className="text-center mb-8">
             <p className="text-gray-400 mb-2">Your position:</p>
-            <div className="text-6xl font-bold" style={{ color: '#00FFA3' }}>
+            <div className="text-6xl font-bold text-white">
               #{position?.toLocaleString()}
             </div>
           </div>
@@ -141,7 +144,7 @@ const Waitlist = () => {
 
         {!isJoined ? (
           <div className="bg-orange-900/20 backdrop-blur-sm rounded-xl p-6 border border-orange-500/40 mb-8">
-            <h2 className="text-xl font-bold text-center text-white mb-2">Join the waitlist</h2>
+            <h2 className="text-xl font-bold text-center text-white mb-2">Join the creator's program</h2>
             <p className="text-gray-400 text-center mb-6">Experience AI-Powered Prediction Markets</p>
             <form onSubmit={handleJoinWaitlist}>
               <div className="mb-4">
@@ -174,7 +177,7 @@ const Waitlist = () => {
             {/* Primary waitlist card */}
             <div className="bg-orange-900/20 backdrop-blur-sm rounded-xl p-6 border border-orange-500/40 mb-4">
               <h2 className="text-2xl font-bold text-center text-white mb-2">#SpreddTheWord, {currentUser?.name ?? username}!</h2>
-              <p className="text-orange-200 text-center mb-6">You're on the waitlist</p>
+              <p className="text-orange-200 text-center mb-6">You're enrolled in the creator's program</p>
               <button onClick={handleShareX} className="w-full bg-white hover:bg-gray-100 text-black font-bold py-3 px-4 rounded-lg transition-colors mb-4">
                 Share to Earn Points
               </button>
@@ -195,7 +198,7 @@ const Waitlist = () => {
     </div>
     <div className="mt-2.5">
       <a
-        href="https://t.me/spreddtheword"
+        href="https://t.me/+ZS1eOedd03YyOTlh"
         target="_blank"
         rel="noreferrer"
         className="inline-flex items-center gap-3 bg-orange-600 hover:bg-orange-700 text-white font-semibold text-sm sm:text-base py-2 px-4 rounded-full"

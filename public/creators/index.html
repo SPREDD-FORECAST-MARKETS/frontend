@@ -5,36 +5,29 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
 
   <!-- Open Graph tags for social previews -->
-  <meta property="og:title" content="Spredd — Join the Creator's Program" />
+  <meta property="og:title" content="Spredd Creators" />
   <meta property="og:description" content="Creators: create markets, earn from engagement, and boost rewards with $SPRDD — join now." />
   <meta property="og:image" content="https://spredd.markets/joinpic.png" />
   <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://spredd.markets/share" />
+  <meta property="og:url" content="https://spredd.markets/creators" />
 
-  <title>Spredd share</title>
+  <title>Spredd Creators</title>
 
   <style>
     html,body { height:100%; margin:0; display:flex; align-items:center; justify-content:center; background:#000; color:#fff; font-family:Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; }
-    .card { max-width:640px; padding:24px; text-align:center; }
-    a { color:#ff8a4b; }
+    .card { max-width:900px; padding:24px; text-align:center; }
+    img { max-width:100%; height:auto; border-radius:12px; }
+    .cta { margin-top:18px; display:inline-block; background:#ff8a4b; color:#000; padding:12px 18px; border-radius:999px; font-weight:700; text-decoration:none; }
   </style>
-
-  <script>
-  // Always redirect to the canonical waitlist URL without preserving query strings
-    (function(){
-      try {
-    // Use replace so back-button doesn't keep this redirect page
-    window.location.replace('/waitlist');
-      } catch (e) {
-        console.error(e);
-      }
-    })();
-  </script>
 </head>
 <body>
   <div class="card">
-    <h1>Spredd</h1>
-    <p>Redirecting you to the creators program. If you are not redirected, <a id="link" href="/creators">click here</a>.</p>
+    <a href="/creators" aria-label="Go to Spredd Creators page">
+      <img src="/joinpic.png" alt="Join Spredd Creators Program" />
+    </a>
+    <div>
+      <a class="cta" href="/creators">Join the Creator Program</a>
+    </div>
   </div>
 </body>
 </html>

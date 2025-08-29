@@ -142,7 +142,7 @@ const Navbar = () => {
     { name: "Explore", to: "/" },
     // { name: "Faucet", to: "/faucet" },
     { name: "Leaderboard", to: "/leaderboard" },
-    { name: "Waitlist", to: "/waitlist" },
+    { name: "Creators", to: "/creators" },
     // { name: "Stake", to: "/stake" },
   ];
 

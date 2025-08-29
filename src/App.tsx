@@ -197,7 +197,7 @@ function AppContent() {
               }
             />
             <Route
-              path="/waitlist"
+              path="/creators"
               element={
                 <>
                   <Navbar />
