@@ -81,6 +81,26 @@ const Navbar = () => {
     return `${address.slice(0, 6)}...${address.slice(-4)}`;
   };
 
+  // Get display info (Twitter profile or wallet)
+  const getDisplayInfo = () => {
+    if (user?.twitter) {
+      return {
+        type: 'twitter',
+        name: user.twitter.name || user.twitter.username || 'Twitter User',
+        username: user.twitter.username ? `@${user.twitter.username}` : '',
+        avatar: user.twitter.profilePictureUrl || '',
+        identifier: user.twitter.username
+      };
+    }
+    return {
+      type: 'wallet',
+      name: 'Wallet User',
+      username: formatAddress(user?.wallet?.address),
+      avatar: '',
+      identifier: user?.wallet?.address
+    };
+  };
+
   // Check if route is active
   const isActiveRoute = (path: string) => {
     if (path === "/" && location.pathname !== "/") return false;
@@ -253,58 +273,83 @@ const Navbar = () => {
                       <div className="flex items-start justify-between">
                         <div>
                           <h3 className="text-white font-semibold text-base">
-                            My Profile
+                            {getDisplayInfo().name}
                           </h3>
+                          {getDisplayInfo().type === 'twitter' && getDisplayInfo().username && (
+                            <p className="text-sm text-[#ff6b35] font-medium">
+                              {getDisplayInfo().username}
+                            </p>
+                          )}
                           <p className="text-sm text-gray-400 mt-1 flex items-center">
                             <span className="bg-green-500 w-2 h-2 rounded-full mr-2 animate-pulse"></span>
-                            Connected to {networkName}
+                            {getDisplayInfo().type === 'twitter' ? `Connected via Twitter` : `Connected to ${networkName}`}
                           </p>
                         </div>
-                        <div className="bg-[#ff6b35]/10 h-12 w-12 rounded-full flex items-center justify-center text-[#ff6b35] border border-[#ff6b35]/20">
-                          <UserRound size={20} />
+                        <div className="bg-[#ff6b35]/10 h-12 w-12 rounded-full flex items-center justify-center text-[#ff6b35] border border-[#ff6b35]/20 overflow-hidden">
+                          {getDisplayInfo().avatar ? (
+                            <img src={getDisplayInfo().avatar} alt="Profile" className="w-full h-full rounded-full object-cover" />
+                          ) : (
+                            <UserRound size={20} />
+                          )}
                         </div>
                       </div>
                     </div>
 
-                    {/* Wallet Section */}
+                    {/* Account Info Section */}
                     <div className="px-5 py-4 border-b border-gray-800/30">
-                      <h4 className="text-sm text-gray-400 mb-3 flex items-center font-medium">
-                        <Wallet size={14} className="mr-2 text-[#ff6b35]" />
-                        Wallet Address
-                      </h4>
-
-                      <div className="flex justify-between items-center mb-3">
-                        <p className="text-sm text-white flex items-center bg-gray-800/30 px-3 py-1.5 rounded-lg">
-                          <span className="font-mono">
-                            {formatAddress(user?.wallet?.address)}
-                          </span>
-                          <button
-                            onClick={() =>
-                              user?.wallet?.address &&
-                              copyToClipboard(user.wallet.address)
-                            }
-                            className="ml-2 text-gray-400 hover:text-[#ff6b35] transition-colors p-1"
-                          >
-                            {copySuccess ? (
-                              <span className="text-green-500 text-xs font-medium">
-                                Copied!
+                      {getDisplayInfo().type === 'twitter' ? (
+                        <div className="space-y-3">
+                          <h4 className="text-sm text-gray-400 mb-2 flex items-center font-medium">
+                            <svg className="w-4 h-4 mr-2 text-[#ff6b35]" fill="currentColor" viewBox="0 0 24 24">
+                              <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                            </svg>
+                            Twitter Profile
+                          </h4>
+                          <div className="bg-gray-800/20 px-3 py-2 rounded-lg">
+                            <p className="text-sm text-white font-medium">{user?.twitter?.username}</p>
+                            <p className="text-xs text-gray-400">{user?.twitter?.name}</p>
+                          </div>
+                        </div>
+                      ) : (
+                        <div>
+                          <h4 className="text-sm text-gray-400 mb-3 flex items-center font-medium">
+                            <Wallet size={14} className="mr-2 text-[#ff6b35]" />
+                            Wallet Address
+                          </h4>
+                          <div className="flex justify-between items-center mb-3">
+                            <p className="text-sm text-white flex items-center bg-gray-800/30 px-3 py-1.5 rounded-lg">
+                              <span className="font-mono">
+                                {formatAddress(user?.wallet?.address)}
                               </span>
-                            ) : (
-                              <Copy size={12} />
-                            )}
-                          </button>
-                        </p>
-                        <Link
-                          to={`https://basescan.org/address/${user?.wallet?.address}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-[#ff6b35] hover:text-[#ff8c42] text-xs flex items-center font-medium"
-                        >
-                          View <ExternalLink size={12} className="ml-1" />
-                        </Link>
-                      </div>
+                              <button
+                                onClick={() =>
+                                  user?.wallet?.address &&
+                                  copyToClipboard(user.wallet.address)
+                                }
+                                className="ml-2 text-gray-400 hover:text-[#ff6b35] transition-colors p-1"
+                              >
+                                {copySuccess ? (
+                                  <span className="text-green-500 text-xs font-medium">
+                                    Copied!
+                                  </span>
+                                ) : (
+                                  <Copy size={12} />
+                                )}
+                              </button>
+                            </p>
+                            <Link
+                              to={`https://basescan.org/address/${user?.wallet?.address}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-[#ff6b35] hover:text-[#ff8c42] text-xs flex items-center font-medium"
+                            >
+                              View <ExternalLink size={12} className="ml-1" />
+                            </Link>
+                          </div>
+                        </div>
+                      )}
 
-                      <div className="flex justify-between items-center bg-gray-800/20 px-3 py-2 rounded-lg">
+                      <div className="flex justify-between items-center bg-gray-800/20 px-3 py-2 rounded-lg mt-3">
                         <p className="text-sm text-gray-400 font-medium">
                           USDC Balance
                         </p>
@@ -342,7 +387,7 @@ const Navbar = () => {
                         className="flex items-center px-3 py-2.5 w-full text-left text-sm text-white hover:bg-red-500/10 hover:text-red-400 rounded-lg transition-all duration-200 group"
                       >
                         <LogOut className="h-4 w-4 mr-3 text-gray-400 group-hover:text-red-400 group-hover:scale-110 transition-all" />
-                        <span className="font-medium">Disconnect Wallet</span>
+                        <span className="font-medium">Disconnect</span>
                       </button>
                     </div>
                   </div>
@@ -351,8 +396,20 @@ const Navbar = () => {
             ) : (
               <button
                 onClick={() => login()}
-                className="bg-gradient-to-r from-[#ff6b35] to-[#ff8c42] hover:from-[#ff8c42] hover:to-[#ff6b35] text-black font-semibold px-6 py-2.5 rounded-lg transition-all duration-300 transform hover:scale-105 hover:shadow-lg hover:shadow-[#ff6b35]/20 text-sm"
+                className="flex items-center gap-2 bg-gradient-to-r from-[#ff6b35] to-[#ff8c42] hover:from-[#ff8c42] hover:to-[#ff6b35] text-black font-semibold px-6 py-2.5 rounded-lg transition-all duration-300 transform hover:scale-105 hover:shadow-lg hover:shadow-[#ff6b35]/20 text-sm"
               >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  viewBox="0 0 48 48"
+                  height="16"
+                  fill="currentColor"
+                >
+                  <path fill="none" d="M0 0h48v48H0z"></path>
+                  <path
+                    d="M42 36v2c0 2.21-1.79 4-4 4H10c-2.21 0-4-1.79-4-4V10c0-2.21 1.79-4 4-4h28c2.21 0 4 1.79 4 4v2H24c-2.21 0-4 1.79-4 4v16c0 2.21 1.79 4 4 4h18zm-18-4h20V16H24v16zm8-5c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3z"
+                  ></path>
+                </svg>
                 Connect Wallet
               </button>
             )}
@@ -360,28 +417,17 @@ const Navbar = () => {
 
           {/* Mobile Menu Button */}
           <div className="md:hidden">
-            <button
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="text-gray-300 hover:text-white p-2 rounded-lg hover:bg-white/5 transition-all duration-200"
-            >
-              <svg
-                className="w-6 h-6"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d={
-                    isMobileMenuOpen
-                      ? "M6 18L18 6M6 6l12 12"
-                      : "M4 6h16M4 12h16M4 18h16"
-                  }
-                />
-              </svg>
-            </button>
+            <label className="burger" htmlFor="burger">
+              <input 
+                type="checkbox" 
+                id="burger" 
+                checked={isMobileMenuOpen}
+                onChange={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              />
+              <span></span>
+              <span></span>
+              <span></span>
+            </label>
           </div>
         </div>
       </div>
@@ -390,7 +436,7 @@ const Navbar = () => {
       {isMobileMenuOpen && (
         <div className="md:hidden bg-[#0a0a0a] border-t border-gray-800/50 backdrop-blur-xl">
           {/* Navigation Links */}
-          <div className="px-4 py-4 space-y-2">
+          <div className="px-6 py-6 space-y-3">
             {navigationLinks.map((link) => (
               <Link
                 key={link.name}
@@ -399,7 +445,7 @@ const Navbar = () => {
                   block px-4 py-3 rounded-lg font-medium text-sm transition-all duration-200
                   ${
                     isActiveRoute(link.to)
-                      ? "text-[#ff6b35] bg-[#ff6b35]/10 border-l-2 border-[#ff6b35]"
+                      ? "text-[#ff6b35] bg-[#ff6b35]/10"
                       : "text-gray-300 hover:text-white hover:bg-white/5"
                   }
                 `}
@@ -409,15 +455,17 @@ const Navbar = () => {
               </Link>
             ))}
 
+            <div className="border-t border-gray-800/30 my-4"></div>
+
             <Link
               to="https://app.virtuals.io/geneses/1057"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center px-4 py-3 text-[#ff6b35] hover:bg-[#ff6b35]/10 rounded-lg transition-all duration-200 font-medium text-sm"
+              className="flex items-center justify-center gap-2 px-4 py-3 border border-[#ff6b35]/30 rounded-lg text-[#ff6b35] hover:bg-[#ff6b35]/10 transition-all duration-200 font-medium text-sm"
               onClick={() => setIsMobileMenuOpen(false)}
             >
               Buy $SPRDD
-              <FaExternalLinkAlt className="ml-2 h-3 w-3" />
+              <FaExternalLinkAlt className="h-3 w-3" />
             </Link>
 
             <Link
@@ -429,15 +477,45 @@ const Navbar = () => {
             </Link>
           </div>
 
-          {/* Mobile Wallet Section */}
+          {/* Mobile Profile Section */}
           <div className="px-4 py-4 border-t border-gray-800/50">
             {authenticated && (
-              <div className="mb-4 bg-gray-800/20 px-3 py-2 rounded-lg">
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-400">USDC Balance:</span>
-                  <span className="text-sm font-semibold text-white">
-                    ${formatBalance()}
-                  </span>
+              <div className="mb-4 space-y-3">
+                {/* Profile Info */}
+                <div className="bg-gray-800/20 px-3 py-3 rounded-lg">
+                  <div className="flex items-center space-x-3">
+                    <div className="h-8 w-8 rounded-full flex items-center justify-center bg-[#ff6b35]/10 border border-[#ff6b35]/20 overflow-hidden">
+                      {getDisplayInfo().avatar ? (
+                        <img src={getDisplayInfo().avatar} alt="Profile" className="w-full h-full rounded-full object-cover" />
+                      ) : (
+                        <UserRound size={16} className="text-[#ff6b35]" />
+                      )}
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-sm font-semibold text-white">
+                        {getDisplayInfo().name}
+                      </p>
+                      {getDisplayInfo().type === 'twitter' && getDisplayInfo().username ? (
+                        <p className="text-xs text-[#ff6b35]">
+                          {getDisplayInfo().username}
+                        </p>
+                      ) : (
+                        <p className="text-xs text-gray-400 font-mono">
+                          {formatAddress(user?.wallet?.address)}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Balance */}
+                <div className="bg-gray-800/20 px-3 py-2 rounded-lg">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-400">USDC Balance:</span>
+                    <span className="text-sm font-semibold text-white">
+                      ${formatBalance()}
+                    </span>
+                  </div>
                 </div>
               </div>
             )}
@@ -461,7 +539,7 @@ const Navbar = () => {
                   className="flex items-center w-full px-4 py-3 text-left text-white hover:bg-red-500/10 hover:text-red-400 rounded-lg transition-all duration-200 font-medium text-sm"
                 >
                   <LogOut className="h-4 w-4 mr-3 text-gray-400" />
-                  Disconnect Wallet
+                  Disconnect
                 </button>
               </div>
             ) : (
@@ -470,8 +548,20 @@ const Navbar = () => {
                   login();
                   setIsMobileMenuOpen(false);
                 }}
-                className="w-full bg-gradient-to-r from-[#ff6b35] to-[#ff8c42] text-black font-semibold px-6 py-3 rounded-lg text-sm"
+                className="w-full flex items-center justify-center gap-3 bg-gradient-to-r from-[#ff6b35] to-[#ff8c42] hover:from-[#ff8c42] hover:to-[#ff6b35] text-black font-semibold py-3 px-6 rounded-lg text-base transition-all duration-300"
               >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  viewBox="0 0 48 48"
+                  height="20"
+                  fill="currentColor"
+                >
+                  <path fill="none" d="M0 0h48v48H0z"></path>
+                  <path
+                    d="M42 36v2c0 2.21-1.79 4-4 4H10c-2.21 0-4-1.79-4-4V10c0-2.21 1.79-4 4-4h28c2.21 0 4 1.79 4 4v2H24c-2.21 0-4 1.79-4 4v16c0 2.21 1.79 4 4 4h18zm-18-4h20V16H24v16zm8-5c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3z"
+                  ></path>
+                </svg>
                 Connect Wallet
               </button>
             )}

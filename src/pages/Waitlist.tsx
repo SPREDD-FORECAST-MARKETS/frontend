@@ -144,7 +144,7 @@ const Waitlist = () => {
         {!isJoined ? (
           <div className="bg-orange-900/20 backdrop-blur-sm rounded-xl p-6 border border-orange-500/40 mb-8">
             <h2 className="text-xl font-bold text-center text-white mb-2">Join the creator's program</h2>
-            <p className="text-gray-400 text-center mb-6">Experience AI-Powered Prediction Markets</p>
+            <p className="text-gray-400 text-center mb-6">Build markets and earn rewards</p>
             <form onSubmit={handleJoinWaitlist}>
               <div className="mb-4">
                 <label htmlFor="username" className="sr-only">Your Twitter username</label>
@@ -153,7 +153,7 @@ const Waitlist = () => {
                   type="text"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  placeholder="username"
+                  placeholder="Twitter username"
                   className="w-full px-4 py-3 bg-black/50 border border-gray-700/50 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500"
                   required
                   disabled={isValidating}
