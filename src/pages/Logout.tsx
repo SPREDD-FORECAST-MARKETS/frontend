@@ -6,7 +6,6 @@ import {
   Users,
   Star,
   ArrowRight,
-  ChevronRight,
 } from "lucide-react";
 import { useLogin } from "@privy-io/react-auth";
 
