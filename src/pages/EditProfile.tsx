@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { X, Upload, User, Info } from 'lucide-react';
 import { useToast } from '../hooks/useToast';
 import type { UpdateProfileData } from '../lib/interface';
@@ -33,18 +33,23 @@ const EditProfileModal = ({ isOpen, onClose, userData }: EditProfileModalProps) 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [refreshUser, setRefreshUser] = useAtom(refreshUserAtom);
 
-
   const { getAccessToken } = usePrivy();
 
-  // Initialize form with user data when modal opens
+  const hasInitialized = useRef(false);
+  
   useEffect(() => {
     if (isOpen && userData) {
-      setFormData({
-        username: userData.username || '',
-        about: userData.about || '',
-        keepExistingImage: true
-      });
-      setImagePreview(userData.profile_pic || null);
+      if (!hasInitialized.current) {
+        setFormData({
+          username: userData.username || '',
+          about: userData.about || '',
+          keepExistingImage: true
+        });
+        setImagePreview(userData.profile_pic || null);
+        hasInitialized.current = true;
+      }
+    } else if (!isOpen) {
+      hasInitialized.current = false;
     }
   }, [isOpen, userData]);
 
