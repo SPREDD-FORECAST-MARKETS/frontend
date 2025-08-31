@@ -50,7 +50,6 @@ const Waitlist = () => {
     const left = window.screenX + (window.outerWidth - w) / 2;
     const top = window.screenY + (window.outerHeight - h) / 2;
   window.open(intentUrl, 'shareToX', `width=${w},height=${h},left=${left},top=${top},resizable=yes`);
-  success('Opening X compose');
   };
 
 
