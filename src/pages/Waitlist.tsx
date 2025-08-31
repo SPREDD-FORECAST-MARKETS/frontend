@@ -127,7 +127,7 @@ const Waitlist = () => {
 
         {!isJoined ? (
           <div className="text-center mb-8">
-            <p className="text-gray-400 mb-2">Others ahead of you</p>
+            <p className="text-gray-400 mb-2">Creators</p>
             <div className="text-6xl font-bold text-white">
               {totalUsers.toLocaleString()}
             </div>
@@ -143,7 +143,7 @@ const Waitlist = () => {
 
         {!isJoined ? (
           <div className="bg-orange-900/20 backdrop-blur-sm rounded-xl p-6 border border-orange-500/40 mb-8">
-            <h2 className="text-xl font-bold text-center text-white mb-2">Join the creator's program</h2>
+            <h2 className="text-xl font-bold text-center text-white mb-2">Join the Creator's Program</h2>
             <p className="text-gray-400 text-center mb-6">Build markets and earn rewards</p>
             <form onSubmit={handleJoinWaitlist}>
               <div className="mb-4">
@@ -193,7 +193,7 @@ const Waitlist = () => {
 ">
   <div className="flex-1">
     <div className="text-white font-semibold text-base sm:text-lg leading-tight">
-      Join the creator's program
+      Join the Creator's Program
     </div>
     <div className="mt-2.5">
       <a
