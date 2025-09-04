@@ -30,6 +30,7 @@ export function CategoryTabs({
     { id: 8, name: "AI" },
     { id: 9, name: "Crypto" },
     { id: 10, name: "Business" },
+    { id: 11, name: "Politics" },
   ];
 
   const tabItems = items || defaultItems;

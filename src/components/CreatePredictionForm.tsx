@@ -41,6 +41,7 @@ const AVAILABLE_CATEGORIES = [
   "Photography",
   "Forecasting",
   "E-sports",
+  "Politics",
 ];
 
 const CreatePredictionForm = () => {

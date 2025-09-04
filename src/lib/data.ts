@@ -166,6 +166,7 @@ export const tags: TrendingTagsData[] = [
   { id: 7, name: "AI", icon: null },
   { id: 8, name: "Crypto", icon: null },
   { id: 9, name: "Business", icon: null },
+  { id: 10, name: "Politics", icon: null },
   { id: 11, name: "Sports", icon: null },
   { id: 12, name: "Entertainment", icon: null },
   { id: 13, name: "Health", icon: null },
