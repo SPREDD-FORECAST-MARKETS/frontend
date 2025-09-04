@@ -22,7 +22,9 @@ const LatestOrders: React.FC<LatestOrdersProps> = ({ marketId }) => {
 
             // Real API endpoint
             const [data, ] = await fetchLatestTrades(marketId)
-            setOrders(data!);
+            // Sort by timestamp descending (most recent first)
+            const sortedData = data?.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()) || [];
+            setOrders(sortedData);
 
             if (showLoader) {
                 setLoading(false);
@@ -150,8 +152,8 @@ const LatestOrders: React.FC<LatestOrdersProps> = ({ marketId }) => {
     }
 
     return (
-        <div className="bg-gradient-to-br from-zinc-900/95 to-zinc-950/95 backdrop-blur-sm border border-slate-600/40 hover:border-zinc-700/60 rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300 p-6">
-            <div className="flex items-center justify-between mb-4">
+        <div className="bg-gradient-to-br from-zinc-900/95 to-zinc-950/95 backdrop-blur-sm border border-slate-600/40 hover:border-zinc-700/60 rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300 p-4 h-full max-h-96 flex flex-col">
+            <div className="flex items-center justify-between mb-3">
                 <h3 className="text-lg font-semibold text-white flex items-center gap-2">
                     <Clock size={18} />
                     Latest Orders
@@ -171,53 +173,55 @@ const LatestOrders: React.FC<LatestOrdersProps> = ({ marketId }) => {
                     <p className="text-slate-500 text-sm">Be the first to trade on this market!</p>
                 </div>
             ) : (
-                <div className="space-y-2 max-h-96 overflow-y-auto">
-                    {orders.map((order) => (
+                <div className="flex-1 overflow-y-auto scrollbar-hide space-y-1.5" style={{
+                    scrollbarWidth: 'none',
+                    msOverflowStyle: 'none'
+                }}>
+                    <style dangerouslySetInnerHTML={{
+                        __html: `
+                            .scrollbar-hide::-webkit-scrollbar {
+                                display: none;
+                            }
+                        `
+                    }} />
+                    {orders.slice(0, 8).map((order) => (
                         <div
                             key={order.id}
-                            className={`border rounded-lg p-3 transition-all hover:bg-white/5 ${getOrderColor(
+                            className={`border rounded-md p-2 transition-all hover:bg-white/5 ${getOrderColor(
                                 order.type,
                                 order.outcome
                             )}`}
                         >
-                            <div className="flex items-center justify-between mb-2">
+                            <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-2">
                                     {getOrderIcon(order.type, order.outcome)}
-                                    <span className="text-white font-medium text-sm">
-                                        {order.type} {order.outcome}
+                                    <span className="text-white font-medium text-xs">
+                                        {order.type}
                                     </span>
                                     <span
-                                        className={`px-2 py-0.5 rounded-full text-xs font-medium ${order.outcome === "YES"
+                                        className={`px-1 py-0.5 rounded text-xs font-medium ${order.outcome === "YES"
                                                 ? "bg-green-500/20 text-green-400"
                                                 : "bg-red-500/20 text-red-400"
                                             }`}
                                     >
                                         {order.outcome}
                                     </span>
-                                </div>
-                                <div className="text-slate-400 text-xs flex items-center gap-1">
-                                    <Clock size={12} />
-                                    {formatTimeAgo(order.timestamp)}
-                                </div>
-                            </div>
-
-                            <div className="flex items-center justify-between text-sm">
-                                <div className="flex items-center gap-4">
-                                    <div className="flex items-center gap-1 text-slate-300">
-                                        <User size={12} />
-                                        <span className="font-medium">{order.username}</span>
+                                    <div className="flex items-center gap-1 text-slate-300 text-xs min-w-0">
+                                        <User size={10} />
+                                        <span className="truncate max-w-20">{order.username}</span>
                                     </div>
+                                </div>
+                                <div className="flex items-center gap-2 text-xs flex-shrink-0">
                                     <div className="flex items-center gap-1 text-slate-300">
-                                        <DollarSign size={12} />
+                                        <DollarSign size={10} />
                                         <span>{formatAmount(order.amount)}</span>
                                     </div>
-                                </div>
-                                <div className="text-right">
                                     <div className="text-white font-medium">
                                         {Math.round(order.price * 100)}%
                                     </div>
-                                    <div className="text-slate-400 text-xs">
-                                        {order.shares.toFixed(0)} shares
+                                    <div className="text-slate-400 flex items-center gap-1">
+                                        <Clock size={10} />
+                                        {formatTimeAgo(order.timestamp)}
                                     </div>
                                 </div>
                             </div>
@@ -227,10 +231,10 @@ const LatestOrders: React.FC<LatestOrdersProps> = ({ marketId }) => {
             )}
 
             {orders.length > 0 && (
-                <div className="mt-4 pt-3 border-t border-white/10">
+                <div className="mt-3 pt-2 border-t border-white/10 flex-shrink-0">
                     <p className="text-slate-500 text-xs text-center">
-                        Showing latest {orders.length} order{orders.length !== 1 ? 's' : ''}
-                        {orders.length === 10 && ' (max 10)'}
+                        Showing latest {Math.min(orders.length, 8)} order{Math.min(orders.length, 8) !== 1 ? 's' : ''}
+                        {orders.length > 8 && ` of ${orders.length}`}
                     </p>
                 </div>
             )}

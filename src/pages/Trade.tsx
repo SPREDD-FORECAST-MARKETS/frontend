@@ -260,11 +260,11 @@ const Trade = () => {
   return (
     <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-10 bg-gradient-to-br from-white/5 via-transparent to-black/20">
       <div className="max-w-8xl mx-auto p-6 sm:p-8">
-        {/* Layout - Optimized for laptop screen symmetry */}
-        <div className="flex flex-col lg:flex-row gap-6 max-w-7xl mx-auto ">
-          <div className="flex flex-col lg:w-[60%] lg:h-full gap-y-4">
+        {/* Layout - Properly aligned cards */}
+        <div className="flex flex-col lg:flex-row gap-6 max-w-7xl mx-auto items-start">
+          <div className="flex flex-col lg:w-[60%] gap-4 lg:h-fit">
             <MarketHeaderDemo marketData={marketData} />
-            <div className="">
+            <div className="flex-1">
               <ChartCard
                 marketData={marketData}
                 marketId={marketId!}
@@ -272,8 +272,8 @@ const Trade = () => {
             </div>
           </div>
           
-          {/* Right side - Trading panel and market info stacked to match chart height */}
-          <div className="lg:w-[40%] lg:h-1/2 flex flex-col gap-4">
+          {/* Right side - Trading panel and market info stacked with matching height */}
+          <div className="lg:w-[40%] flex flex-col gap-4 lg:h-fit">
             {/* Share on X Button */}
             <button
               onClick={handleShareOnX}
@@ -286,20 +286,18 @@ const Trade = () => {
               </div>
             </button>
             
-            <div className="lg:flex-1">
-              <TradingPanel
-                marketData={marketData}
-                isBuy={isBuyState}
-                isYes={isYes}
-                quantity={quantity}
-                onYesNoToggle={setIsYes}
-                onQuantityChange={handleQuantityChange}
-                onSubmit={handleSubmitForecast}
-              />
-            </div>
+            <TradingPanel
+              marketData={marketData}
+              isBuy={isBuyState}
+              isYes={isYes}
+              quantity={quantity}
+              onYesNoToggle={setIsYes}
+              onQuantityChange={handleQuantityChange}
+              onSubmit={handleSubmitForecast}
+            />
             
-            {/* Latest Orders Component */}
-            <div className="">
+            {/* Latest Orders Component - with fixed height */}
+            <div className="flex-1 min-h-0">
               <LatestOrders marketId={marketId!} />
             </div>
           </div>
