@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import { ArrowUp, ArrowDown, Info, TrendingUp, TrendingDown } from "lucide-react";
+import { ArrowUp, ArrowDown, TrendingUp, TrendingDown, RefreshCw } from "lucide-react";
 import type { ChartDataPoint, Market } from "../lib/interface";
 
 interface ChartCardProps {
@@ -38,7 +38,7 @@ interface ChartPadding {
 
 type ViewType = "YES" | "NO";
 
-const ChartCard: React.FC<ChartCardProps> = ({ marketData, marketId }) => {
+const ChartCard: React.FC<ChartCardProps> = ({ marketId }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [activeTimeframe, setActiveTimeframe] = useState<string>("1m");
   const [activeView, setActiveView] = useState<ViewType>("YES");
@@ -499,69 +499,36 @@ const ChartCard: React.FC<ChartCardProps> = ({ marketData, marketId }) => {
     <div className="bg-gradient-to-br from-zinc-900/95 to-zinc-950/95 backdrop-blur-sm border border-slate-600/40 hover:border-zinc-700/60 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 overflow-hidden relative">
       {/* Header */}
       <div className="px-6 py-4 border-b border-white/5">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div>
-            <h3 className="text-lg font-semibold text-white mb-1">
-              {marketData?.question || `Market ${marketId}`}
-            </h3>
-            <p className="text-slate-400 text-sm">
-              {marketData?.description || "Prediction Market"}
-            </p>
-          </div>
-
-          {/* View Toggle */}
-          <div className="flex items-center gap-2">
-            <div className="flex bg-white/5 rounded-lg p-1 border border-white/10">
-              <button
-                onClick={() => setActiveView("YES")}
-                className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all ${activeView === "YES"
-                  ? "bg-green-600 text-white shadow-sm"
-                  : "text-slate-400 hover:text-white"
-                  }`}
-              >
-                <TrendingUp size={14} className="inline mr-1" />
-                YES
-              </button>
-              <button
-                onClick={() => setActiveView("NO")}
-                className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all ${activeView === "NO"
-                  ? "bg-red-600 text-white shadow-sm"
-                  : "text-slate-400 hover:text-white"
-                  }`}
-              >
-                <TrendingDown size={14} className="inline mr-1" />
-                NO
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Timeframe Selection */}
-        <div className="flex flex-wrap gap-2 mt-4">
-          {timeframeOptions.map((option) => (
+        <div className="flex items-center justify-between">
+          {/* View Toggle - moved to left */}
+          <div className="flex bg-white/5 rounded-lg p-1 border border-white/10">
             <button
-              key={option.value}
-              onClick={() => setActiveTimeframe(option.value)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${activeTimeframe === option.value
-                ? "bg-orange-600 text-white shadow-sm"
-                : "bg-white/5 text-slate-400 hover:bg-white/10 hover:text-white border border-white/10"
+              onClick={() => setActiveView("YES")}
+              className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all ${activeView === "YES"
+                ? "bg-green-600 text-white shadow-sm"
+                : "text-slate-400 hover:text-white"
                 }`}
             >
-              {option.label}
+              <TrendingUp size={14} className="inline mr-1" />
+              YES
             </button>
-          ))}
-          <button
-            onClick={() => fetchChartData(true)}
-            className="px-3 py-1.5 rounded-lg text-xs font-medium bg-white/5 text-slate-400 hover:bg-white/10 hover:text-white transition-all ml-auto border border-white/10"
-            disabled={isLoading}
-          >
-            Refresh
-          </button>
+            <button
+              onClick={() => setActiveView("NO")}
+              className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all ${activeView === "NO"
+                ? "bg-red-600 text-white shadow-sm"
+                : "text-slate-400 hover:text-white"
+                }`}
+            >
+              <TrendingDown size={14} className="inline mr-1" />
+              NO
+            </button>
+          </div>
         </div>
+
       </div>
 
       {/* Price Info */}
-      <div className="px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/5">
+      <div className="px-6 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/5">
         <div className="flex items-center gap-4">
           <span className="text-2xl font-bold text-white">
             {Math.round(currentPrice * 100)}%
@@ -603,6 +570,14 @@ const ChartCard: React.FC<ChartCardProps> = ({ marketData, marketId }) => {
                   second: "2-digit"
                 })}
               </span>
+              <button
+                onClick={() => fetchChartData(true)}
+                className="ml-1 p-1 text-slate-400 hover:text-white transition-colors hover:bg-white/10 rounded"
+                disabled={isLoading}
+                title="Refresh data"
+              >
+                <RefreshCw size={12} className={isLoading ? "animate-spin" : ""} />
+              </button>
             </span>
           </div>
         )}
@@ -610,7 +585,7 @@ const ChartCard: React.FC<ChartCardProps> = ({ marketData, marketId }) => {
 
       {/* Trading Stats */}
       {stats && (
-        <div className="px-6 pb-4">
+        <div className="px-6 py-3">
           <div className="grid grid-cols-3 gap-3 text-sm">
             <div className="bg-white/5 border border-white/10 rounded-lg p-3">
               <div className="text-slate-500 mb-1 font-medium text-xs">Data Points</div>
@@ -629,6 +604,24 @@ const ChartCard: React.FC<ChartCardProps> = ({ marketData, marketId }) => {
           </div>
         </div>
       )}
+
+      {/* Timeframe Selection */}
+      <div className="px-6 pb-4 border-b border-white/5">
+        <div className="flex items-center gap-1">
+          {timeframeOptions.map((option) => (
+            <button
+              key={option.value}
+              onClick={() => setActiveTimeframe(option.value)}
+              className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all ${activeTimeframe === option.value
+                ? "bg-white/15 text-white border border-white/20"
+                : "text-slate-400 hover:text-white hover:bg-white/10"
+                }`}
+            >
+              {option.label}
+            </button>
+          ))}
+        </div>
+      </div>
 
       {/* Chart */}
       <div className="h-[300px] relative px-6 pb-6">
@@ -685,22 +678,6 @@ const ChartCard: React.FC<ChartCardProps> = ({ marketData, marketId }) => {
           }}
         />
 
-        {/* Chart Info */}
-        {chartData.length > 0 && (
-          <div className="absolute top-4 right-4 group">
-            <button className="p-1.5 rounded-lg bg-white/5 text-slate-500 hover:text-slate-300 transition-colors border border-white/10">
-              <Info size={14} />
-            </button>
-            <div className="absolute right-0 top-full mt-2 w-56 bg-[#131314] border border-white/10 p-3 rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 text-xs text-slate-400 z-20">
-              <p className="mb-2 font-medium text-slate-300">
-                Shows {activeView} probability over time
-              </p>
-              <p className="text-orange-400 font-medium">
-                Auto-refreshes every 10 seconds
-              </p>
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );

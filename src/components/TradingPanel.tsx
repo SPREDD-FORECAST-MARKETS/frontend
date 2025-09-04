@@ -234,7 +234,7 @@ const TradingPanel = ({
         {/* Outcome Selection */}
         <div className="grid grid-cols-2 gap-3 mb-4">
           <button
-            className={`p-3 rounded-xl border transition-all duration-200 ${isYes ? 'bg-gradient-to-br from-emerald-500/25 to-emerald-600/20 border-emerald-500/40 text-emerald-300 shadow-lg shadow-emerald-500/10' : 'bg-zinc-800/60 border-zinc-700/50 text-zinc-300 hover:bg-emerald-500/10 hover:border-emerald-500/30 hover:text-emerald-400'}`}
+            className={`p-3 rounded-xl border transition-all duration-200 ${isYes ? 'bg-gradient-to-br from-emerald-500/25 to-emerald-600/20 border-emerald-500/40 text-emerald-300' : 'bg-zinc-800/60 border-zinc-700/50 text-zinc-300 hover:bg-emerald-500/10 hover:border-emerald-500/30 hover:text-emerald-400'}`}
             onClick={() => onYesNoToggle(true)}
           >
             <div className="text-center">
@@ -245,7 +245,7 @@ const TradingPanel = ({
             </div>
           </button>
           <button
-            className={`p-3 rounded-xl border transition-all duration-200 ${!isYes ? 'bg-gradient-to-br from-red-500/25 to-red-600/20 border-red-500/40 text-red-300 shadow-lg shadow-red-500/10' : 'bg-zinc-800/60 border-zinc-700/50 text-zinc-300 hover:bg-red-500/10 hover:border-red-500/30 hover:text-red-400'}`}
+            className={`p-3 rounded-xl border transition-all duration-200 ${!isYes ? 'bg-gradient-to-br from-red-500/25 to-red-600/20 border-red-500/40 text-red-300' : 'bg-zinc-800/60 border-zinc-700/50 text-zinc-300 hover:bg-red-500/10 hover:border-red-500/30 hover:text-red-400'}`}
             onClick={() => onYesNoToggle(false)}
           >
             <div className="text-center">
@@ -265,7 +265,7 @@ const TradingPanel = ({
               type="number"
               value={quantity}
               onChange={handleQuantityChange}
-              className="w-full bg-zinc-800/70 border border-zinc-700/60 rounded-xl px-4 py-3 text-white text-sm font-medium focus:outline-none focus:border-orange-500/60 focus:ring-2 focus:ring-orange-500/20 hover:border-zinc-600/70 transition-all duration-200"
+              className="w-full bg-zinc-800/70 border border-zinc-700/60 rounded-xl px-4 py-3 text-white text-sm font-medium focus:outline-none focus:border-orange-500/60 focus:ring-2 focus:ring-orange-500/20 hover:border-zinc-600/70 transition-all duration-200 [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [-moz-appearance:textfield]"
               placeholder="0"
               min="0"
               step="0.01"
