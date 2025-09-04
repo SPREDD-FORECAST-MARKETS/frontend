@@ -87,18 +87,37 @@ export const fetchMarkets = async ({
 
 
 export const fetchMarket = async (marketId: string) => {
-
+  try {
+    console.log('Fetching market:', marketId, 'from:', import.meta.env.VITE_BACKEND_URL);
+    
     const response = await axios.get<Market>(
-    `${import.meta.env.VITE_BACKEND_URL}/market/${marketId}`,
-    {
-      headers: {
-        'Content-Type': 'application/json',
-        accept: '*/*',
-      },
-    }
-  );
+      `${import.meta.env.VITE_BACKEND_URL}/market/${marketId}`,
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          accept: '*/*',
+        },
+        timeout: 10000, // 10 second timeout
+      }
+    );
 
-  return response.data
+    console.log('Market data received:', response.data);
+    return response.data;
+  } catch (error: any) {
+    console.error('Failed to fetch market:', error.response?.data || error.message);
+    
+    if (error.response?.status === 404) {
+      throw new Error(`Market ${marketId} not found`);
+    }
+    if (error.response?.status === 500) {
+      throw new Error('Server error while fetching market');
+    }
+    if (error.code === 'ECONNABORTED') {
+      throw new Error('Request timeout - backend might be down');
+    }
+    
+    throw new Error(`Failed to fetch market: ${error.message}`);
+  }
 }
 
 

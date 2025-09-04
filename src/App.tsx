@@ -154,13 +154,11 @@ function AppContent() {
             <Route
               path="/trade/:marketId"
               element={
-                <ProtectedRoute>
-                  <>
-                    <Navbar />
-                    <Trade />
-                    <Footer />
-                  </>
-                </ProtectedRoute>
+                <>
+                  <Navbar />
+                  <Trade />
+                  <Footer />
+                </>
               }
             />
             <Route

@@ -26,6 +26,7 @@ const Trade = () => {
   const navigate = useNavigate();
   const [marketData, setMarketData] = useState<Market | null>(null);
   const [isMarketExpired, setIsMarketExpired] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   
   const passedState = location.state as {
     initialBuy?: boolean;
@@ -62,16 +63,22 @@ const Trade = () => {
 
   const fetchMarketData = async () => {
     setLoading(true);
+    setError(null);
     try {
-      const data = await fetchMarket(marketId!);
+      if (!marketId) {
+        throw new Error('No market ID provided');
+      }
+      
+      const data = await fetchMarket(marketId);
       setMarketData(data);
       
       // Check if market is expired/closed
       const expired = checkMarketStatus(data);
       setIsMarketExpired(expired);
       
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error fetching market data:', error);
+      setError(error.message || 'Failed to load market data');
     } finally {
       setLoading(false);
     }
@@ -110,7 +117,39 @@ const Trade = () => {
   if (loading) {
     return (
       <div className="bg-black min-h-screen flex items-center justify-center text-white">
-        Loading Data ...
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-orange-500 mx-auto mb-4"></div>
+          <p>Loading market data...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="bg-black min-h-screen flex items-center justify-center text-white px-4">
+        <div className="max-w-md w-full bg-zinc-900/50 rounded-xl border border-zinc-800 p-8 text-center">
+          <div className="mb-6">
+            <AlertCircle size={48} className="mx-auto text-red-500 mb-4" />
+            <h2 className="text-xl font-semibold text-white mb-2">Error Loading Market</h2>
+            <p className="text-gray-400 text-sm">{error}</p>
+          </div>
+          
+          <div className="space-y-3">
+            <button
+              onClick={fetchMarketData}
+              className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              Try Again
+            </button>
+            <button
+              onClick={handleGoBack}
+              className="w-full px-4 py-2 border border-gray-600 text-gray-300 rounded-lg hover:bg-gray-700 transition-colors"
+            >
+              Go Back
+            </button>
+          </div>
+        </div>
       </div>
     );
   }

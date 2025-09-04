@@ -81,10 +81,10 @@ const CreatePredictionForm = () => {
   //   hash: contractHash,
   // });
 
-  // Filter categories based on search term
-  const filteredCategories = AVAILABLE_CATEGORIES.filter((category) =>
-    category.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // Filter and sort categories alphabetically based on search term
+  const filteredCategories = AVAILABLE_CATEGORIES
+    .filter((category) => category.toLowerCase().includes(searchTerm.toLowerCase()))
+    .sort((a, b) => a.localeCompare(b));
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -111,6 +111,9 @@ const CreatePredictionForm = () => {
         };
       }
     });
+    
+    // Keep dropdown open and clear search to show all categories again
+    setSearchTerm("");
   };
 
   // Remove individual category
@@ -126,12 +129,16 @@ const CreatePredictionForm = () => {
     setSearchTerm(e.target.value);
   };
 
-  // Clear search when dropdown closes
   const handleDropdownToggle = () => {
-    if (isDropdownOpen) {
-      setSearchTerm(""); // Clear search when closing
-    }
     setIsDropdownOpen(!isDropdownOpen);
+    if (!isDropdownOpen) {
+      setTimeout(() => {
+        const searchInput = document.getElementById("category-search");
+        if (searchInput) {
+          searchInput.focus();
+        }
+      }, 100);
+    }
   };
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -451,6 +458,7 @@ const CreatePredictionForm = () => {
                           />
                         </svg>
                         <input
+                          id="category-search"
                           type="text"
                           placeholder="Search categories..."
                           value={searchTerm}
