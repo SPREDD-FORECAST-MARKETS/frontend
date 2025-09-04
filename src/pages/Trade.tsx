@@ -6,7 +6,7 @@ import TradingPanel from "../components/TradingPanel";
 import { fetchMarket } from "../apis/market";
 import MarketHeaderDemo from "../components/MarketHeader";
 import LatestOrders from "../components/LatestOrders";
-import { Clock, AlertCircle, TrendingUp } from "lucide-react";
+import { Clock, AlertCircle, TrendingUp, Share } from "lucide-react";
 
 const initialState: TradeState = {
   activeTimeframe: "1D",
@@ -99,6 +99,15 @@ const Trade = () => {
 
   const handleViewMarketDetails = () => {
     navigate(`/market/${marketId}`);
+  };
+
+  const handleShareOnX = () => {
+    if (!marketData) return;
+    const marketTitle = marketData.question || 'Untitled Market';
+    const marketUrl = `https://spredd.markets/trade/${marketData.id}`;
+    const tweetText = `${marketTitle}\n\n${marketUrl}\n\n@spreddai`;
+    const twitterUrl = `https://x.com/intent/post?text=${encodeURIComponent(tweetText)}`;
+    window.open(twitterUrl, '_blank');
   };
 
   useEffect(() => {
@@ -265,6 +274,18 @@ const Trade = () => {
           
           {/* Right side - Trading panel and market info stacked to match chart height */}
           <div className="lg:w-[40%] lg:h-1/2 flex flex-col gap-4">
+            {/* Share on X Button */}
+            <button
+              onClick={handleShareOnX}
+              className="flex items-center justify-center gap-2 bg-gradient-to-br from-zinc-900/95 to-zinc-950/95 backdrop-blur-sm border border-slate-600/40 hover:border-zinc-700/60 rounded-xl px-4 py-3 transition-all duration-300 hover:scale-[1.02] shadow-xl hover:shadow-2xl relative"
+            >
+              <div className="absolute inset-0 bg-gradient-to-br from-blue-500/[0.02] via-transparent to-purple-500/[0.02] rounded-xl"></div>
+              <div className="relative z-10 flex items-center gap-2">
+                <Share size={18} className="text-white" />
+                <span className="text-white text-sm font-semibold">Share on X</span>
+              </div>
+            </button>
+            
             <div className="lg:flex-1">
               <TradingPanel
                 marketData={marketData}

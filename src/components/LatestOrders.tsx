@@ -103,7 +103,7 @@ const LatestOrders: React.FC<LatestOrdersProps> = ({ marketId }) => {
 
     if (loading) {
         return (
-            <div className="bg-[#131314] border border-white/5 rounded-xl p-6">
+            <div className="bg-gradient-to-br from-zinc-900/95 to-zinc-950/95 backdrop-blur-sm border border-slate-600/40 hover:border-zinc-700/60 rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300 p-6">
                 <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
                     <Clock size={18} />
                     Latest Orders
@@ -130,7 +130,7 @@ const LatestOrders: React.FC<LatestOrdersProps> = ({ marketId }) => {
 
     if (error) {
         return (
-            <div className="bg-[#131314] border border-white/5 rounded-xl p-6">
+            <div className="bg-gradient-to-br from-zinc-900/95 to-zinc-950/95 backdrop-blur-sm border border-slate-600/40 hover:border-zinc-700/60 rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300 p-6">
                 <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
                     <Clock size={18} />
                     Latest Orders
@@ -150,7 +150,7 @@ const LatestOrders: React.FC<LatestOrdersProps> = ({ marketId }) => {
     }
 
     return (
-        <div className="bg-[#131314] border border-white/5 rounded-xl p-6">
+        <div className="bg-gradient-to-br from-zinc-900/95 to-zinc-950/95 backdrop-blur-sm border border-slate-600/40 hover:border-zinc-700/60 rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300 p-6">
             <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold text-white flex items-center gap-2">
                     <Clock size={18} />

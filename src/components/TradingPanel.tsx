@@ -35,6 +35,7 @@ const TradingPanel = ({
   const [userBetA, setUserBetA] = useState(0);
   const [userBetB, setUserBetB] = useState(0);
   const [balanceLow, setBalanceLow] = useState(false);
+  const [walletNotConnected, setWalletNotConnected] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [transactionHash, setTransactionHash] = useState<string | null>(null);
   const [, setPotentialWinnings] = useState(0);
@@ -149,7 +150,7 @@ const TradingPanel = ({
   };
 
   const handleSubmit = async () => {
-    if (quantity <= 0 || balanceLow || isSubmitting) return;
+    if (quantity <= 0 || balanceLow || isSubmitting || walletNotConnected) return;
 
     setIsSubmitting(true);
 
@@ -203,6 +204,15 @@ const TradingPanel = ({
   };
 
   useEffect(() => {
+    // First check if wallet is connected
+    if (!user?.wallet?.address) {
+      setWalletNotConnected(true);
+      setBalanceLow(false);
+      return;
+    }
+
+    setWalletNotConnected(false);
+
     if (isBuy) {
       // Use USDC balance instead of generic balance
       const availableUsdcBalance = usdcBalance ? parseFloat(formatUnits(usdcBalance, 6)) : 0;
@@ -211,79 +221,82 @@ const TradingPanel = ({
       const maxSellAmount = isYes ? userBetA : userBetB;
       setBalanceLow(maxSellAmount < quantity);
     }
-  }, [quantity, isBuy, isYes, userBetA, userBetB, usdcBalance]);
+  }, [quantity, isBuy, isYes, userBetA, userBetB, usdcBalance, user?.wallet?.address]);
 
   const getCurrentPrice = (forYes:boolean) => (forYes ? oddsA / 100 : oddsB / 100);
 
   return (
-    <div className="bg-[#131314f2] backdrop-blur-xl border border-white/10 rounded-xl shadow-2xl p-4 relative" style={{ fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>
-      <div className="bg-gradient-to-br from-white/5 via-transparent to-black/20 absolute inset-0 rounded-xl"></div>
+    <div className="bg-gradient-to-br from-zinc-900/95 to-zinc-950/95 backdrop-blur-sm border border-slate-600/40 hover:border-zinc-700/60 rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300 p-6 relative" style={{ fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>
+      <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/[0.02] via-transparent to-orange-500/[0.02] rounded-xl"></div>
       <div className="relative z-10">
-        <h2 className="text-xl font-bold text-white mb-3 tracking-tight">Trading Panel</h2>
+        <h2 className="text-xl font-bold text-white mb-4 tracking-tight">Trading Panel</h2>
 
         {/* Outcome Selection */}
-        <div className="grid grid-cols-2 gap-2 mb-3">
+        <div className="grid grid-cols-2 gap-3 mb-4">
           <button
-            className={`p-2 rounded-lg border border-white/10 ${isYes ? 'bg-green-500/20 text-green-400 shadow-md' : 'bg-white/5 text-slate-300 hover:bg-green-500/10 hover:shadow-md'} transition-all duration-200`}
+            className={`p-3 rounded-xl border transition-all duration-200 ${isYes ? 'bg-gradient-to-br from-emerald-500/25 to-emerald-600/20 border-emerald-500/40 text-emerald-300 shadow-lg shadow-emerald-500/10' : 'bg-zinc-800/60 border-zinc-700/50 text-zinc-300 hover:bg-emerald-500/10 hover:border-emerald-500/30 hover:text-emerald-400'}`}
             onClick={() => onYesNoToggle(true)}
           >
             <div className="text-center">
-              <div className="font-semibold text-sm">YES</div>
-              <div className="text-base font-medium">${getCurrentPrice(true).toFixed(2)}</div>
-              <div className="text-xs text-slate-400">{oddsA}%</div>
-              {userBetA > 0 && <div className="text-xs text-green-400 mt-1">Bet: ${userBetA.toFixed(2)}</div>}
+              <div className="font-bold text-sm">YES</div>
+              <div className="text-lg font-bold">${getCurrentPrice(true).toFixed(2)}</div>
+              <div className="text-xs opacity-80">{oddsA}%</div>
+              {userBetA > 0 && <div className="text-xs mt-1 font-semibold">Bet: ${userBetA.toFixed(2)}</div>}
             </div>
           </button>
           <button
-            className={`p-2 rounded-lg border border-white/10 ${!isYes ? 'bg-red-500/20 text-red-400 shadow-md' : 'bg-white/5 text-slate-300 hover:bg-red-500/10 hover:shadow-md'} transition-all duration-200`}
+            className={`p-3 rounded-xl border transition-all duration-200 ${!isYes ? 'bg-gradient-to-br from-red-500/25 to-red-600/20 border-red-500/40 text-red-300 shadow-lg shadow-red-500/10' : 'bg-zinc-800/60 border-zinc-700/50 text-zinc-300 hover:bg-red-500/10 hover:border-red-500/30 hover:text-red-400'}`}
             onClick={() => onYesNoToggle(false)}
           >
             <div className="text-center">
-              <div className="font-semibold text-sm">NO</div>
-              <div className="text-base font-medium">${getCurrentPrice(false).toFixed(2)}</div>
-              <div className="text-xs text-slate-400">{oddsB}%</div>
-              {userBetB > 0 && <div className="text-xs text-red-400 mt-1">Bet: ${userBetB.toFixed(2)}</div>}
+              <div className="font-bold text-sm">NO</div>
+              <div className="text-lg font-bold">${getCurrentPrice(false).toFixed(2)}</div>
+              <div className="text-xs opacity-80">{oddsB}%</div>
+              {userBetB > 0 && <div className="text-xs mt-1 font-semibold">Bet: ${userBetB.toFixed(2)}</div>}
             </div>
           </button>
         </div>
 
         {/* Amount Input */}
-        <div className="mb-3">
-          <div className="text-xs text-slate-400 mb-1">Available: ${userBalance?.value ? formatUnits(userBalance.value, userBalance.decimals!) : "0"}</div>
+        <div className="mb-4">
+          <div className="text-xs text-zinc-400 mb-2 font-medium">Available: ${userBalance?.value ? formatUnits(userBalance.value, userBalance.decimals!) : "0"}</div>
           <div className="relative">
             <input
               type="number"
               value={quantity}
               onChange={handleQuantityChange}
-              className="w-full bg-white/5 border border-white/20 rounded-lg px-3 py-2 text-white text-sm font-medium focus:outline-none focus:border-amber-500/50 focus:ring-2 focus:ring-amber-500/20 transition-all duration-200"
+              className="w-full bg-zinc-800/70 border border-zinc-700/60 rounded-xl px-4 py-3 text-white text-sm font-medium focus:outline-none focus:border-orange-500/60 focus:ring-2 focus:ring-orange-500/20 hover:border-zinc-600/70 transition-all duration-200"
               placeholder="0"
               min="0"
               step="0.01"
             />
             <button
               onClick={handleMaxClick}
-              className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-amber-400 bg-amber-500/20 border border-amber-500/30 px-2 py-1 rounded hover:bg-amber-500/30 hover:text-amber-300 transition-all duration-200 shadow-sm"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-orange-400 bg-orange-500/20 border border-orange-500/30 px-3 py-1.5 rounded-lg hover:bg-orange-500/30 hover:text-orange-300 transition-all duration-200 font-semibold"
             >
               MAX
             </button>
           </div>
-          <div className="flex gap-2 mt-2">
-            <button onClick={() => onQuantityChange(10)} className="bg-white/5 border border-white/20 text-slate-300 px-2 py-1 rounded-lg text-xs font-medium hover:bg-white/10 hover:text-white transition-all duration-200 shadow-sm">10</button>
-            <button onClick={() => onQuantityChange(50)} className="bg-white/5 border border-white/20 text-slate-300 px-2 py-1 rounded-lg text-xs font-medium hover:bg-white/10 hover:text-white transition-all duration-200 shadow-sm">50</button>
+          <div className="flex gap-2 mt-3">
+            <button onClick={() => onQuantityChange(10)} className="bg-zinc-800/70 border border-zinc-700/60 text-zinc-300 px-3 py-2 rounded-xl text-xs font-semibold hover:bg-zinc-700/80 hover:text-white hover:border-zinc-600/70 transition-all duration-200">10</button>
+            <button onClick={() => onQuantityChange(50)} className="bg-zinc-800/70 border border-zinc-700/60 text-zinc-300 px-3 py-2 rounded-xl text-xs font-semibold hover:bg-zinc-700/80 hover:text-white hover:border-zinc-600/70 transition-all duration-200">50</button>
           </div>
         </div>
 
 
         {/* Submit Button */}
         <button
-          className={`w-full bg-orange-500 text-white px-4 py-2 rounded-lg text-sm font-semibold shadow-md ${quantity <= 0 || balanceLow || isSubmitting ? 'opacity-50 cursor-not-allowed' : 'hover:from-amber-500 hover:to-amber-700 hover:shadow-lg transition-all duration-200'}`}
+          className={`w-full bg-gradient-to-r from-orange-500 to-orange-600 text-white px-6 py-3 rounded-xl text-sm font-bold shadow-lg ${quantity <= 0 || balanceLow || isSubmitting || walletNotConnected ? 'opacity-50 cursor-not-allowed' : 'hover:from-orange-600 hover:to-orange-700 hover:shadow-xl hover:scale-[1.02] transition-all duration-200'}`}
           onClick={handleSubmit}
-          disabled={quantity <= 0 || balanceLow || isSubmitting}
+          disabled={quantity <= 0 || balanceLow || isSubmitting || walletNotConnected}
         >
           {isSubmitting ? "Placing Bet..." : `Place $${quantity} Bet`}
         </button>
-        {balanceLow && (
-          <div className="mt-2 text-xs text-red-400 text-center font-medium">Insufficient balance. Please add funds.</div>
+        {walletNotConnected && (
+          <div className="mt-3 text-xs text-yellow-400 text-center font-semibold bg-yellow-500/10 border border-yellow-500/20 rounded-lg py-2 px-3">Please connect wallet first.</div>
+        )}
+        {!walletNotConnected && balanceLow && (
+          <div className="mt-3 text-xs text-red-400 text-center font-semibold bg-red-500/10 border border-red-500/20 rounded-lg py-2 px-3">Insufficient balance. Please add funds.</div>
         )}
       </div>
     </div>

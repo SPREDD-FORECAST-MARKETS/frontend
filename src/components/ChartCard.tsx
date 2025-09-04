@@ -496,7 +496,7 @@ const ChartCard: React.FC<ChartCardProps> = ({ marketData, marketId }) => {
   const stats: ChartStats | null = calculateStats();
 
   return (
-    <div className="bg-[#131314] border border-white/5 rounded-xl shadow-lg overflow-hidden relative">
+    <div className="bg-gradient-to-br from-zinc-900/95 to-zinc-950/95 backdrop-blur-sm border border-slate-600/40 hover:border-zinc-700/60 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 overflow-hidden relative">
       {/* Header */}
       <div className="px-6 py-4 border-b border-white/5">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
