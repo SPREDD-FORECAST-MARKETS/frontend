@@ -3,8 +3,6 @@ import type { Market } from "../lib/interface";
 import { MARKET_ABI } from "../abi/MarketABI";
 import { formatUnits, parseUnits } from "viem";
 import { useEffect, useState } from "react";
-import { useAtom } from "jotai";
-import { balanceAtom } from "../atoms/global";
 import { usePrivy } from "@privy-io/react-auth";
 import { useUsdcToken } from "../hooks/useToken";
 import { useToast } from "../hooks/useToast";
@@ -40,14 +38,13 @@ const TradingPanel = ({
   const [transactionHash, setTransactionHash] = useState<string | null>(null);
   const [, setPotentialWinnings] = useState(0);
 
-  const [userBalance] = useAtom(balanceAtom);
   const { user, getAccessToken } = usePrivy();
   const { writeContractAsync, isSuccess, isError } = useWriteContract();
   const { approve } = useUsdcToken();
   const toast = useToast();
 
 
-  const { data: usdcBalance } = useReadContract({
+  const { data: usdcBalance, refetch: refetchUsdcBalance } = useReadContract({
     address: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913", // USDC address
     abi: [
       {
@@ -60,7 +57,11 @@ const TradingPanel = ({
     ],
     functionName: "balanceOf",
     args: user?.wallet?.address ? [user.wallet.address as `0x${string}`] : undefined,
-  }) as { data: bigint | undefined };
+    query: {
+      enabled: !!user?.wallet?.address,
+      refetchInterval: 3000,
+    }
+  }) as { data: bigint | undefined; refetch: () => void };
 
   const { data: oddsData, refetch: refetchOdds } = useReadContract({
     address: marketData.contract_address as `0x${string}`,
@@ -93,8 +94,12 @@ const TradingPanel = ({
       setIsSubmitting(false);
       refetchOdds();
       refetchUserBets();
+      refetchUsdcBalance();
+      setTimeout(() => {
+        refetchUsdcBalance();
+      }, 2000);
     }
-  }, [isSuccess, transactionHash, toast, onSubmit, onQuantityChange, refetchOdds, refetchUserBets]);
+  }, [isSuccess, transactionHash, toast, onSubmit, onQuantityChange, refetchOdds, refetchUserBets, refetchUsdcBalance]);
 
   useEffect(() => {
     if (transactionHash && isError) {
@@ -142,7 +147,8 @@ const TradingPanel = ({
 
   const handleMaxClick = () => {
     if (isBuy) {
-      onQuantityChange(userBalance?.value ? parseFloat(formatUnits(userBalance.value, userBalance.decimals!)) : 0);
+      const availableBalance = usdcBalance ? parseFloat(formatUnits(usdcBalance, 6)) : 0;
+      onQuantityChange(availableBalance);
     } else {
       const maxAmount = isYes ? userBetA : userBetB;
       onQuantityChange(maxAmount);
@@ -152,16 +158,22 @@ const TradingPanel = ({
   const handleSubmit = async () => {
     if (quantity <= 0 || balanceLow || isSubmitting || walletNotConnected) return;
 
+    await refetchUsdcBalance();
+
+    const currentUsdcBalance = usdcBalance ? parseFloat(formatUnits(usdcBalance, 6)) : 0;
+    if (isBuy && currentUsdcBalance < quantity) {
+      toast.error("Insufficient balance. Please check your funds or wait a moment and try again.");
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
       if (isBuy) {
         const betAmount = parseUnits(quantity.toString(), 6);
         await approve({
-          // tokenAddress: CONTRACT_ADDRESSES.token as `0x${string}`,
           spender: marketData.contract_address as `0x${string}`,
           usdAmount: quantity,
-          // decimals: 6,
         });
 
         const txHash = await writeContractAsync({
@@ -196,7 +208,10 @@ const TradingPanel = ({
     } catch (error) {
       setIsSubmitting(false);
       const errorMessage = error instanceof Error ? error.message.toLowerCase() : "unknown error";
-      if (errorMessage.includes("insufficient")) toast.error("Insufficient balance. Please check your funds.");
+      if (errorMessage.includes("insufficient")) {
+        refetchUsdcBalance();
+        toast.error("Insufficient balance. Please refresh your balance or add more USDC to your wallet.");
+      }
       else if (errorMessage.includes("user rejected") || errorMessage.includes("denied")) toast.error("Transaction was cancelled.");
       else if (errorMessage.includes("market") && errorMessage.includes("ended")) toast.error("This market has already ended.");
       else toast.error("Transaction failed. Please try again.");
@@ -259,7 +274,17 @@ const TradingPanel = ({
 
         {/* Amount Input */}
         <div className="mb-4">
-          <div className="text-xs text-zinc-400 mb-2 font-medium">Available: ${userBalance?.value ? formatUnits(userBalance.value, userBalance.decimals!) : "0"}</div>
+          <div className="flex justify-between items-center mb-2">
+            <div className="text-xs text-zinc-400 font-medium">
+              Available: ${usdcBalance ? parseFloat(formatUnits(usdcBalance, 6)).toFixed(2) : "0.00"} USDC
+            </div>
+            <button
+              onClick={() => refetchUsdcBalance()}
+              className="text-xs text-orange-400 hover:text-orange-300 transition-colors font-medium"
+            >
+              Refresh
+            </button>
+          </div>
           <div className="relative">
             <input
               type="number"

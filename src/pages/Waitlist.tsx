@@ -237,7 +237,7 @@ const Waitlist = () => {
         {/* Users section with fade (always above any mascot overflow) */}
         {userList.length > 0 && (
           <div className="mt-8 relative z-20">
-            <h3 className="text-gray-400 text-center mb-4">{isJoined ? 'Recent joiners:' : 'Users ahead of you:'}</h3>
+            <h3 className="text-gray-400 text-center mb-4">{isJoined ? 'Recent joiners:' : 'Total creators:'}</h3>
             <div className="space-y-2 pb-10 relative">
               {userList.slice(0, 7).map((user) => (
                 <WaitlistUser key={user.handle} {...user} />

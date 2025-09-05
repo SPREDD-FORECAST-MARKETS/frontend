@@ -1,10 +1,11 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import { ArrowUp, ArrowDown, TrendingUp, TrendingDown, RefreshCw } from "lucide-react";
+import { ArrowUp, ArrowDown, TrendingUp, TrendingDown, RefreshCw, Share } from "lucide-react";
 import type { ChartDataPoint, Market } from "../lib/interface";
 
 interface ChartCardProps {
   marketData: Market;
   marketId: string;
+  onShareOnX?: () => void;
 }
 
 interface TimeframeOption {
@@ -38,7 +39,7 @@ interface ChartPadding {
 
 type ViewType = "YES" | "NO";
 
-const ChartCard: React.FC<ChartCardProps> = ({ marketId }) => {
+const ChartCard: React.FC<ChartCardProps> = ({ marketId, onShareOnX }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [activeTimeframe, setActiveTimeframe] = useState<string>("1m");
   const [activeView, setActiveView] = useState<ViewType>("YES");
@@ -80,7 +81,6 @@ const ChartCard: React.FC<ChartCardProps> = ({ marketId }) => {
         throw new Error("Invalid data format received");
       }
 
-      // Handle empty data
       if (data.length === 0) {
         setChartData([]);
         setCurrentPrice(0.5);
@@ -92,12 +92,11 @@ const ChartCard: React.FC<ChartCardProps> = ({ marketId }) => {
         return;
       }
 
-      // Transform API data to our format with validation
       const transformedData: ChartDataPoint[] = data
-        .filter((item: any) => item && item.bucket) // Filter out invalid items
+        .filter((item: any) => item && item.bucket)
         .map((item: any): ChartDataPoint => ({
           time: item.bucket,
-          yesOdds: Math.max(0, Math.min(1, parseInt(item.yesOdds || "0") / 1000000)), // Clamp between 0-1
+          yesOdds: Math.max(0, Math.min(1, parseInt(item.yesOdds || "0") / 1000000)),
           noOdds: Math.max(0, Math.min(1, parseInt(item.noOdds || "0") / 1000000)),
           totalVolume: parseInt(item.totalVolume || "0")
         }));
@@ -108,12 +107,10 @@ const ChartCard: React.FC<ChartCardProps> = ({ marketId }) => {
 
       setChartData(transformedData);
 
-      // Calculate current price and price change
       const latestData: ChartDataPoint = transformedData[transformedData.length - 1];
       const currentOdds: number = activeView === "YES" ? latestData.yesOdds : latestData.noOdds;
       setCurrentPrice(currentOdds);
 
-      // Calculate price change from first to last data point
       if (transformedData.length > 1) {
         const firstOdds: number = activeView === "YES"
           ? transformedData[0].yesOdds
@@ -523,6 +520,17 @@ const ChartCard: React.FC<ChartCardProps> = ({ marketId }) => {
               NO
             </button>
           </div>
+          
+          {/* Share on X Button - only visible on desktop */}
+          {onShareOnX && (
+            <button
+              onClick={onShareOnX}
+              className="hidden lg:flex items-center justify-center gap-2 bg-black border border-gray-600 hover:border-gray-500 rounded-full px-4 py-2 transition-all duration-200 hover:bg-gray-900"
+            >
+              <Share size={14} className="text-white" />
+              <span className="text-white text-sm font-medium">Share on X</span>
+            </button>
+          )}
         </div>
 
       </div>
@@ -585,21 +593,21 @@ const ChartCard: React.FC<ChartCardProps> = ({ marketId }) => {
 
       {/* Trading Stats */}
       {stats && (
-        <div className="px-6 py-3">
-          <div className="grid grid-cols-3 gap-3 text-sm">
-            <div className="bg-white/5 border border-white/10 rounded-lg p-3">
+        <div className="px-4 sm:px-6 py-3">
+          <div className="grid grid-cols-3 gap-2 sm:gap-3 text-sm">
+            <div className="bg-white/5 border border-white/10 rounded-lg p-2 sm:p-3">
               <div className="text-slate-500 mb-1 font-medium text-xs">Data Points</div>
-              <div className="text-white font-semibold">{stats.trades}</div>
+              <div className="text-white font-semibold text-xs sm:text-sm">{stats.trades}</div>
             </div>
-            <div className="bg-white/5 border border-white/10 rounded-lg p-3">
+            <div className="bg-white/5 border border-white/10 rounded-lg p-2 sm:p-3">
               <div className="text-slate-500 mb-1 font-medium text-xs">Total Volume</div>
-              <div className="text-white font-semibold">
+              <div className="text-white font-semibold text-xs sm:text-sm">
                 {formatVolume(stats.totalVolume)}
               </div>
             </div>
-            <div className="bg-white/5 border border-white/10 rounded-lg p-3">
+            <div className="bg-white/5 border border-white/10 rounded-lg p-2 sm:p-3">
               <div className="text-slate-500 mb-1 font-medium text-xs">Timeframe</div>
-              <div className="text-white font-semibold">{activeTimeframe}</div>
+              <div className="text-white font-semibold text-xs sm:text-sm">{activeTimeframe}</div>
             </div>
           </div>
         </div>

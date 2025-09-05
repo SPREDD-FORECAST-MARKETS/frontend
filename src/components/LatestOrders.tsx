@@ -105,13 +105,13 @@ const LatestOrders: React.FC<LatestOrdersProps> = ({ marketId }) => {
 
     if (loading) {
         return (
-            <div className="bg-gradient-to-br from-zinc-900/95 to-zinc-950/95 backdrop-blur-sm border border-slate-600/40 hover:border-zinc-700/60 rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300 p-6">
+            <div className="bg-gradient-to-br from-zinc-900/95 to-zinc-950/95 backdrop-blur-sm border border-slate-600/40 hover:border-zinc-700/60 rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300 p-6 flex flex-col">
                 <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
                     <Clock size={18} />
                     Latest Orders
                 </h3>
-                <div className="space-y-3">
-                    {Array.from({ length: 5 }).map((_, i) => (
+                <div className="flex-1 space-y-3">
+                    {Array.from({ length: 4 }).map((_, i) => (
                         <div
                             key={`skeleton-${i}`}
                             className="bg-white/5 rounded-lg p-3 animate-pulse"
@@ -132,27 +132,29 @@ const LatestOrders: React.FC<LatestOrdersProps> = ({ marketId }) => {
 
     if (error) {
         return (
-            <div className="bg-gradient-to-br from-zinc-900/95 to-zinc-950/95 backdrop-blur-sm border border-slate-600/40 hover:border-zinc-700/60 rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300 p-6">
+            <div className="bg-gradient-to-br from-zinc-900/95 to-zinc-950/95 backdrop-blur-sm border border-slate-600/40 hover:border-zinc-700/60 rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300 p-6 flex flex-col">
                 <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
                     <Clock size={18} />
                     Latest Orders
                 </h3>
-                <div className="text-center py-8">
-                    <p className="text-red-400 mb-2">Failed to load orders</p>
-                    <p className="text-slate-500 text-sm">{error}</p>
-                    <button
-                        onClick={() => fetchLatestOrders(true)}
-                        className="mt-3 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors text-sm"
-                    >
-                        Retry
-                    </button>
+                <div className="flex-1 flex items-center justify-center">
+                    <div className="text-center">
+                        <p className="text-red-400 mb-2">Failed to load orders</p>
+                        <p className="text-slate-500 text-sm">{error}</p>
+                        <button
+                            onClick={() => fetchLatestOrders(true)}
+                            className="mt-3 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors text-sm"
+                        >
+                            Retry
+                        </button>
+                    </div>
                 </div>
             </div>
         );
     }
 
     return (
-        <div className="bg-gradient-to-br from-zinc-900/95 to-zinc-950/95 backdrop-blur-sm border border-slate-600/40 hover:border-zinc-700/60 rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300 p-4 h-full max-h-96 flex flex-col">
+        <div className="bg-gradient-to-br from-zinc-900/95 to-zinc-950/95 backdrop-blur-sm border border-slate-600/40 hover:border-zinc-700/60 rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300 p-4 flex flex-col">
             <div className="flex items-center justify-between mb-3">
                 <h3 className="text-lg font-semibold text-white flex items-center gap-2">
                     <Clock size={18} />
@@ -167,24 +169,37 @@ const LatestOrders: React.FC<LatestOrdersProps> = ({ marketId }) => {
             </div>
 
             {orders.length === 0 ? (
-                <div className="text-center py-8">
-                    <Clock size={32} className="mx-auto text-slate-500 mb-3" />
-                    <p className="text-slate-400">No orders yet</p>
-                    <p className="text-slate-500 text-sm">Be the first to trade on this market!</p>
+                <div className="flex-1 flex items-center justify-center">
+                    <div className="text-center">
+                        <Clock size={32} className="mx-auto text-slate-500 mb-3" />
+                        <p className="text-slate-400">No orders yet</p>
+                        <p className="text-slate-500 text-sm">Be the first to trade on this market!</p>
+                    </div>
                 </div>
             ) : (
-                <div className="flex-1 overflow-y-auto scrollbar-hide space-y-1.5" style={{
-                    scrollbarWidth: 'none',
-                    msOverflowStyle: 'none'
+                <div className="space-y-1.5 max-h-64 overflow-y-auto pr-1" style={{
+                    scrollbarWidth: 'thin',
+                    scrollbarColor: '#4a5568 #1a202c'
                 }}>
                     <style dangerouslySetInnerHTML={{
                         __html: `
-                            .scrollbar-hide::-webkit-scrollbar {
-                                display: none;
+                            .max-h-64::-webkit-scrollbar {
+                                width: 4px;
+                            }
+                            .max-h-64::-webkit-scrollbar-track {
+                                background: #1a202c;
+                                border-radius: 2px;
+                            }
+                            .max-h-64::-webkit-scrollbar-thumb {
+                                background: #4a5568;
+                                border-radius: 2px;
+                            }
+                            .max-h-64::-webkit-scrollbar-thumb:hover {
+                                background: #6b7280;
                             }
                         `
                     }} />
-                    {orders.slice(0, 8).map((order) => (
+                    {orders.map((order) => (
                         <div
                             key={order.id}
                             className={`border rounded-md p-2 transition-all hover:bg-white/5 ${getOrderColor(
@@ -230,11 +245,10 @@ const LatestOrders: React.FC<LatestOrdersProps> = ({ marketId }) => {
                 </div>
             )}
 
-            {orders.length > 0 && (
+            {orders.length > 4 && (
                 <div className="mt-3 pt-2 border-t border-white/10 flex-shrink-0">
                     <p className="text-slate-500 text-xs text-center">
-                        Showing latest {Math.min(orders.length, 8)} order{Math.min(orders.length, 8) !== 1 ? 's' : ''}
-                        {orders.length > 8 && ` of ${orders.length}`}
+                        Showing all {orders.length} orders • Scroll for more
                     </p>
                 </div>
             )}

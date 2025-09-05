@@ -6,7 +6,9 @@ import TradingPanel from "../components/TradingPanel";
 import { fetchMarket } from "../apis/market";
 import MarketHeaderDemo from "../components/MarketHeader";
 import LatestOrders from "../components/LatestOrders";
-import { Clock, AlertCircle, TrendingUp, Share } from "lucide-react";
+import MarketTimeline from "../components/MarketTimeline";
+import MarketInfo from "../components/MarketInfo";
+import { Clock, AlertCircle, TrendingUp } from "lucide-react";
 
 const initialState: TradeState = {
   activeTimeframe: "1D",
@@ -27,6 +29,7 @@ const Trade = () => {
   const [marketData, setMarketData] = useState<Market | null>(null);
   const [isMarketExpired, setIsMarketExpired] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showMobileOrders, setShowMobileOrders] = useState(false);
   
   const passedState = location.state as {
     initialBuy?: boolean;
@@ -106,8 +109,31 @@ const Trade = () => {
     const marketTitle = marketData.question || 'Untitled Market';
     const marketUrl = `https://spredd.markets/trade/${marketData.id}`;
     const tweetText = `${marketTitle}\n\n${marketUrl}\n\n@spreddai`;
-    const twitterUrl = `https://x.com/intent/post?text=${encodeURIComponent(tweetText)}`;
-    window.open(twitterUrl, '_blank');
+    
+    // Detect if user is on mobile device
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    
+    if (isMobile) {
+      // Try to open X app first, fallback to web version
+      const xAppUrl = `twitter://post?message=${encodeURIComponent(tweetText)}`;
+      const xWebUrl = `https://x.com/intent/post?text=${encodeURIComponent(tweetText)}`;
+      
+      // Create a temporary link to try opening the app
+      const link = document.createElement('a');
+      link.href = xAppUrl;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      // Fallback to web version after a short delay if app doesn't open
+      setTimeout(() => {
+        window.open(xWebUrl, '_blank');
+      }, 500);
+    } else {
+      // Desktop - open in new tab
+      const twitterUrl = `https://x.com/intent/post?text=${encodeURIComponent(tweetText)}`;
+      window.open(twitterUrl, '_blank');
+    }
   };
 
   useEffect(() => {
@@ -258,34 +284,25 @@ const Trade = () => {
 
   // Normal trading interface for active markets
   return (
-    <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-10 bg-gradient-to-br from-white/5 via-transparent to-black/20">
-      <div className="max-w-8xl mx-auto p-6 sm:p-8">
-        {/* Layout - Properly aligned cards */}
-        <div className="flex flex-col lg:flex-row gap-6 max-w-7xl mx-auto items-start">
-          <div className="flex flex-col lg:w-[60%] gap-4 lg:h-fit">
-            <MarketHeaderDemo marketData={marketData} />
-            <div className="flex-1">
-              <ChartCard
-                marketData={marketData}
-                marketId={marketId!}
-              />
-            </div>
+    <div className="min-h-screen bg-gradient-to-br from-white/5 via-transparent to-black/20">
+      <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 lg:py-8">
+        {/* Layout - Mobile responsive */}
+        <div className="flex flex-col lg:flex-row gap-4 lg:gap-6 items-start">
+          <div className="w-full lg:w-[60%] flex flex-col gap-4">
+            <MarketHeaderDemo marketData={marketData} onShareOnX={handleShareOnX} />
+            
+            <MarketInfo marketData={marketData} />
+            
+            <ChartCard
+              marketData={marketData}
+              marketId={marketId!}
+              onShareOnX={handleShareOnX}
+            />
+            
           </div>
           
-          {/* Right side - Trading panel and market info stacked with matching height */}
-          <div className="lg:w-[40%] flex flex-col gap-4 lg:h-fit">
-            {/* Share on X Button */}
-            <button
-              onClick={handleShareOnX}
-              className="flex items-center justify-center gap-2 bg-gradient-to-br from-zinc-900/95 to-zinc-950/95 backdrop-blur-sm border border-slate-600/40 hover:border-zinc-700/60 rounded-xl px-4 py-3 transition-all duration-300 hover:scale-[1.02] shadow-xl hover:shadow-2xl relative"
-            >
-              <div className="absolute inset-0 bg-gradient-to-br from-blue-500/[0.02] via-transparent to-purple-500/[0.02] rounded-xl"></div>
-              <div className="relative z-10 flex items-center gap-2">
-                <Share size={18} className="text-white" />
-                <span className="text-white text-sm font-semibold">Share on X</span>
-              </div>
-            </button>
-            
+          {/* Right side - Trading panel and market info stacked */}
+          <div className="w-full lg:w-[40%] flex flex-col gap-4 order-1 lg:order-2">
             <TradingPanel
               marketData={marketData}
               isBuy={isBuyState}
@@ -296,9 +313,39 @@ const Trade = () => {
               onSubmit={handleSubmitForecast}
             />
             
-            {/* Latest Orders Component - with fixed height */}
-            <div className="flex-1 min-h-0">
+            {/* Market Timeline - show on mobile below trading panel */}
+            <div className="lg:hidden">
+              <MarketTimeline marketData={marketData} />
+            </div>
+            
+            {/* Latest Orders Component - hide on mobile */}
+            <div className="hidden lg:block">
               <LatestOrders marketId={marketId!} />
+            </div>
+            
+            {/* Market Timeline - show on desktop below latest orders */}
+            <div className="hidden lg:block">
+              <MarketTimeline marketData={marketData} />
+            </div>
+            
+            {/* Mobile Orders Button - only visible on mobile */}
+            <div className="lg:hidden">
+              <button
+                onClick={() => setShowMobileOrders(!showMobileOrders)}
+                className="w-full bg-gradient-to-br from-zinc-900/95 to-zinc-950/95 backdrop-blur-sm border border-slate-600/40 hover:border-zinc-700/60 rounded-xl px-4 py-3 transition-all duration-300 flex items-center justify-between"
+              >
+                <span className="text-white font-medium">Latest Orders</span>
+                <span className="text-zinc-400 text-sm">
+                  {showMobileOrders ? 'Hide' : 'Show'}
+                </span>
+              </button>
+              
+              {/* Mobile Orders Collapsible */}
+              {showMobileOrders && (
+                <div className="mt-2 max-h-64 overflow-hidden">
+                  <LatestOrders marketId={marketId!} />
+                </div>
+              )}
             </div>
           </div>
         </div>

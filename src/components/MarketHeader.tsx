@@ -1,10 +1,11 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Copy } from 'lucide-react';
+import { Copy, Share } from 'lucide-react';
 import type { Market } from '../lib/interface';
 import { useMarketDetails } from '../hooks/useMarketDetails';
 
 interface MarketDemoProps {
   marketData: Market;
+  onShareOnX?: () => void;
 }
 
 // --- helpers ---
@@ -37,7 +38,7 @@ function useCountdown(target?: string | number | Date) {
   };
 }
 
-const MarketHeaderDemo: React.FC<MarketDemoProps> = ({ marketData }) => {
+const MarketHeaderDemo: React.FC<MarketDemoProps> = ({ marketData, onShareOnX }) => {
   const { data: marketDetails, isLoading } = useMarketDetails(marketData.marketId);
 
   const { endsAt, expired, isEndingSoon } = useCountdown(marketData.expiry_date);
@@ -65,19 +66,19 @@ const MarketHeaderDemo: React.FC<MarketDemoProps> = ({ marketData }) => {
           {marketData.question || 'Untitled Market'}
         </h1>
 
-        {/* Info Row */}
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          {/* Left side - Contract and Total Pool */}
-          <div className="flex flex-wrap items-center gap-2">
+        {/* Info Row - Mobile responsive */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          {/* Top row - Contract and Total Pool */}
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3">
             {/* Contract */}
-            <div className="group flex items-center gap-2 bg-zinc-800/80 backdrop-blur-sm border border-zinc-700/60 hover:border-zinc-600/70 rounded-lg px-3 py-2.5 transition-all duration-200">
-              <span className="text-xs text-zinc-400 font-medium">Contract</span>
-              <span className="text-zinc-200 text-xs font-mono truncate max-w-[120px]" title={marketData.contract_address || ''}>
+            <div className="group flex items-center gap-2 bg-zinc-800/80 backdrop-blur-sm border border-zinc-700/60 hover:border-zinc-600/70 rounded-lg px-3 py-2.5 transition-all duration-200 min-w-0">
+              <span className="text-xs text-zinc-400 font-medium shrink-0">Contract</span>
+              <span className="text-zinc-200 text-xs font-mono truncate" title={marketData.contract_address || ''}>
                 {formatAddress(marketData.contract_address)}
               </span>
               <button
                 onClick={() => handleCopy(marketData.contract_address)}
-                className="text-zinc-400 hover:text-orange-400 transition-colors p-0.5 rounded hover:bg-zinc-700/50"
+                className="text-zinc-400 hover:text-orange-400 transition-colors p-0.5 rounded hover:bg-zinc-700/50 shrink-0"
                 title="Copy contract address"
               >
                 <Copy size={14} />
@@ -85,7 +86,7 @@ const MarketHeaderDemo: React.FC<MarketDemoProps> = ({ marketData }) => {
             </div>
 
             {/* Total Pool */}
-            <div className="bg-gradient-to-r from-orange-500/20 to-amber-500/20 border border-orange-500/30 hover:border-orange-400/40 rounded-lg px-3 py-2.5 transition-all duration-200">
+            <div className="bg-gradient-to-r from-orange-500/20 to-amber-500/20 border border-orange-500/30 hover:border-orange-400/40 rounded-lg px-3 py-2.5 transition-all duration-200 shrink-0">
               <span className="text-xs text-orange-100/90 mr-2 font-medium">Total Pool</span>
               <span className="text-white font-bold text-sm">
                 {isLoading ? 'Loading…' : formatUSD(totalPool)}
@@ -93,12 +94,22 @@ const MarketHeaderDemo: React.FC<MarketDemoProps> = ({ marketData }) => {
             </div>
           </div>
 
-          {/* Right side - Creator and Time */}
-          <div className="text-right text-sm">
-            <div className="text-zinc-400">
-              Created by <span className="text-white font-medium">{marketData.creator?.username || 'Unknown'}</span>
+          {/* Bottom row - Creator and Time */}
+          <div className="text-left sm:text-right text-sm space-y-1">
+            <div className="text-zinc-400 flex items-center justify-between">
+              <span>Created by <span className="text-white font-medium">{marketData.creator?.username || 'Unknown'}</span></span>
+              {/* Share on X Button - only visible on mobile */}
+              {onShareOnX && (
+                <button
+                  onClick={onShareOnX}
+                  className="lg:hidden flex items-center justify-center gap-2 bg-black border border-gray-600 hover:border-gray-500 rounded-full px-4 py-2.5 transition-all duration-200 hover:bg-gray-900 ml-3 shrink-0"
+                >
+                  <Share size={14} className="text-white" />
+                  <span className="text-white text-sm font-medium">Share on X</span>
+                </button>
+              )}
             </div>
-            <div className="text-zinc-400 mt-1">
+            <div className="text-zinc-400">
               Ends <span className="text-white font-medium">
                 {endsAt
                   ? endsAt.toLocaleString(undefined, {

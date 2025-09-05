@@ -10,6 +10,7 @@ import { useSwitchChain } from "wagmi";
 import { base } from "viem/chains";
 import type { FormData } from "../lib/interface";
 import { UTCTimeHelpers } from "../utils/helpers";
+import AppleTimePicker from "./AppleTimePicker";
 
 const MAX_IMAGE_SIZE = 1024 * 1024;
 
@@ -296,7 +297,7 @@ const CreatePredictionForm = () => {
   }, []);
 
   return (
-    <div className="w-full max-w-5xl mx-auto py-6 md:py-10 px-4 sm:px-6 lg:px-8 text-white min-h-screen">
+    <div className="w-full max-w-5xl mx-auto py-4 sm:py-6 md:py-10 px-3 sm:px-4 md:px-6 lg:px-8 text-white min-h-screen">
       <div className="flex justify-between items-start mb-6">
         <Link
           to="/"
@@ -315,11 +316,11 @@ const CreatePredictionForm = () => {
         </p>
       </div>
 
-      <div className="bg-gradient-to-b from-[#111] to-[#0a0a0a] rounded-xl sm:rounded-2xl shadow-xl p-4 sm:p-6 md:p-8 border border-zinc-800">
+      <div className="bg-gradient-to-b from-[#111] to-[#0a0a0a] rounded-xl sm:rounded-2xl shadow-xl p-4 sm:p-6 md:p-8 border border-zinc-800 relative overflow-visible">
 
         <form
           onSubmit={handleSubmit}
-          className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8"
+          className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8"
         >
           {/* LEFT COLUMN */}
           <div className="space-y-5">
@@ -545,34 +546,14 @@ const CreatePredictionForm = () => {
               </div>
             </div>
 
-            <div>
-              <label className="block text-gray-300 font-medium mb-2 text-sm">
-                End Time 
-                <span className="text-xs text-gray-500 ml-1">({UTCTimeHelpers.getUserTimezone()})</span>
-              </label>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <input
-                  type="date"
-                  id="endDate"
-                  name="endDate"
-                  value={formData.endDate}
-                  onChange={handleInputChange}
-                  className="w-full bg-[#111] border border-zinc-800 rounded-lg px-4 py-3 text-sm sm:text-base text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-600/50 transition-all duration-300 shadow-inner"
-                  style={{ colorScheme: "dark" }}
-                  required
-                />
-                <input
-                  type="time"
-                  id="endTime"
-                  name="endTime"
-                  value={formData.endTime}
-                  onChange={handleInputChange}
-                  className="w-full bg-[#111] border border-zinc-800 rounded-lg px-4 py-3 text-sm sm:text-base text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-600/50 transition-all duration-300 shadow-inner"
-                  style={{ colorScheme: "dark" }}
-                  required
-                />
-              </div>
-            </div>
+            <AppleTimePicker
+              date={formData.endDate}
+              time={formData.endTime}
+              onDateChange={(date) => setFormData(prev => ({ ...prev, endDate: date }))}
+              onTimeChange={(time) => setFormData(prev => ({ ...prev, endTime: time }))}
+              timezone={UTCTimeHelpers.getUserTimezone()}
+              required
+            />
           </div>
         </form>
 
