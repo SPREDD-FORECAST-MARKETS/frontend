@@ -49,11 +49,11 @@ const CreatePredictionForm = () => {
   const { error, success } = useToast();
 
   const [formData, setFormData] = useState<FormData>({
-    title: "Will Bitcoin reach $100k by June 10th?",
+    title: "",
     options: ["Yes", "No"],
-    description: "Bitcoin price prediction market",
-    resolutionCriteria: "Based on CoinGecko price data",
-    tags: ["Crypto"],
+    description: "",
+    resolutionCriteria: "",
+    tags: [],
     endDate: "",
     endTime: "",
     createOnChain: true,
