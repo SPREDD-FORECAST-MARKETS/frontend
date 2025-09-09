@@ -95,8 +95,8 @@ const MarketHeaderDemo: React.FC<MarketDemoProps> = ({ marketData, onShareOnX })
           </div>
 
           {/* Bottom row - Creator and Time */}
-          <div className="text-left sm:text-right text-sm space-y-1">
-            <div className="text-zinc-400 flex items-center justify-between">
+          <div className="text-left sm:text-right text-sm">
+            <div className="text-zinc-400 flex items-center justify-between mb-1">
               <span>Created by <span className="text-white font-medium">{marketData.creator?.username || 'Unknown'}</span></span>
               {/* Share on X Button - only visible on mobile */}
               {onShareOnX && (
@@ -110,7 +110,7 @@ const MarketHeaderDemo: React.FC<MarketDemoProps> = ({ marketData, onShareOnX })
               )}
             </div>
             <div className="text-zinc-400">
-              Ends <span className="text-white font-medium">
+              <span>Ends <span className="text-white font-medium">
                 {endsAt
                   ? endsAt.toLocaleString(undefined, {
                       month: 'short',
@@ -123,6 +123,7 @@ const MarketHeaderDemo: React.FC<MarketDemoProps> = ({ marketData, onShareOnX })
               {!expired && isEndingSoon && (
                 <span className="text-amber-400 font-semibold ml-2">• Ending soon</span>
               )}
+              </span>
             </div>
           </div>
         </div>

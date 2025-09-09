@@ -29,7 +29,6 @@ const Trade = () => {
   const [marketData, setMarketData] = useState<Market | null>(null);
   const [isMarketExpired, setIsMarketExpired] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [showMobileOrders, setShowMobileOrders] = useState(false);
   
   const passedState = location.state as {
     initialBuy?: boolean;
@@ -328,24 +327,11 @@ const Trade = () => {
               <MarketTimeline marketData={marketData} />
             </div>
             
-            {/* Mobile Orders Button - only visible on mobile */}
+            {/* Latest Orders - always visible on mobile, scrollable */}
             <div className="lg:hidden">
-              <button
-                onClick={() => setShowMobileOrders(!showMobileOrders)}
-                className="w-full bg-gradient-to-br from-zinc-900/95 to-zinc-950/95 backdrop-blur-sm border border-slate-600/40 hover:border-zinc-700/60 rounded-xl px-4 py-3 transition-all duration-300 flex items-center justify-between"
-              >
-                <span className="text-white font-medium">Latest Orders</span>
-                <span className="text-zinc-400 text-sm">
-                  {showMobileOrders ? 'Hide' : 'Show'}
-                </span>
-              </button>
-              
-              {/* Mobile Orders Collapsible */}
-              {showMobileOrders && (
-                <div className="mt-2 max-h-64 overflow-hidden">
-                  <LatestOrders marketId={marketId!} />
-                </div>
-              )}
+              <div className="max-h-64 overflow-hidden">
+                <LatestOrders marketId={marketId!} />
+              </div>
             </div>
           </div>
         </div>
