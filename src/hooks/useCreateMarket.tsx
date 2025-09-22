@@ -125,7 +125,10 @@ export function useCreateMarket() {
     endTime: number
   ) => {
     const factoryAddress = CONTRACT_ADDRESSES.factory || "";
+    console.log("Factory address:", factoryAddress);
     if (!factoryAddress) throw new Error("Factory not deployed on this chain");
+  const chainId = await publicClient?.getChainId()
+  console.log("Current chain ID:", chainId);
 
     setIsLoading(true);
     
@@ -136,6 +139,11 @@ export function useCreateMarket() {
       setMarketCreationHash(null);
 
       // Step 1: Get the market creation fee
+
+
+
+      console.log("Fetching market creation fee...",factoryAddress);
+
       const fee = await publicClient?.readContract({
         address: factoryAddress as Address,
         abi: FACTORY_ABI,

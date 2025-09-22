@@ -1672,3 +1672,4 @@ export const FP_MANAGER_ABI = [
 		"type": "function"
 	}
 ]
+  

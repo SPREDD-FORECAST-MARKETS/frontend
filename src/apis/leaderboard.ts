@@ -53,42 +53,68 @@ export interface DetailedMarketVolumeResponse {
   }>;
 }
 
+
+interface LeaderboardResponse {
+  week: number;
+  status: string;
+  startTime: string;
+  endTime: string;
+  rewardPool: string;
+  traders: WeeklyParticipant[];
+  creators: WeeklyParticipant[];
+}
+
+interface WeeklyParticipant {
+  walletAddress: string;
+  fpPoints: string;
+  rank: number;
+  isTopK: boolean;
+}
 export type PointType = 'TRADER' | 'CREATOR';
+
+const transformParticipantsToEntries = (
+  participants: WeeklyParticipant[],
+  pointType: PointType
+): LeaderboardEntry[] => {
+  return participants.map((participant, index) => ({
+    id: index + 1,
+    userID: index + 1,
+    user: {
+      id: index + 1,
+      username: `${participant.walletAddress.slice(0, 6)}...${participant.walletAddress.slice(-4)}`,
+      profile_pic: null,
+      wallet_address: participant.walletAddress,
+    },
+    points: parseInt(participant.fpPoints),
+    pointType: pointType,
+  }));
+};
 
 // API Functions
 
 /**
  * Get leaderboard by point type
  */
-export const fetchLeaderboard = async (
-  pointType: PointType,
-  limit: number = 10
-): Promise<[LeaderboardEntry[] | null, number]> => {
+export const fetchLeaderboard = async (pointType: PointType): Promise<[LeaderboardEntry[] | null, number]> => {
   try {
-    const response = await axios.get<LeaderboardEntry[]>(
-      `${import.meta.env.VITE_BACKEND_URL}/dashboard/leaderboard`,
-      {
-        params: {
-          pointType,
-          limit,
-        },
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': '*/*',
-        },
-      }
+    const response = await axios.get<LeaderboardResponse>(
+      `${import.meta.env.VITE_BACKEND_URL}/leaderboard/current`
     );
 
-    return [response.data, response.status];
+    console.log("==================",response.data.creators)
+
+    const participants = pointType === "CREATOR" ? response.data.creators : response.data.traders;
+    console.log("flsldfkndslfkndslfkdsnnflsd",participants)
+    const entries = transformParticipantsToEntries(participants, pointType);
+
+    return [entries, response.status];
   } catch (error: any) {
-    
     if (error.response?.status === 400) {
       throw new Error('Invalid point type or parameters');
     }
     if (error.response?.status === 500) {
       throw new Error('Server error while fetching leaderboard');
     }
-    
     return [null, error.response?.status || -1];
   }
 };

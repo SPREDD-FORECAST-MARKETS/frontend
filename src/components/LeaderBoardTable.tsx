@@ -35,7 +35,6 @@ const LeaderBoardTable = () => {
 
   const getLeaderboard = async (
     pointType: PointType,
-    limit?: number,
     isRefresh = false
   ) => {
     // Only show loading state on initial load or point type change, not on refresh
@@ -45,7 +44,7 @@ const LeaderBoardTable = () => {
     setError(null);
 
     try {
-      const [data, status] = await fetchLeaderboard(pointType, limit);
+      const [data, status] = await fetchLeaderboard(pointType);
       if (status === 200 && data) {
         setLeaderboardUsers(data);
         if (isInitialLoad) {
@@ -69,14 +68,13 @@ const LeaderBoardTable = () => {
   const handlePointTypeChange = (pointType: PointType) => {
     setLeaderboardPointType(pointType);
     setShowAll(false); // Reset to show limited results when switching
-    getLeaderboard(pointType, showAll ? undefined : 20, false); // Not a refresh, show loading
+    getLeaderboard(pointType); // Not a refresh, show loading
   };
 
   useEffect(() => {
-    const limit = showAll ? undefined : 20;
-    getLeaderboard(leaderboardPointType, limit, false); // Initial load
+    getLeaderboard(leaderboardPointType); // Initial load
     const interval = setInterval(() => {
-      getLeaderboard(leaderboardPointType, limit, true); // This is a refresh
+      getLeaderboard(leaderboardPointType); // This is a refresh
     }, 30000); // Refresh every 30 seconds
     return () => clearInterval(interval);
   }, [leaderboardPointType, showAll]);

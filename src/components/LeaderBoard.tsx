@@ -16,12 +16,12 @@ const LeaderBoard = () => {
   const [isInitialLoad, setIsInitialLoad] = useState(true);
 
   console.log("==================",leaderboardUsers)
-  const getLeaderboard = async (pointType: PointType, limit?: number, isRefresh = false) => {
+  const getLeaderboard = async (pointType: PointType, isRefresh = false) => {
     if (!isRefresh) setLoading(true);
     setError(null);
 
     try {
-      const [data, status] = await fetchLeaderboard(pointType, limit);
+      const [data, status] = await fetchLeaderboard(pointType);
       if (status === 200 && data) {
         setLeaderboardUsers(data);
         if (isInitialLoad) setIsInitialLoad(false);
@@ -40,14 +40,14 @@ const LeaderBoard = () => {
 
   const handlePointTypeChange = (pointType: PointType) => {
     setLeaderboardPointType(pointType);
-    getLeaderboard(pointType, 10, false);
+    getLeaderboard(pointType);
   };
 
   useEffect(() => {
-    getLeaderboard(leaderboardPointType, 10, false);
+    getLeaderboard(leaderboardPointType);
     
     const interval = setInterval(() => {
-      getLeaderboard(leaderboardPointType, 10, true);
+      getLeaderboard(leaderboardPointType);
     }, 10000);
     return () => clearInterval(interval);
   }, [leaderboardPointType]);

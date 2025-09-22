@@ -144,6 +144,19 @@ export const MARKET_ABI = [
 		"anonymous": false,
 		"inputs": [
 			{
+				"indexed": true,
+				"internalType": "bytes32",
+				"name": "marketId",
+				"type": "bytes32"
+			}
+		],
+		"name": "MarketInvalidated",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
 				"indexed": false,
 				"internalType": "enum SpreddMarket.MarketOutcome",
 				"name": "outcome",
@@ -170,6 +183,25 @@ export const MARKET_ABI = [
 			}
 		],
 		"name": "OwnerUpdated",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "user",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "refundAmount",
+				"type": "uint256"
+			}
+		],
+		"name": "RefundClaimed",
 		"type": "event"
 	},
 	{
@@ -584,6 +616,13 @@ export const MARKET_ABI = [
 		"type": "function"
 	},
 	{
+		"inputs": [],
+		"name": "invalidateMarket",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
 		"inputs": [
 			{
 				"internalType": "address",
@@ -848,3 +887,4 @@ export const MARKET_ABI = [
 		"type": "function"
 	}
 ]
+  

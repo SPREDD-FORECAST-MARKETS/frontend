@@ -6,8 +6,6 @@ import { createMarket } from "../apis/market";
 import { getAccessToken } from "@privy-io/react-auth";
 import { useCreateMarket } from "../hooks/useCreateMarket";
 import React from "react";
-import { useSwitchChain } from "wagmi";
-import { base } from "viem/chains";
 import type { FormData } from "../lib/interface";
 import { UTCTimeHelpers } from "../utils/helpers";
 import AppleTimePicker from "./AppleTimePicker";
@@ -74,7 +72,6 @@ const CreatePredictionForm = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
 
-  const { switchChain } = useSwitchChain();
   const { createMarket: createSmartContractMarket, marketAddress: hookMarketAddress, marketId: hookMarketId } =
     useCreateMarket();
 
@@ -175,7 +172,7 @@ const CreatePredictionForm = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    await switchChain({ chainId: base.id });
+    // await switchChain({ chainId: base.id });
 
     if (isSubmitting) return;
     setIsSubmitting(true);
