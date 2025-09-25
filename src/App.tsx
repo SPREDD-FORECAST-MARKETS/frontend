@@ -22,6 +22,7 @@ import Waitlist from "./pages/Waitlist";
 import ScrollToTop from "./utils/scrolltop";
 import { MiniAppProvider } from '@neynar/react';
 import { sdk } from '@farcaster/miniapp-sdk';
+import ShareRedirect from "./components/ShareRedirect";
 
 const queryClient = new QueryClient();
 
@@ -200,6 +201,27 @@ function AppContent() {
                 <>
                   <Navbar />
                   <Waitlist />
+                </>
+              }
+            />
+            {/* Share redirect routes */}
+            <Route
+              path="/s/:marketId"
+              element={
+                <>
+                  <Navbar />
+                  <ShareRedirect />
+                  <Footer />
+                </>
+              }
+            />
+            <Route
+              path="/share/:marketId"
+              element={
+                <>
+                  <Navbar />
+                  <ShareRedirect />
+                  <Footer />
                 </>
               }
             />

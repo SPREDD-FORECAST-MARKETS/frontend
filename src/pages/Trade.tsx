@@ -106,7 +106,8 @@ const Trade = () => {
   const handleShareOnX = () => {
     if (!marketData) return;
     const marketTitle = marketData.question || 'Untitled Market';
-    const marketUrl = `https://spredd.markets/trade/${marketData.id}`;
+    // Use clean short share URL - this will need to be handled by a proxy/CDN
+    const marketUrl = `https://spredd.markets/s/${marketData.id}`;
     const tweetText = `${marketTitle}\n\n${marketUrl}\n\n@spreddai`;
     
     // Detect if user is on mobile device
